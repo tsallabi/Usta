@@ -37,6 +37,8 @@ const gradientMap: Record<ServiceCategory["gradient"], string> = {
   slate: "linear-gradient(140deg, #4A5C6E, #2E3D4F)",
   ochre: "linear-gradient(140deg, #C99A3E, #A67824)",
   sky: "linear-gradient(140deg, #3B7EA1, #256380)",
+  walnut: "linear-gradient(140deg, #8B5E34, #66421F)",
+  iron: "linear-gradient(140deg, #3E4A52, #232D33)",
 };
 
 const confidenceLabels: Record<Estimate["confidence"], string> = {
@@ -848,6 +850,19 @@ function IconPath({ icon }: { icon: ServiceCategory["icon"] }) {
           strokeWidth={1.5}
           strokeLinejoin="round"
         />
+      </>
+    ),
+    saw: (
+      <path
+        d="M14 2 L22 10 L12 20 L10 18 L12 16 L10 14 L12 12 L10 10 L12 8 L10 6 Z M8 14 L2 20 a1.5 1.5 0 0 0 2 2 L10 16 Z"
+        fill="currentColor"
+      />
+    ),
+    hammer: (
+      <>
+        <path d="M12 3 L21 12 L18 15 L9 6 Z" fill="currentColor" />
+        <path d="M10 8 L3 15 L6 18 L13 11 Z" fill="currentColor" opacity={0.85} />
+        <path d="M4.5 16.5 L2 19 a1.5 1.5 0 0 0 2 2 L6.5 18.5 Z" fill="currentColor" />
       </>
     ),
     send: (

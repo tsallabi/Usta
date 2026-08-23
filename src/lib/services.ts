@@ -23,7 +23,9 @@ export type ServiceCategory = {
     | "rose"
     | "slate"
     | "ochre"
-    | "sky";
+    | "sky"
+    | "walnut"
+    | "iron";
   icon:
     | "bolt"
     | "wrench"
@@ -33,7 +35,9 @@ export type ServiceCategory = {
     | "leaf"
     | "truck"
     | "box"
-    | "send";
+    | "send"
+    | "saw"
+    | "hammer";
   fallbackRange: { min: number; max: number };
   /** سطر أجواء الخدمة تحت العنوان في خطوة الوصف — كل خدمة بلسانها. */
   describeHint: string;
@@ -129,6 +133,28 @@ export const services: ServiceCategory[] = [
     describeHint: "شن القطعة اللي تبي تركيبها؟ وجاية مفككة في كراتين؟",
     placeholder:
       "مثال: غرفة نوم جديدة وصلت مفككة — سرير ودولاب 6 أبواب وتسريحة، نبو حد يركبها.",
+  },
+  {
+    slug: "carpenter",
+    name: "نجّار",
+    description: "أبواب، كوشينات، دواليب، تصليحات خشب",
+    gradient: "walnut",
+    icon: "saw",
+    fallbackRange: { min: 50, max: 400 },
+    describeHint: "شن شغل النجارة؟ باب، كوشينة، دولاب، وإلا تصليح؟",
+    placeholder:
+      "مثال: باب غرفة النوم نشب وما عادش يسكّر مليح، ونبو رف جديد في الكوشينة فوق الفرن.",
+  },
+  {
+    slug: "blacksmith",
+    name: "حدّاد",
+    description: "أبواب حديد، شبابيك، بوابات، سياج، لحام",
+    gradient: "iron",
+    icon: "hammer",
+    fallbackRange: { min: 80, max: 600 },
+    describeHint: "شغل جديد وإلا تصليح؟ والقياسات تقريباً شن هي؟",
+    placeholder:
+      "مثال: نبو باب حوش حديد بقياس 3 متر مع بوابة صغيرة للمشاة، والشباك القديم صدّى ويحتاج لحام.",
   },
   {
     slug: "delivery",
