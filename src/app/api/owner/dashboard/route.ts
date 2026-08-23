@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDb, getKv, getEnvVar } from "@/lib/db";
 import { requireOwner } from "@/lib/owner";
+import { commissionPct } from "@/lib/commission";
 
 export const runtime = "edge";
 
@@ -111,6 +112,7 @@ export async function GET(request: Request) {
       {
         ok: true,
         dbBound: false,
+        commissionPct: commissionPct(),
         health,
         waitlist,
         jobs: [],
@@ -202,6 +204,7 @@ export async function GET(request: Request) {
       {
         ok: true,
         dbBound: true,
+        commissionPct: commissionPct(),
         health,
         waitlist,
         jobs: jobs.results ?? [],

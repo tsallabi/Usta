@@ -29,6 +29,7 @@ type TradesmanRow = {
   city: string;
   verified_at: string | null;
   suspended_at: string | null;
+  featured_at: string | null;
   created_at: string;
   accepted_count: number;
 };
@@ -46,6 +47,23 @@ export async function GET(request: Request) {
   }
 
   try {
+    // featured_at من ميغريشن 0004 — لو مش مطبّقة بعد نرجع بدونها.
+    async function loadTradesmen() {
+      const withFeatured = `SELECT t.id, t.whatsapp, t.full_name, t.trade, t.city,
+                t.verified_at, t.suspended_at, t.featured_at, t.created_at,
+                (SELECT COUNT(*) FROM offers o WHERE o.tradesman_id = t.id AND o.status = 'accepted') AS accepted_count
+           FROM tradesmen t
+          ORDER BY t.created_at DESC
+          LIMIT 500`;
+      try {
+        return await db!.prepare(withFeatured).all<TradesmanRow>();
+      } catch {
+        return await db!
+          .prepare(withFeatured.replace("t.featured_at,", "NULL AS featured_at,"))
+          .all<TradesmanRow>();
+      }
+    }
+
     const [users, tradesmen] = await Promise.all([
       db
         .prepare(
@@ -56,16 +74,7 @@ export async function GET(request: Request) {
             LIMIT 500`
         )
         .all<UserRow>(),
-      db
-        .prepare(
-          `SELECT t.id, t.whatsapp, t.full_name, t.trade, t.city,
-                  t.verified_at, t.suspended_at, t.created_at,
-                  (SELECT COUNT(*) FROM offers o WHERE o.tradesman_id = t.id AND o.status = 'accepted') AS accepted_count
-             FROM tradesmen t
-            ORDER BY t.created_at DESC
-            LIMIT 500`
-        )
-        .all<TradesmanRow>(),
+      loadTradesmen(),
     ]);
 
     return NextResponse.json(

@@ -35,8 +35,20 @@ type TradesmanRow = {
   city: string;
   verified_at: string | null;
   suspended_at: string | null;
+  featured_at: string | null;
   created_at: string;
   accepted_count: number;
+};
+
+type DueRow = {
+  tradesmanId: string;
+  name: string;
+  whatsapp: string;
+  trade: string;
+  realized: number;
+  commission: number;
+  paid: number;
+  due: number;
 };
 
 type Profits = {
@@ -98,6 +110,7 @@ type RatingRow = {
 type DayRow = { d: string; n: number };
 
 type Dashboard = {
+  commissionPct?: number;
   health: Record<string, boolean>;
   waitlist: {
     phone: string;
@@ -162,9 +175,12 @@ export function OwnerConsole() {
   const [tradesmen, setTradesmen] = useState<TradesmanRow[]>([]);
   const [profits, setProfits] = useState<Profits | null>(null);
   const [dash, setDash] = useState<Dashboard | null>(null);
+  const [dues, setDues] = useState<DueRow[]>([]);
+  const [settlementsReady, setSettlementsReady] = useState(true);
   const [dbBound, setDbBound] = useState(true);
   const [loading, setLoading] = useState(false);
   const [busyPhone, setBusyPhone] = useState<string | null>(null);
+  const [busyAction, setBusyAction] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
@@ -185,10 +201,11 @@ export function OwnerConsole() {
     setLoading(true);
     setActionError(null);
     try {
-      const [accountsRes, profitsRes, dashRes] = await Promise.all([
+      const [accountsRes, profitsRes, dashRes, duesRes] = await Promise.all([
         authedFetch("/api/owner/accounts"),
         authedFetch("/api/owner/profits"),
         authedFetch("/api/owner/dashboard"),
+        authedFetch("/api/owner/settlements"),
       ]);
       const accounts = (await accountsRes.json()) as {
         ok: boolean;
@@ -211,6 +228,15 @@ export function OwnerConsole() {
       }
       if (prof.ok && prof.dbBound !== false) setProfits(prof);
       if (d.ok) setDash(d);
+      const duesData = (await duesRes.json()) as {
+        ok: boolean;
+        rows?: DueRow[];
+        settlementsReady?: boolean;
+      };
+      if (duesData.ok) {
+        setDues(duesData.rows ?? []);
+        setSettlementsReady(duesData.settlementsReady !== false);
+      }
     } finally {
       setLoading(false);
     }
@@ -248,6 +274,84 @@ export function OwnerConsole() {
       setAuthError("تعذّر الاتصال — جرّب مرة ثانية.");
     } finally {
       setChecking(false);
+    }
+  }
+
+  async function tradesmanAction(id: string, action: string) {
+    setBusyAction(`${id}:${action}`);
+    setActionError(null);
+    try {
+      const res = await authedFetch(`/api/owner/tradesmen/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ action }),
+      });
+      const data = (await res.json()) as { ok: boolean; error?: string };
+      if (!res.ok || !data.ok) {
+        setActionError(data.error ?? "فشل التحديث.");
+      } else {
+        await loadAll();
+      }
+    } catch {
+      setActionError("تعذّر الاتصال — جرّب مرة ثانية.");
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function deleteTradesman(id: string, name: string) {
+    if (
+      !window.confirm(
+        `حذف «${name}» نهائياً؟ عروضه كلها بتنحذف معاه — القرار ما يترجعش.`
+      )
+    )
+      return;
+    setBusyAction(`${id}:delete`);
+    setActionError(null);
+    try {
+      const res = await authedFetch(`/api/owner/tradesmen/${id}`, {
+        method: "DELETE",
+      });
+      const data = (await res.json()) as { ok: boolean; error?: string };
+      if (!res.ok || !data.ok) {
+        setActionError(data.error ?? "فشل الحذف.");
+      } else {
+        await loadAll();
+      }
+    } catch {
+      setActionError("تعذّر الاتصال — جرّب مرة ثانية.");
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function recordSettlement(row: DueRow) {
+    const raw = window.prompt(
+      `سجّل دفعة عمولة من ${row.name}\nالمستحق عليه: ${row.due} د.ل\n\nأدخل المبلغ المستلم بالدينار:`,
+      String(row.due || "")
+    );
+    if (!raw) return;
+    const amount = Math.round(Number(raw));
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setActionError("أدخل مبلغاً صحيحاً بالدينار.");
+      return;
+    }
+    setBusyAction(`${row.tradesmanId}:settle`);
+    setActionError(null);
+    try {
+      const res = await authedFetch("/api/owner/settlements", {
+        method: "POST",
+        body: JSON.stringify({ tradesmanId: row.tradesmanId, amountLyd: amount }),
+      });
+      const data = (await res.json()) as { ok: boolean; error?: string };
+      if (!res.ok || !data.ok) {
+        setActionError(data.error ?? "فشل تسجيل الدفعة.");
+      } else {
+        await loadAll();
+      }
+    } catch {
+      setActionError("تعذّر الاتصال — جرّب مرة ثانية.");
+    } finally {
+      setBusyAction(null);
     }
   }
 
@@ -456,39 +560,132 @@ export function OwnerConsole() {
                     <th style={th}>الواتساب</th>
                     <th style={th}>الحالة</th>
                     <th style={th}>شغلات</th>
-                    <th style={th}>دخول</th>
+                    <th style={th}>إدارة</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredTradesmen.map((t) => (
-                    <tr key={t.id}>
-                      <td style={td}>{t.full_name}</td>
-                      <td style={td}>{findService(t.trade)?.name ?? t.trade}</td>
-                      <td style={td}>{t.city}</td>
-                      <td style={{ ...td, direction: "ltr" }} className="mono">
-                        {t.whatsapp}
-                      </td>
-                      <td style={td}>
-                        {t.suspended_at
-                          ? "موقوف"
-                          : t.verified_at
-                            ? "موثّق ✓"
-                            : "قيد المراجعة"}
-                      </td>
-                      <td style={td} className="serif">
-                        {t.accepted_count}
-                      </td>
-                      <td style={td}>
-                        <button
-                          onClick={() => void impersonate(t.whatsapp, "/work")}
-                          disabled={busyPhone !== null}
-                          style={smallBtn}
+                  {filteredTradesmen.map((t) => {
+                    const busy = busyAction?.startsWith(`${t.id}:`) ?? false;
+                    return (
+                      <tr key={t.id}>
+                        <td style={td}>
+                          {t.featured_at ? "⭐ " : ""}
+                          {t.full_name}
+                        </td>
+                        <td style={td}>
+                          {findService(t.trade)?.name ?? t.trade}
+                        </td>
+                        <td style={td}>{t.city}</td>
+                        <td
+                          style={{ ...td, direction: "ltr" }}
+                          className="mono"
                         >
-                          {busyPhone === t.whatsapp ? "…" : "ادخل كأسطى ←"}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                          {t.whatsapp}
+                        </td>
+                        <td style={td}>
+                          {t.suspended_at
+                            ? "موقوف"
+                            : t.verified_at
+                              ? "موثّق ✓"
+                              : "قيد المراجعة"}
+                        </td>
+                        <td style={td} className="serif">
+                          {t.accepted_count}
+                        </td>
+                        <td style={td}>
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "6px",
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <button
+                              onClick={() =>
+                                void impersonate(t.whatsapp, "/work")
+                              }
+                              disabled={busyPhone !== null || busy}
+                              style={smallBtn}
+                            >
+                              {busyPhone === t.whatsapp ? "…" : "ادخل ←"}
+                            </button>
+                            {t.verified_at ? (
+                              <button
+                                onClick={() =>
+                                  void tradesmanAction(t.id, "unverify")
+                                }
+                                disabled={busy}
+                                style={smallBtn}
+                              >
+                                إلغاء التوثيق
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() =>
+                                  void tradesmanAction(t.id, "verify")
+                                }
+                                disabled={busy}
+                                style={smallBtn}
+                              >
+                                ✓ وثّق
+                              </button>
+                            )}
+                            {t.suspended_at ? (
+                              <button
+                                onClick={() =>
+                                  void tradesmanAction(t.id, "unsuspend")
+                                }
+                                disabled={busy}
+                                style={smallBtn}
+                              >
+                                فعّل
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() =>
+                                  void tradesmanAction(t.id, "suspend")
+                                }
+                                disabled={busy}
+                                style={warnBtn}
+                              >
+                                أوقف
+                              </button>
+                            )}
+                            {t.featured_at ? (
+                              <button
+                                onClick={() =>
+                                  void tradesmanAction(t.id, "unfeature")
+                                }
+                                disabled={busy}
+                                style={smallBtn}
+                              >
+                                إلغاء ⭐
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() =>
+                                  void tradesmanAction(t.id, "feature")
+                                }
+                                disabled={busy}
+                                style={smallBtn}
+                              >
+                                ⭐ رقّي
+                              </button>
+                            )}
+                            <button
+                              onClick={() =>
+                                void deleteTradesman(t.id, t.full_name)
+                              }
+                              disabled={busy}
+                              style={dangerBtn}
+                            >
+                              حذف
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -530,13 +727,24 @@ export function OwnerConsole() {
         </>
       ) : null}
 
-      {tab === "jobs" ? <JobsView jobs={dash?.jobs ?? []} /> : null}
+      {tab === "jobs" ? (
+        <JobsView jobs={dash?.jobs ?? []} pct={dash?.commissionPct ?? 10} />
+      ) : null}
       {tab === "offers" ? <OffersView offers={dash?.offers ?? []} /> : null}
       {tab === "ratings" ? (
         <RatingsView ratings={dash?.ratings ?? []} />
       ) : null}
       {tab === "growth" ? <GrowthView dash={dash} /> : null}
-      {tab === "profits" ? <ProfitsView profits={profits} /> : null}
+      {tab === "profits" ? (
+        <ProfitsView
+          profits={profits}
+          pct={dash?.commissionPct ?? 10}
+          dues={dues}
+          settlementsReady={settlementsReady}
+          onSettle={recordSettlement}
+          busyAction={busyAction}
+        />
+      ) : null}
       {tab === "system" ? <SystemView dash={dash} /> : null}
     </div>
   );
@@ -647,7 +855,7 @@ function OverviewView({
 
 /* ─── الطلبات ─────────────────────────────────────────── */
 
-function JobsView({ jobs }: { jobs: JobRow[] }) {
+function JobsView({ jobs, pct }: { jobs: JobRow[]; pct: number }) {
   if (jobs.length === 0) return <Empty note="ما فيش طلبات بعد." />;
   return (
     <div style={{ overflowX: "auto" }}>
@@ -660,6 +868,7 @@ function JobsView({ jobs }: { jobs: JobRow[] }) {
             <th style={th}>التقدير</th>
             <th style={th}>عروض</th>
             <th style={th}>سعر مقبول</th>
+            <th style={th}>عمولة ({pct}%)</th>
             <th style={th}>الحالة</th>
             <th style={th}>التاريخ</th>
           </tr>
@@ -680,6 +889,14 @@ function JobsView({ jobs }: { jobs: JobRow[] }) {
               </td>
               <td style={td} className="serif">
                 {j.accepted_price != null ? `${j.accepted_price} د.ل` : "—"}
+              </td>
+              <td
+                style={{ ...td, color: "var(--brand-2, #0B7F58)" }}
+                className="serif"
+              >
+                {j.accepted_price != null
+                  ? `${Math.round((j.accepted_price * pct) / 100)} د.ل`
+                  : "—"}
               </td>
               <td style={td}>{jobStatusLabels[j.status] ?? j.status}</td>
               <td style={td}>{j.created_at.slice(0, 10)}</td>
@@ -956,15 +1173,30 @@ function DaySeries({ title, rows }: { title: string; rows: DayRow[] }) {
 
 /* ─── الأرباح ─────────────────────────────────────────── */
 
-function ProfitsView({ profits }: { profits: Profits | null }) {
+function ProfitsView({
+  profits,
+  pct,
+  dues,
+  settlementsReady,
+  onSettle,
+  busyAction,
+}: {
+  profits: Profits | null;
+  pct: number;
+  dues: DueRow[];
+  settlementsReady: boolean;
+  onSettle: (row: DueRow) => void;
+  busyAction: string | null;
+}) {
   if (!profits) return <Empty note="ما فيش بيانات أرباح بعد." />;
   const { jobs, offers, gmv, people, services } = profits;
   const acceptRate =
     offers.total > 0 ? Math.round((offers.accepted / offers.total) * 100) : 0;
+  const totalDue = dues.reduce((a, r) => a + r.due, 0);
 
   return (
     <div>
-      <Note text="قبل تفعيل الدفع الإلكتروني، الأرقام هنا هي قيمة الشغل اللي مرّ عبر المنصة (GMV) وسيناريوهات العمولة عليه — هذي الصفحة للمالك فقط." />
+      <Note text="الدفع الحالي كاش من الزبون للأسطى مباشرة، والأسطى يسدّد عمولة المنصة دورياً (تحويل/موبي كاش/كاش) — سجّلها هنا. بوابة الدفع الليبية بتتوصل بنفس هذي الأرقام." />
       <div
         style={{
           display: "grid",
@@ -973,6 +1205,8 @@ function ProfitsView({ profits }: { profits: Profits | null }) {
           marginBottom: "32px",
         }}
       >
+        <Kpi label={`عمولة المنصة (${pct}%)`} value={`${Math.round((gmv.realized * pct) / 100)} د.ل`} accent />
+        <Kpi label="مستحق للتحصيل" value={`${totalDue} د.ل`} />
         <Kpi label="قيمة العروض المقبولة" value={`${gmv.accepted} د.ل`} />
         <Kpi label="المحقّق (شغل مكتمل)" value={`${gmv.realized} د.ل`} accent />
         <Kpi label="آخر 30 يوم" value={`${gmv.accepted30d} د.ل`} />
@@ -985,6 +1219,71 @@ function ProfitsView({ profits }: { profits: Profits | null }) {
           value={`${people.tradesmen} (${people.tradesmenVerified})`}
         />
       </div>
+
+      <SectionTitle label={`المستحقات — عمولة ${pct}% على الشغل المكتمل`} />
+      {!settlementsReady ? (
+        <Note
+          tone="coral"
+          text="جدول التسديدات غير مطبَّق بعد — انسخ محتوى migrations/0004_owner_tools.sql في D1 Console حتى يشتغل زر «سجّل دفعة»."
+        />
+      ) : null}
+      {dues.length === 0 ? (
+        <Empty note="ما فيش مستحقات بعد — بتظهر أول ما يكتمل شغل بعرض مقبول." />
+      ) : (
+        <div style={{ overflowX: "auto", marginBottom: "36px" }}>
+          <table style={tableStyle}>
+            <thead>
+              <tr>
+                <th style={th}>الأسطى</th>
+                <th style={th}>المهنة</th>
+                <th style={th}>شغل محقّق</th>
+                <th style={th}>العمولة</th>
+                <th style={th}>مسدَّد</th>
+                <th style={th}>المستحق</th>
+                <th style={th}>تسديد</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dues.map((r) => (
+                <tr key={r.tradesmanId}>
+                  <td style={td}>{r.name}</td>
+                  <td style={td}>{findService(r.trade)?.name ?? r.trade}</td>
+                  <td style={td} className="serif">
+                    {r.realized} د.ل
+                  </td>
+                  <td style={td} className="serif">
+                    {r.commission} د.ل
+                  </td>
+                  <td style={td} className="serif">
+                    {r.paid} د.ل
+                  </td>
+                  <td
+                    style={{
+                      ...td,
+                      fontWeight: 700,
+                      color: r.due > 0 ? "#B23F4E" : "var(--brand-2, #0B7F58)",
+                    }}
+                    className="serif"
+                  >
+                    {r.due} د.ل
+                  </td>
+                  <td style={td}>
+                    <button
+                      onClick={() => onSettle(r)}
+                      disabled={busyAction !== null}
+                      style={smallBtn}
+                    >
+                      {busyAction === `${r.tradesmanId}:settle`
+                        ? "…"
+                        : "سجّل دفعة"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <SectionTitle label="سيناريوهات العمولة" />
       <div style={{ overflowX: "auto", marginBottom: "36px" }}>
@@ -1292,6 +1591,30 @@ const ghostBtn: React.CSSProperties = {
   fontSize: "13px",
   cursor: "pointer",
   fontFamily: "inherit",
+};
+
+const warnBtn: React.CSSProperties = {
+  padding: "7px 14px",
+  borderRadius: "999px",
+  border: "1px solid #B8860B",
+  background: "transparent",
+  color: "#8A6210",
+  fontSize: "12.5px",
+  cursor: "pointer",
+  fontFamily: "inherit",
+  whiteSpace: "nowrap",
+};
+
+const dangerBtn: React.CSSProperties = {
+  padding: "7px 14px",
+  borderRadius: "999px",
+  border: "1px solid #B23F4E",
+  background: "transparent",
+  color: "#B23F4E",
+  fontSize: "12.5px",
+  cursor: "pointer",
+  fontFamily: "inherit",
+  whiteSpace: "nowrap",
 };
 
 const smallBtn: React.CSSProperties = {

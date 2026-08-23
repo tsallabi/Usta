@@ -58,9 +58,10 @@ export async function GET(request: Request) {
   }
 
   try {
-    const { results } = await db
-      .prepare(
-        `SELECT t.id, t.full_name, t.trade, t.city, t.service_area,
+    // الأسطى المميز (ترقية المالك — ميغريشن 0004) يتصدّر الدليل.
+    // لو العمود مش موجود بعد، نرجع للترتيب العادي بدون كسر.
+    const baseSql = (featuredKey: string) =>
+      `SELECT t.id, t.full_name, t.trade, t.city, t.service_area,
                 t.years_experience, t.created_at,
                 (SELECT COUNT(*) FROM offers o
                   WHERE o.tradesman_id = t.id AND o.status = 'accepted')
@@ -69,14 +70,25 @@ export async function GET(request: Request) {
                 ${ratingsCountSql("t.id")} AS ratings_count
            FROM tradesmen t
           WHERE ${conditions.join(" AND ")}
-          ORDER BY avg_rating IS NULL, avg_rating DESC,
+          ORDER BY ${featuredKey}avg_rating IS NULL, avg_rating DESC,
                    accepted_count DESC,
                    t.years_experience DESC,
                    t.created_at ASC
-          LIMIT 100`
-      )
-      .bind(...binds)
-      .all<UstaRow>();
+          LIMIT 100`;
+
+    let results: UstaRow[] | undefined;
+    try {
+      results = (
+        await db
+          .prepare(baseSql("t.featured_at IS NULL, "))
+          .bind(...binds)
+          .all<UstaRow>()
+      ).results;
+    } catch {
+      results = (
+        await db.prepare(baseSql("")).bind(...binds).all<UstaRow>()
+      ).results;
+    }
 
     return NextResponse.json(
       { ok: true, dbBound: true, ustas: results ?? [] },
