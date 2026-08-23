@@ -9,7 +9,7 @@
  * وفي صفحة الهبوط الثابتة.
  */
 
-export function BrandMark({ size = 30 }: { size?: number }) {
+export function BrandMark({ size = 46 }: { size?: number }) {
   return (
     <svg
       width={size}

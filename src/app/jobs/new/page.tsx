@@ -91,7 +91,7 @@ export default function NewJobPage({
             <BrandMark />
             <span
               className="serif"
-              style={{ fontSize: "20px", letterSpacing: "-0.01em" }}
+              style={{ fontSize: "28px", letterSpacing: "-0.01em" }}
             >
               توّا
             </span>
