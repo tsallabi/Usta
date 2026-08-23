@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { EstimateWizard } from "@/components/EstimateWizard";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { BrandMark } from "@/components/BrandMark";
 
 // This page reads searchParams (service preselect from the account tiles),
 // which makes it dynamic — it must run on the edge for
@@ -11,7 +12,7 @@ export const runtime = "edge";
 export const metadata: Metadata = {
   title: "جرّب الذكاء الاصطناعي · تقدير سعر عادل في 30 ثانية",
   description:
-    "صف الشغل اللي تحتاجه واحصل على نطاق سعر عادل للسوق الليبي من ذكاء أسطى الاصطناعي. بدون تسجيل. بدون التزام.",
+    "صف الشغل اللي تحتاجه واحصل على نطاق سعر عادل للسوق الليبي من ذكاء توّا الاصطناعي. بدون تسجيل. بدون التزام.",
 };
 
 type SearchParams = {
@@ -72,14 +73,14 @@ export default function EstimatePage({
               textDecoration: "none",
               color: "inherit",
             }}
-            aria-label="أسطى — الرئيسية"
+            aria-label="توّا — الرئيسية"
           >
-            <span className="brand-mark" aria-hidden="true" />
+            <BrandMark />
             <span
               className="serif"
               style={{ fontSize: "20px", letterSpacing: "-0.01em" }}
             >
-              أسطى
+              توّا
             </span>
           </Link>
           <ThemeToggle />
@@ -155,7 +156,7 @@ export default function EstimatePage({
               letterSpacing: "0.08em",
             }}
           >
-            © 2026 أسطى · طرابلس
+            © 2026 توّا · طرابلس
           </span>
           <Link
             href="/"

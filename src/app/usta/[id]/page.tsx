@@ -6,6 +6,7 @@ import { getDb } from "@/lib/db";
 import { findService } from "@/lib/services";
 import { avgRatingSql, ratingsCountSql } from "@/lib/rating";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { BrandMark } from "@/components/BrandMark";
 import {
   gradientById,
   initialsOf,
@@ -76,7 +77,7 @@ export async function generateMetadata({
   const trade = findService(usta.trade);
   return {
     title: usta.full_name,
-    description: `${usta.full_name} — ${trade?.name ?? usta.trade} موثّق في ${usta.city} على أسطى. انشر طلبك ويوصلك عرضه داخل المنصة.`,
+    description: `${usta.full_name} — ${trade?.name ?? usta.trade} موثّق في ${usta.city} على توّا. انشر طلبك ويوصلك عرضه داخل المنصة.`,
     robots: { index: true, follow: true },
   };
 }
@@ -149,14 +150,14 @@ export default async function UstaProfilePage({
               textDecoration: "none",
               color: "inherit",
             }}
-            aria-label="أسطى — الرئيسية"
+            aria-label="توّا — الرئيسية"
           >
-            <span className="brand-mark" aria-hidden="true" />
+            <BrandMark />
             <span
               className="serif"
               style={{ fontSize: "20px", letterSpacing: "-0.01em" }}
             >
-              أسطى
+              توّا
             </span>
           </Link>
           <ThemeToggle />
@@ -435,7 +436,7 @@ export default async function UstaProfilePage({
               letterSpacing: "0.08em",
             }}
           >
-            © 2026 أسطى · طرابلس
+            © 2026 توّا · طرابلس
           </span>
           <Link
             href="/ustas"

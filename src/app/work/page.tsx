@@ -2,9 +2,10 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { WorkBoard } from "@/components/WorkBoard";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { BrandMark } from "@/components/BrandMark";
 
 export const metadata: Metadata = {
-  title: "سوق الشغل · أسطى",
+  title: "سوق الشغل · توّا",
   description: "طلبات مفتوحة في مهنتك — قدّم عرضك والزبون يختار.",
   robots: { index: false, follow: false },
 };
@@ -43,14 +44,14 @@ export default function WorkPage() {
               textDecoration: "none",
               color: "inherit",
             }}
-            aria-label="أسطى — الرئيسية"
+            aria-label="توّا — الرئيسية"
           >
-            <span className="brand-mark" aria-hidden="true" />
+            <BrandMark />
             <span
               className="serif"
               style={{ fontSize: "20px", letterSpacing: "-0.01em" }}
             >
-              أسطى
+              توّا
             </span>
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -133,7 +134,7 @@ export default function WorkPage() {
               letterSpacing: "0.08em",
             }}
           >
-            © 2026 أسطى · طرابلس
+            © 2026 توّا · طرابلس
           </span>
           <Link
             href="/"

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { JobPostForm } from "@/components/JobPostForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { BrandMark } from "@/components/BrandMark";
 
 // This page reads searchParams (the estimate → job handoff), which makes it
 // dynamic — it must run on the edge for @cloudflare/next-on-pages.
@@ -10,7 +11,7 @@ export const runtime = "edge";
 export const metadata: Metadata = {
   title: "انشر طلبك · الأسطوات الموثوقين يجوك",
   description:
-    "قولنا شن الشغل مرة وحدة، والأسطوات الموثوقين يجوك بعروض عادلة. مجاني في فترة إطلاق أسطى.",
+    "قولنا شن الشغل مرة وحدة، والأسطوات الموثوقين يجوك بعروض عادلة. مجاني في فترة إطلاق توّا.",
 };
 
 type SearchParams = {
@@ -85,14 +86,14 @@ export default function NewJobPage({
               textDecoration: "none",
               color: "inherit",
             }}
-            aria-label="أسطى — الرئيسية"
+            aria-label="توّا — الرئيسية"
           >
-            <span className="brand-mark" aria-hidden="true" />
+            <BrandMark />
             <span
               className="serif"
               style={{ fontSize: "20px", letterSpacing: "-0.01em" }}
             >
-              أسطى
+              توّا
             </span>
           </Link>
           <ThemeToggle />
@@ -169,7 +170,7 @@ export default function NewJobPage({
               letterSpacing: "0.08em",
             }}
           >
-            © 2026 أسطى · طرابلس
+            © 2026 توّا · طرابلس
           </span>
           <Link
             href="/"

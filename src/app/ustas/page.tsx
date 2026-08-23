@@ -2,11 +2,12 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { UstaDirectory } from "@/components/UstaDirectory";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { BrandMark } from "@/components/BrandMark";
 
 export const metadata: Metadata = {
   title: "دليل الأسطوات",
   description:
-    "دليل الأسطوات الموثّقين في أسطى — كهربائي، سبّاك، تكييف، دهان وأكثر. كلهم موثّقين ببطاقة الهوية، والتواصل داخل المنصة.",
+    "دليل الأسطوات الموثّقين في توّا — كهربائي، سبّاك، تكييف، دهان وأكثر. كلهم موثّقين ببطاقة الهوية، والتواصل داخل المنصة.",
 };
 
 export default function UstasPage() {
@@ -43,14 +44,14 @@ export default function UstasPage() {
               textDecoration: "none",
               color: "inherit",
             }}
-            aria-label="أسطى — الرئيسية"
+            aria-label="توّا — الرئيسية"
           >
-            <span className="brand-mark" aria-hidden="true" />
+            <BrandMark />
             <span
               className="serif"
               style={{ fontSize: "20px", letterSpacing: "-0.01em" }}
             >
-              أسطى
+              توّا
             </span>
           </Link>
           <ThemeToggle />
@@ -125,7 +126,7 @@ export default function UstasPage() {
               letterSpacing: "0.08em",
             }}
           >
-            © 2026 أسطى · طرابلس
+            © 2026 توّا · طرابلس
           </span>
           <Link
             href="/"

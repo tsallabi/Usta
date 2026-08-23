@@ -1,5 +1,5 @@
 /**
- * قوالب البريد الإلكتروني لأسطى (Usta).
+ * قوالب البريد الإلكتروني لتوّا (Tawwa).
  *
  * Each template returns { subject, html, text } ready to spread into
  * sendEmail / sendEmailSafe from @/lib/email.
@@ -99,7 +99,7 @@ function renderLayout(opts: LayoutOptions): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>أسطى</title>
+  <title>توّا</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: ${PAPER};" dir="rtl">
   <!-- Preheader: hidden preview text -->
@@ -115,7 +115,7 @@ function renderLayout(opts: LayoutOptions): string {
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" dir="rtl">
                 <tr>
                   <td width="28" height="28" bgcolor="${EMERALD}" style="width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, ${EMERALD} 0%, ${EMERALD_DEEP} 100%); font-size: 1px; line-height: 1px;">&nbsp;</td>
-                  <td style="padding-right: 10px; font-family: ${SERIF}; font-size: 19px; font-weight: bold; color: ${INK}; text-align: right;">أسطى</td>
+                  <td style="padding-right: 10px; font-family: ${SERIF}; font-size: 19px; font-weight: bold; color: ${INK}; text-align: right;">توّا</td>
                 </tr>
               </table>
             </td>
@@ -139,7 +139,7 @@ function renderLayout(opts: LayoutOptions): string {
           <!-- Footer -->
           <tr>
             <td style="padding: 24px 8px 0 8px; font-family: ${SANS}; font-size: 12px; line-height: 20px; color: ${INK_3}; text-align: center;" align="center">
-              &copy; 2026 أسطى &middot; طرابلس<br>
+              &copy; 2026 توّا &middot; طرابلس<br>
               وصلتك هذه الرسالة لأنك سجّلت في usta.pages.dev.
             </td>
           </tr>
@@ -168,7 +168,7 @@ function para(inner: string): string {
 
 const TEXT_FOOTER = `
 --
-(c) 2026 أسطى - طرابلس
+(c) 2026 توّا - طرابلس
 وصلتك هذه الرسالة لأنك سجّلت في usta.pages.dev.`;
 
 // ─── Waitlist welcome ───────────────────────────────────────────────
@@ -177,10 +177,10 @@ export function waitlistWelcomeEmail(
   opts: WaitlistWelcomeOptions
 ): EmailContent {
   if (opts.audience === "tradesman") {
-    const subject = "أسطى — تسجّلت في قائمة الأسطوات";
+    const subject = "توّا — تسجّلت في قائمة الأسطوات";
     const bodyHtml =
       para(
-        "منوّرين. أسطى مبني عشان الأسطى يحتفظ بأكثر من تعبه — <strong>بدون عمولات على الطلب، وبدون دفع مقابل كل عرض</strong>. الزبون يشوف سعر عادل من الذكاء الاصطناعي أولاً، والأسطوات الموثوقين ياخذوا طلبات حقيقية."
+        "منوّرين. توّا مبنية عشان الأسطى يحتفظ بأكثر من تعبه — <strong>بدون عمولات على الطلب، وبدون دفع مقابل كل عرض</strong>. الزبون يشوف سعر عادل من الذكاء الاصطناعي أولاً، والأسطوات الموثوقين ياخذوا طلبات حقيقية."
       ) +
       para(
         "قبل الإطلاق نوثّق بيانات كل أسطى يدوياً — بطاقة الهوية، رقم الواتساب، والخبرة — عشان علامة التوثيق جنب اسمك تعني شيء فعلاً."
@@ -188,10 +188,10 @@ export function waitlistWelcomeEmail(
       para(
         "بنتواصل معاك عشان تكمّل ملفك وتتوثّق قبل ما نفتح في مدينتك. ما عليك أي شيء ثاني توّا."
       ) +
-      para("نتكلمو قريب،<br>فريق أسطى");
+      para("نتكلمو قريب،<br>فريق توّا");
     const text = `منوّرين.
 
-أسطى مبني عشان الأسطى يحتفظ بأكثر من تعبه — بدون عمولات على الطلب،
+توّا مبنية عشان الأسطى يحتفظ بأكثر من تعبه — بدون عمولات على الطلب،
 وبدون دفع مقابل كل عرض. الزبون يشوف سعر عادل من الذكاء الاصطناعي
 أولاً، والأسطوات الموثوقين ياخذوا طلبات حقيقية.
 
@@ -202,7 +202,7 @@ export function waitlistWelcomeEmail(
 ما عليك أي شيء ثاني توّا.
 
 نتكلمو قريب،
-فريق أسطى
+فريق توّا
 ${TEXT_FOOTER}`;
     return {
       subject,
@@ -215,18 +215,18 @@ ${TEXT_FOOTER}`;
     };
   }
 
-  const subject = "تسجّلت في قائمة انتظار أسطى";
+  const subject = "تسجّلت في قائمة انتظار توّا";
   const bodyHtml =
     para(
-      "شكراً على تسجيلك. أسطى يوريك <strong>سعر عادل من الذكاء الاصطناعي أولاً</strong> — قبل ما أي حد يعطيك عرض — وبعدين الأسطوات الموثوقين يقدمولك عروضهم. بدون تخمين، وبدون استغلال."
+      "شكراً على تسجيلك. توّا توريك <strong>سعر عادل من الذكاء الاصطناعي أولاً</strong> — قبل ما أي حد يعطيك عرض — وبعدين الأسطوات الموثوقين يقدمولك عروضهم. بدون تخمين، وبدون استغلال."
     ) +
     para(
       "بنتواصل معاك مرة وحدة، أول ما نفتح في منطقتك. في هذي الأثناء، تقدر تجرّب التقدير الذكي توّا وتشوف شن المفروض يكلف شغلك فعلاً."
     ) +
-    para("نتكلمو قريب،<br>فريق أسطى");
+    para("نتكلمو قريب،<br>فريق توّا");
   const text = `شكراً على تسجيلك.
 
-أسطى يوريك سعر عادل من الذكاء الاصطناعي أولاً — قبل ما أي حد يعطيك
+توّا توريك سعر عادل من الذكاء الاصطناعي أولاً — قبل ما أي حد يعطيك
 عرض — وبعدين الأسطوات الموثوقين يقدمولك عروضهم. بدون تخمين، وبدون
 استغلال.
 
@@ -236,7 +236,7 @@ ${TEXT_FOOTER}`;
   ${SITE_URL}/estimate
 
 نتكلمو قريب،
-فريق أسطى
+فريق توّا
 ${TEXT_FOOTER}`;
   return {
     subject,
@@ -277,9 +277,9 @@ export function jobPostedEmail(opts: JobPostedOptions): EmailContent {
     ) +
     rangeHtml +
     para(
-      "<strong>شن بيصير توّا:</strong> الأسطوات الموثوقين بيردوا عليك أول ما يفتح أسطى في منطقتك. النشر مجاني في فترة الإطلاق — ما بتدفع أي شيء على هذا الطلب أبداً."
+      "<strong>شن بيصير توّا:</strong> الأسطوات الموثوقين بيردوا عليك أول ما تفتح توّا في منطقتك. النشر مجاني في فترة الإطلاق — ما بتدفع أي شيء على هذا الطلب أبداً."
     ) +
-    para("نتكلمو قريب،<br>فريق أسطى");
+    para("نتكلمو قريب،<br>فريق توّا");
 
   const text = `استلمنا طلب ${opts.service} متاعك.
 
@@ -288,12 +288,12 @@ export function jobPostedEmail(opts: JobPostedOptions): EmailContent {
 وصفك للشغل:
 «${opts.description}»
 ${rangeText}
-شن بيصير توّا: الأسطوات الموثوقين بيردوا عليك أول ما يفتح أسطى في
+شن بيصير توّا: الأسطوات الموثوقين بيردوا عليك أول ما تفتح توّا في
 منطقتك. النشر مجاني في فترة الإطلاق — ما بتدفع أي شيء على هذا
 الطلب أبداً.
 
 نتكلمو قريب،
-فريق أسطى
+فريق توّا
 ${TEXT_FOOTER}`;
 
   return {
@@ -322,12 +322,12 @@ export function tradesmanApplicationEmail(
     ) +
     para(refChip(opts.applicationId)) +
     para(
-      "نوثّق كل طلب يدوياً — <strong>بطاقة الهوية والخبرة والأعمال السابقة</strong> — هذا اللي يخلي علامة التوثيق في أسطى تسوى فعلاً. مافيش بوتات؛ إنسان حقيقي يراجع بياناتك."
+      "نوثّق كل طلب يدوياً — <strong>بطاقة الهوية والخبرة والأعمال السابقة</strong> — هذا اللي يخلي علامة التوثيق في توّا تسوى فعلاً. مافيش بوتات؛ إنسان حقيقي يراجع بياناتك."
     ) +
     para(
       "بنتواصل معاك على <strong>الواتساب خلال 48 ساعة</strong> بالنتيجة والخطوات الجاية."
     ) +
-    para("نتكلمو قريب،<br>فريق أسطى");
+    para("نتكلمو قريب،<br>فريق توّا");
 
   const text = `أهلاً ${firstName}،
 
@@ -336,13 +336,13 @@ export function tradesmanApplicationEmail(
 رقم المرجع: ${opts.applicationId}
 
 نوثّق كل طلب يدوياً — بطاقة الهوية والخبرة والأعمال السابقة — هذا
-اللي يخلي علامة التوثيق في أسطى تسوى فعلاً. مافيش بوتات؛ إنسان
+اللي يخلي علامة التوثيق في توّا تسوى فعلاً. مافيش بوتات؛ إنسان
 حقيقي يراجع بياناتك.
 
 بنتواصل معاك على الواتساب خلال 48 ساعة بالنتيجة والخطوات الجاية.
 
 نتكلمو قريب،
-فريق أسطى
+فريق توّا
 ${TEXT_FOOTER}`;
 
   return {

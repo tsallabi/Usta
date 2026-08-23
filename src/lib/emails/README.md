@@ -1,6 +1,6 @@
 # Transactional emails — integrator notes
 
-> **Usta note**: email is optional in the Libyan market — every route only
+> **Tawwa note**: email is optional in the Libyan market — every route only
 > calls the sender when the user actually provided an email address.
 > Phone/WhatsApp is the primary channel.
 

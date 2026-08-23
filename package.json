@@ -1,8 +1,8 @@
 {
-  "name": "usta",
+  "name": "tawwa",
   "version": "0.1.0",
   "private": true,
-  "description": "Usta — Libya's fair-price home services marketplace",
+  "description": "Tawwa (توّا) — Libya's fair-price home services marketplace",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

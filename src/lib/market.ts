@@ -1,5 +1,5 @@
 /**
- * إعدادات السوق — أسطى (Usta).
+ * إعدادات السوق — توّا (Tawwa).
  *
  * كل شيء خاص بالسوق الليبي مركزي هنا: العملة، الهاتف، المدن، الهوية.
  * التوسّع لدولة عربية ثانية = نسخة جديدة من هذا الملف (config لكل دولة).
@@ -62,8 +62,8 @@ export function isValidPhone(raw: string): boolean {
 export const market = {
   code: "LY",
   name: "ليبيا",
-  brand: "أسطى",
-  brandLatin: "Usta",
+  brand: "توّا",
+  brandLatin: "Tawwa",
   currency: {
     code: "LYD",
     symbol: "د.ل",

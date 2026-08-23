@@ -586,7 +586,7 @@ export function EstimateWizard({
               fontWeight: 600,
             }}
           >
-            <SparkIcon /> تقدير أسطى الذكي
+            <SparkIcon /> تقدير توّا الذكي
           </span>
           <span
             className="mono"
@@ -740,7 +740,7 @@ export function EstimateWizard({
             margin: "0 0 16px",
           }}
         >
-          أسطى ينطلق في طرابلس وبنغازي ومصراتة. انشر طلبك توا أو سجّل في قائمة
+          توّا تنطلق في طرابلس وبنغازي ومصراتة. انشر طلبك توا أو سجّل في قائمة
           الانتظار وبنتواصل معاك أول ما نفتح في مدينتك.
         </p>
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>

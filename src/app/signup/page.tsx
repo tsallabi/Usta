@@ -2,9 +2,10 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { SignupForm } from "@/components/SignupForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { BrandMark } from "@/components/BrandMark";
 
 export const metadata: Metadata = {
-  title: "افتح حسابك · أسطى",
+  title: "افتح حسابك · توّا",
   description:
     "حساب مجاني برقم هاتفك وكلمة سر تختارها — تابع طلباتك وتقديرات الأسعار في مكان واحد.",
 };
@@ -43,14 +44,14 @@ export default function SignupPage() {
               textDecoration: "none",
               color: "inherit",
             }}
-            aria-label="أسطى — الرئيسية"
+            aria-label="توّا — الرئيسية"
           >
-            <span className="brand-mark" aria-hidden="true" />
+            <BrandMark />
             <span
               className="serif"
               style={{ fontSize: "20px", letterSpacing: "-0.01em" }}
             >
-              أسطى
+              توّا
             </span>
           </Link>
           <ThemeToggle />
@@ -78,7 +79,7 @@ export default function SignupPage() {
             fontWeight: 400,
           }}
         >
-          افتح حسابك في أسطى.
+          افتح حسابك في توّا.
         </h1>
         <p
           style={{
@@ -121,7 +122,7 @@ export default function SignupPage() {
               letterSpacing: "0.08em",
             }}
           >
-            © 2026 أسطى · طرابلس
+            © 2026 توّا · طرابلس
           </span>
           <Link
             href="/"

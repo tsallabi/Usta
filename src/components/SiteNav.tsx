@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ThemeToggle } from "./ThemeToggle";
+import { BrandMark } from "./BrandMark";
 
 export function SiteNav() {
   return (
@@ -35,14 +36,14 @@ export function SiteNav() {
             textDecoration: "none",
             color: "inherit",
           }}
-          aria-label="أسطى — الرئيسية"
+          aria-label="توّا — الرئيسية"
         >
-          <span className="brand-mark" aria-hidden="true" />
+          <BrandMark />
           <span
             className="serif"
             style={{ fontSize: "20px", letterSpacing: "-0.01em" }}
           >
-            أسطى
+            توّا
           </span>
         </Link>
 

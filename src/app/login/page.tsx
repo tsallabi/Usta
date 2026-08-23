@@ -2,11 +2,12 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { LoginForm } from "@/components/LoginForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { BrandMark } from "@/components/BrandMark";
 
 export const metadata: Metadata = {
-  title: "تسجيل الدخول · أسطى",
+  title: "تسجيل الدخول · توّا",
   description:
-    "سجّل دخولك برقم هاتفك ورمزك السري — وتابع طلباتك في أسطى من أي جهاز.",
+    "سجّل دخولك برقم هاتفك ورمزك السري — وتابع طلباتك في توّا من أي جهاز.",
 };
 
 export default function LoginPage() {
@@ -43,14 +44,14 @@ export default function LoginPage() {
               textDecoration: "none",
               color: "inherit",
             }}
-            aria-label="أسطى — الرئيسية"
+            aria-label="توّا — الرئيسية"
           >
-            <span className="brand-mark" aria-hidden="true" />
+            <BrandMark />
             <span
               className="serif"
               style={{ fontSize: "20px", letterSpacing: "-0.01em" }}
             >
-              أسطى
+              توّا
             </span>
           </Link>
           <ThemeToggle />
@@ -121,7 +122,7 @@ export default function LoginPage() {
               letterSpacing: "0.08em",
             }}
           >
-            © 2026 أسطى · طرابلس
+            © 2026 توّا · طرابلس
           </span>
           <Link
             href="/"

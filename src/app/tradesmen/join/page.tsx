@@ -2,11 +2,12 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { TradesmanForm } from "@/components/TradesmanForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { BrandMark } from "@/components/BrandMark";
 
 export const metadata: Metadata = {
   title: "انضم كأسطى",
   description:
-    "سجّل مهنتك في أسطى — بدون عمولات ولا مزادات. توثيق يدوي خلال 48 ساعة، وأول شهر 100% لك.",
+    "سجّل مهنتك في توّا — بدون عمولات ولا مزادات. توثيق يدوي خلال 48 ساعة، وأول شهر 100% لك.",
 };
 
 const stats: { value: string; label: string }[] = [
@@ -49,14 +50,14 @@ export default function TradesmanJoinPage() {
               textDecoration: "none",
               color: "inherit",
             }}
-            aria-label="أسطى — الرئيسية"
+            aria-label="توّا — الرئيسية"
           >
-            <span className="brand-mark" aria-hidden="true" />
+            <BrandMark />
             <span
               className="serif"
               style={{ fontSize: "20px", letterSpacing: "-0.01em" }}
             >
-              أسطى
+              توّا
             </span>
           </Link>
           <ThemeToggle />
@@ -177,7 +178,7 @@ export default function TradesmanJoinPage() {
               letterSpacing: "0.08em",
             }}
           >
-            © 2026 أسطى · طرابلس
+            © 2026 توّا · طرابلس
           </span>
           <Link
             href="/"

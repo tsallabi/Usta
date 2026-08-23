@@ -6,18 +6,18 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://usta.pages.dev"
   ),
   title: {
-    default: "أسطى — سعر عادل. أسطى موثوق.",
-    template: "%s · أسطى",
+    default: "توّا — سعر عادل. أسطى موثوق.",
+    template: "%s · توّا",
   },
   description:
     "منصة ليبية تربطك بأسطوات موثوقين — تقدير سعر عادل بالذكاء الاصطناعي قبل ما تختار. كهربائي، سبّاك، تكييف، دهان وأكثر في طرابلس وبنغازي ومصراتة.",
-  applicationName: "أسطى",
-  authors: [{ name: "أسطى" }],
+  applicationName: "توّا",
+  authors: [{ name: "توّا" }],
   keywords: [
     "كهربائي طرابلس",
     "سبّاك بنغازي",
     "صيانة منزلية ليبيا",
-    "أسطى ليبيا",
+    "توّا ليبيا",
     "تكييف مصراتة",
     "دهان طرابلس",
     "نقل أثاث ليبيا",
@@ -26,13 +26,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "ar_LY",
-    siteName: "أسطى",
-    title: "أسطى — سعر عادل. أسطى موثوق.",
+    siteName: "توّا",
+    title: "توّا — سعر عادل. أسطى موثوق.",
     description: "الرقم اللي تحب تعرفه فعلاً، قبل ما أي حد يحاول يبيعلك أي شيء.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "أسطى",
+    title: "توّا",
     description:
       "منصة ليبية تربطك بأسطوات موثوقين — تقدير سعر عادل بالذكاء الاصطناعي قبل ما تختار.",
   },

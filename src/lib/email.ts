@@ -67,7 +67,7 @@ export async function sendEmail(
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      from: `أسطى <${fromEmail}>`,
+      from: `توّا <${fromEmail}>`,
       to: [opts.to],
       subject: opts.subject,
       html: opts.html,
