@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { getRequestContext } from "@cloudflare/next-on-pages";
-import { callClaude, ClaudeError, extractJson } from "@/lib/claude";
+import { callClaude, extractJson } from "@/lib/claude";
+import { callGemini } from "@/lib/gemini";
+import { getEnvVar } from "@/lib/db";
 import { findService } from "@/lib/services";
 import { isCity } from "@/lib/market";
 
@@ -30,7 +31,7 @@ type EstimateResponse = {
   confidence: "low" | "medium" | "high";
   sampleNote: string;
   scopeNote: string;
-  source: "claude" | "fallback";
+  source: "gemini" | "claude" | "fallback";
   model?: string;
 };
 
@@ -91,7 +92,7 @@ function fallbackEstimate(
     sampleNote:
       "نطاق تقريبي لأسعار السوق الليبي (وضع تجريبي — مفتاح الذكاء الاصطناعي غير مفعّل)",
     scopeNote:
-      "هذا مؤشر تقريبي فقط. فعّل متغير البيئة ANTHROPIC_API_KEY للحصول على تقديرات الذكاء الاصطناعي.",
+      "هذا مؤشر تقريبي للأعطال الصغيرة فقط. أضف مفتاح GEMINI_API_KEY (مجاني من Google AI Studio) لتقديرات ذكية حقيقية.",
     source: "fallback",
   };
 }
@@ -136,92 +137,94 @@ export async function POST(request: Request) {
     );
   }
 
-  let apiKey: string | undefined;
-  try {
-    const { env } = getRequestContext();
-    apiKey = (env as unknown as { ANTHROPIC_API_KEY?: string }).ANTHROPIC_API_KEY;
-  } catch {
-    apiKey = process.env.ANTHROPIC_API_KEY;
-  }
+  const userPrompt = buildUserPrompt({
+    serviceName: service.name,
+    description,
+    budgetLyd: budget,
+    city,
+  });
 
-  if (!apiKey) {
-    // Graceful demo: return a market-typical range so the UI still works
-    // before the user wires their Anthropic key in Cloudflare Pages.
-    return NextResponse.json(fallbackEstimate(service.slug, service.name), {
-      status: 200,
-    });
-  }
+  // ترتيب المزوّدين: جيميني أولاً (مفتاح مجاني من Google AI Studio —
+  // الأنسب لانطلاقة السوق الليبي)، ثم Claude إن وُجد مفتاحه، ثم النطاق
+  // التقريبي. أي فشل من مزوّد ينزل بهدوء للخيار التالي.
+  const geminiKey = getEnvVar("GEMINI_API_KEY");
+  const anthropicKey = getEnvVar("ANTHROPIC_API_KEY");
 
-  try {
-    const claude = await callClaude({
-      apiKey,
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: buildUserPrompt({
-            serviceName: service.name,
-            description,
-            budgetLyd: budget,
-            city,
-          }),
-        },
-      ],
-      maxTokens: 400,
-      temperature: 0.2,
-    });
-
+  function validate(raw: string): ClaudeEstimate | null {
     let parsed: ClaudeEstimate;
     try {
-      parsed = extractJson<ClaudeEstimate>(claude.text);
-    } catch (err) {
-      console.error("[estimate] Failed to parse Claude JSON:", err, claude.text);
-      return NextResponse.json(fallbackEstimate(service.slug, service.name), {
-        status: 200,
-      });
+      parsed = extractJson<ClaudeEstimate>(raw);
+    } catch {
+      return null;
     }
-
     if (
       typeof parsed.min_lyd !== "number" ||
       typeof parsed.max_lyd !== "number" ||
       parsed.min_lyd < 0 ||
       parsed.max_lyd < parsed.min_lyd
     ) {
-      return NextResponse.json(fallbackEstimate(service.slug, service.name), {
-        status: 200,
-      });
+      return null;
     }
+    return parsed;
+  }
 
+  function respond(
+    parsed: ClaudeEstimate,
+    source: "gemini" | "claude",
+    model: string
+  ) {
     const response: EstimateResponse = {
       ok: true,
-      service: service.name,
+      service: service!.name,
       min: Math.round(parsed.min_lyd),
       max: Math.round(parsed.max_lyd),
       currency: "LYD",
       confidence: parsed.confidence ?? "medium",
       sampleNote: parsed.sample_note ?? "",
       scopeNote: parsed.scope_note ?? "",
-      source: "claude",
-      model: "claude-sonnet-5",
+      source,
+      model,
     };
-
     return NextResponse.json(response, { status: 200 });
-  } catch (err) {
-    if (err instanceof ClaudeError) {
-      console.error("[estimate] Claude error", err.status, err.detail);
-      // For known rate-limit / auth errors, fall back so the UX keeps working.
-      if (err.status === 401 || err.status === 429 || err.status >= 500) {
-        return NextResponse.json(fallbackEstimate(service.slug, service.name), {
-          status: 200,
-        });
-      }
-    } else {
-      console.error("[estimate] Unexpected error:", err);
-    }
-    return NextResponse.json(fallbackEstimate(service.slug, service.name), {
-      status: 200,
-    });
   }
+
+  if (geminiKey) {
+    try {
+      const gemini = await callGemini({
+        apiKey: geminiKey,
+        system: SYSTEM_PROMPT,
+        user: userPrompt,
+        maxTokens: 600,
+        temperature: 0.2,
+      });
+      const parsed = validate(gemini.text);
+      if (parsed) return respond(parsed, "gemini", "gemini-2.5-flash");
+      console.error("[estimate] Gemini returned invalid JSON:", gemini.text);
+    } catch (err) {
+      console.error("[estimate] Gemini error:", err);
+    }
+  }
+
+  if (anthropicKey) {
+    try {
+      const claude = await callClaude({
+        apiKey: anthropicKey,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: "user", content: userPrompt }],
+        maxTokens: 400,
+        temperature: 0.2,
+      });
+      const parsed = validate(claude.text);
+      if (parsed) return respond(parsed, "claude", "claude-sonnet-5");
+      console.error("[estimate] Claude returned invalid JSON:", claude.text);
+    } catch (err) {
+      console.error("[estimate] Claude error:", err);
+    }
+  }
+
+  return NextResponse.json(fallbackEstimate(service.slug, service.name), {
+    status: 200,
+  });
 }
 
 export async function GET() {

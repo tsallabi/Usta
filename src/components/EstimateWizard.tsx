@@ -12,7 +12,7 @@ type Estimate = {
   confidence: "low" | "medium" | "high";
   sampleNote: string;
   scopeNote: string;
-  source: "claude" | "fallback";
+  source: "gemini" | "claude" | "fallback";
 };
 
 type State =
@@ -648,7 +648,7 @@ export function EstimateWizard() {
           className="mono"
         >
           <span>
-            {estimate.source === "claude"
+            {estimate.source !== "fallback"
               ? "تقدير من الذكاء الاصطناعي · مو تشخيص · مو عرض نهائي"
               : "نطاق تقريبي للسوق · مفتاح الذكاء الاصطناعي غير مفعّل"}
           </span>

@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS estimates (
   min_lyd       INTEGER NOT NULL,
   max_lyd       INTEGER NOT NULL,
   confidence    TEXT NOT NULL CHECK (confidence IN ('low', 'medium', 'high')),
-  source        TEXT NOT NULL CHECK (source IN ('claude', 'fallback')),
+  source        TEXT NOT NULL CHECK (source IN ('gemini', 'claude', 'fallback')),
   model         TEXT,
   created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );

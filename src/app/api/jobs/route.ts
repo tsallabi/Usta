@@ -36,7 +36,7 @@ function isEmailish(value: unknown): value is string {
 }
 
 const CONFIDENCES = ["low", "medium", "high"] as const;
-const SOURCES = ["claude", "fallback"] as const;
+const SOURCES = ["gemini", "claude", "fallback"] as const;
 
 type ValidEstimate = {
   min: number;
