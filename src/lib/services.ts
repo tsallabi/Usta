@@ -60,13 +60,13 @@ export const services: ServiceCategory[] = [
   {
     slug: "plumber",
     name: "سبّاك",
-    description: "تسريبات، حنفيات، سخانات، ضغط الماء، مجاري",
+    description: "تسريبات، شيشمات، سخانات، ضغط الماء، مجاري",
     gradient: "teal",
     icon: "wrench",
     fallbackRange: { min: 30, max: 150 },
     describeHint: "وين التسريب أو المشكلة؟ والماء واصل وإلا مقطوع؟",
     placeholder:
-      "مثال: الحنفية متاع الكوشينة تقطر طول الليل، والماء بدا يوصل للجيران اللي تحتنا.",
+      "مثال: الشيشمة متاع الكوشينة تقطر طول الليل، والماء بدا يوصل للجيران اللي تحتنا.",
   },
   {
     slug: "heating",

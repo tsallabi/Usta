@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>توّا — سعر عادل. أسطى موثوق. قبل ما يبيعك أي حد أي شي.</title>
 <meta name="description" content="توّا — منصة ليبية للخدمات المنزلية. تقدير سعر عادل بالذكاء الاصطناعي في 30 ثانية، وأسطوات موثوقين يدوياً يقدمون عروضهم — في طرابلس وبنغازي ومصراتة.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -797,8 +798,6 @@
     gap: clamp(14px, 1.8vw, 22px);
   }
   @media (max-width: 900px) { .cats-grid { grid-template-columns: repeat(2, 1fr); } }
-  /* التوصيل هو التيل الرئيسي: يمتد على عمودين فتكتمل الصفوف (2+10=12 خانة) */
-  .cat-tile--wide { grid-column: span 2; aspect-ratio: auto; min-height: 180px; }
 
   .cat-tile {
     aspect-ratio: 1;
@@ -1725,10 +1724,10 @@
     <div class="section-head reveal">
       <span class="kicker">الفئات</span>
       <h2>أي حاجة <em>تحتاج تصليح.</em></h2>
-      <p>من حنفية تقطر إلى تشطيب كامل. في كل صنعة أسطوات وثّقناهم يدوياً، بأعمالهم وتزكياتهم.</p>
+      <p>من شيشمة تقطر إلى تشطيب كامل. في كل صنعة أسطوات وثّقناهم يدوياً، بأعمالهم وتزكياتهم.</p>
     </div>
     <div class="cats-grid">
-      <div class="cat-tile cat-tile--wide reveal" style="background: var(--tile-sky);">
+      <div class="cat-tile reveal" style="background: var(--tile-sky);">
         <div class="cat-icon"><svg width="26" height="26" style="color:#fff"><use href="#i-send"/></svg></div>
         <div class="cat-name">توصيل</div>
         <div class="cat-sub">طرود · مشاوير · أغراض كبيرة</div>
