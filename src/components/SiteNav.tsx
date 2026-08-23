@@ -56,7 +56,7 @@ export function SiteNav() {
           }}
         >
           <NavLink href="#how" label="كيف يخدم" />
-          <NavLink href="#tradesmen" label="للأسطوات" />
+          <NavLink href="/join" label="قدّم خدماتك" />
           <NavLink href="/account" label="حسابي" />
           <NavLink href="/work" label="سوق الشغل" />
           <NavLink href="/ustas" label="دليل الأسطوات" />
