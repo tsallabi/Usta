@@ -17,6 +17,7 @@ type JobRow = {
   updated_at: string;
   est_min_lyd: number | null;
   est_max_lyd: number | null;
+  offers_count: number;
 };
 
 /** طلبات المستخدم المسجّل دخوله — بياناته هو فقط (حسب رقم الجلسة). */
@@ -42,7 +43,9 @@ export async function GET(request: Request) {
       .prepare(
         `SELECT j.id, j.service, j.description, j.budget_lyd, j.city, j.area,
                 j.status, j.estimate_id, j.created_at, j.updated_at,
-                e.min_lyd AS est_min_lyd, e.max_lyd AS est_max_lyd
+                e.min_lyd AS est_min_lyd, e.max_lyd AS est_max_lyd,
+                (SELECT COUNT(*) FROM offers o WHERE o.job_id = j.id)
+                  AS offers_count
            FROM jobs j
            LEFT JOIN estimates e ON e.id = j.estimate_id
           WHERE j.customer_phone = ?
