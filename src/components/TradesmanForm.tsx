@@ -71,16 +71,29 @@ export function TradesmanForm() {
     null
   );
   const [locating, setLocating] = useState(false);
+  const [locNote, setLocNote] = useState<string | null>(null);
 
   function locateMe() {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) {
+      setLocNote("متصفحك ما يدعمش تحديد الموقع — كمّل التسجيل عادي بدونه.");
+      return;
+    }
     setLocating(true);
+    setLocNote(null);
     navigator.geolocation.getCurrentPosition(
       (p) => {
         setLocating(false);
         setCoords({ lat: p.coords.latitude, lng: p.coords.longitude });
+        setLocNote(null);
       },
-      () => setLocating(false),
+      (err) => {
+        setLocating(false);
+        setLocNote(
+          err.code === 1
+            ? "المتصفح ما عطاش إذن الموقع — فعّل الموقع (GPS) واسمح للموقع من إعدادات المتصفح، أو كمّل بدونه وبتظهر عند مركز مدينتك."
+            : "ما قدرناش نجيبو موقعك توّا — تأكد أن الموقع (GPS) شغّال، أو كمّل بدونه وبتظهر عند مركز مدينتك."
+        );
+      },
       { enableHighAccuracy: true, timeout: 10000 }
     );
   }
@@ -425,6 +438,23 @@ export function TradesmanForm() {
             يجيك أول.
           </span>
         </div>
+        {locNote ? (
+          <p
+            role="status"
+            style={{
+              marginTop: "10px",
+              fontSize: "13px",
+              lineHeight: 1.6,
+              color: "#8A6210",
+              background: "color-mix(in srgb, #E6A429 12%, transparent)",
+              border: "1px solid color-mix(in srgb, #E6A429 35%, transparent)",
+              borderRadius: "12px",
+              padding: "10px 14px",
+            }}
+          >
+            {locNote}
+          </p>
+        ) : null}
       </section>
 
       {/* ─── التوثيق ─── */}
