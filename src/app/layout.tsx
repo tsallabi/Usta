@@ -1,0 +1,66 @@
+import type { Metadata } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://usta.pages.dev"
+  ),
+  title: {
+    default: "أسطى — سعر عادل. أسطى موثوق.",
+    template: "%s · أسطى",
+  },
+  description:
+    "منصة ليبية تربطك بأسطوات موثوقين — تقدير سعر عادل بالذكاء الاصطناعي قبل ما تختار. كهربائي، سبّاك، تكييف، دهان وأكثر في طرابلس وبنغازي ومصراتة.",
+  applicationName: "أسطى",
+  authors: [{ name: "أسطى" }],
+  keywords: [
+    "كهربائي طرابلس",
+    "سبّاك بنغازي",
+    "صيانة منزلية ليبيا",
+    "أسطى ليبيا",
+    "تكييف مصراتة",
+    "دهان طرابلس",
+    "نقل أثاث ليبيا",
+    "تقدير سعر صيانة",
+  ],
+  openGraph: {
+    type: "website",
+    locale: "ar_LY",
+    siteName: "أسطى",
+    title: "أسطى — سعر عادل. أسطى موثوق.",
+    description: "الرقم اللي تبي تعرفه فعلاً، قبل ما أي حد يحاول يبيعلك أي شيء.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "أسطى",
+    description:
+      "منصة ليبية تربطك بأسطوات موثوقين — تقدير سعر عادل بالذكاء الاصطناعي قبل ما تختار.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
+export const viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FBF7EE" },
+    { media: "(prefers-color-scheme: dark)", color: "#0A1826" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="ar-LY" dir="rtl" suppressHydrationWarning>
+      {/* Arabic fonts are loaded via @import in globals.css — the App Router
+          strips manually rendered <head> tags, so a <link> here never ships. */}
+      <body>{children}</body>
+    </html>
+  );
+}

@@ -1,0 +1,35 @@
+name = "usta"
+compatibility_date = "2026-08-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+# ─── KV namespaces ─────────────────────────────────────────────────
+# Waitlist entries (phone-first) are stored here until we migrate to D1.
+# Create the namespace once via the Cloudflare dashboard, then paste the
+# id below AND under Pages -> Settings -> Functions -> KV bindings.
+#
+# [[kv_namespaces]]
+# binding = "WAITLIST"
+# id = "<your-kv-namespace-id>"
+
+# ─── D1 database ───────────────────────────────────────────────────
+# Cloudflare D1 is our primary store from Phase 2A onward.
+#
+# One-time setup:
+#   npx wrangler d1 create usta-db
+# Paste the returned database_id below AND under Pages -> Settings ->
+# Functions -> D1 database bindings (binding: DB).
+#
+# Then apply the schema:
+#   npx wrangler d1 execute usta-db --remote --file=migrations/0001_initial.sql
+#
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "usta-db"
+# database_id = "<your-d1-database-id>"
+
+# ─── Environment variables ─────────────────────────────────────────
+# Public vars only. Secrets belong in Cloudflare Pages dashboard.
+[vars]
+NEXT_PUBLIC_SITE_URL = "https://usta.pages.dev"
+NEXT_PUBLIC_SITE_NAME = "أسطى"

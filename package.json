@@ -1,0 +1,39 @@
+{
+  "name": "usta",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Usta — Libya's fair-price home services marketplace",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "pages:build": "npx @cloudflare/next-on-pages@1",
+    "pages:preview": "npx wrangler pages dev .vercel/output/static --compatibility-flag nodejs_compat",
+    "pages:deploy": "npm run pages:build && npx wrangler pages deploy .vercel/output/static"
+  },
+  "dependencies": {
+    "next": "14.2.15",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@cloudflare/next-on-pages": "1.13.16",
+    "@cloudflare/workers-types": "4.20260702.1",
+    "@types/node": "^20.16.11",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "14.2.15",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.6.3",
+    "vercel": "^37.14.0",
+    "wrangler": "3.114.16"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
