@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { findService } from "@/lib/services";
+import { findService, services, type ServiceCategory } from "@/lib/services";
+
+/* ─── Types ──────────────────────────────────────────────── */
 
 type Me = { name: string; phone: string };
 
@@ -35,9 +37,31 @@ type Offer = {
   whatsapp: string | null;
 };
 
+/** عرض وارد من /api/me/offers — عبر كل الطلبات المفتوحة. */
+type IncomingOffer = {
+  id: string;
+  price_lyd: number;
+  message: string | null;
+  created_at: string;
+  job_id: string;
+  job_service: string;
+  job_description: string;
+  tradesman_name: string;
+  trade: string;
+  city: string;
+  years_experience: number | null;
+  verified: boolean;
+};
+
 type View =
   | { kind: "loading" }
-  | { kind: "ready"; me: Me; jobs: Job[]; jobsError: string | null };
+  | {
+      kind: "ready";
+      me: Me;
+      jobs: Job[];
+      jobsError: string | null;
+      incoming: IncomingOffer[];
+    };
 
 const statusLabels: Record<string, string> = {
   draft: "مسودة",
@@ -55,9 +79,274 @@ function statusColor(status: string): string {
   return "var(--ink-3)";
 }
 
+/* ─── بلاطات الخدمات — التوصيل أولاً دائماً ─────────────────── */
+
+const orderedServices: ServiceCategory[] = [
+  ...services.filter((s) => s.slug === "delivery"),
+  ...services.filter((s) => s.slug !== "delivery"),
+];
+
+// نفس تدرّجات EstimateWizard — منسوخة محلياً حتى يبقى كل ملف client مستقل.
+const gradientMap: Record<ServiceCategory["gradient"], string> = {
+  blue: "linear-gradient(140deg, #2A4A7F, #1F3966)",
+  teal: "linear-gradient(140deg, #14876C, #0B6350)",
+  orange: "linear-gradient(140deg, #E67E3B, #C55A1E)",
+  plum: "linear-gradient(140deg, #6B3D7D, #4B2A5B)",
+  rose: "linear-gradient(140deg, #DE5F6D, #B23F4E)",
+  forest: "linear-gradient(140deg, #4A7346, #2E5030)",
+  slate: "linear-gradient(140deg, #4A5C6E, #2E3D4F)",
+  ochre: "linear-gradient(140deg, #C99A3E, #A67824)",
+  sky: "linear-gradient(140deg, #3B7EA1, #256380)",
+};
+
+function iconPaths(icon: ServiceCategory["icon"]): JSX.Element {
+  const paths: Record<ServiceCategory["icon"], JSX.Element> = {
+    bolt: (
+      <path d="M13 2 L4 14 h6 l-1 8 l9 -12 h-6 l1 -8 z" fill="currentColor" />
+    ),
+    wrench: (
+      <path
+        d="M14 3 a5 5 0 0 0 -3 8 L3 19 l2 2 l8 -8 a5 5 0 0 0 8 -3 l-3 -1 l-2 2 l-3 -3 l2 -2 z"
+        fill="currentColor"
+      />
+    ),
+    flame: (
+      <path
+        d="M12 3 c 1 4 5 5 5 10 a5 5 0 0 1 -10 0 c 0 -3 3 -5 3 -8 c 0 1 1 1 2 -2 z"
+        fill="currentColor"
+      />
+    ),
+    broom: (
+      <path
+        d="M14 3 l6 6 M13 4 L4 13 l3 3 l9 -9 z M6 15 l-3 6 l6 -3 l6 -6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+    ),
+    paint: (
+      <>
+        <rect x={3} y={3} width={14} height={6} rx={1} fill="currentColor" />
+        <path
+          d="M17 6 h4 v4 h-8 v3 h-2 v8 h-2 v-8 h-2 v-3 h8"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.8}
+          strokeLinejoin="round"
+        />
+      </>
+    ),
+    leaf: (
+      <path
+        d="M20 4 c -12 0 -14 8 -14 12 c 0 3 2 5 5 5 c 4 0 12 -2 12 -14 z"
+        fill="currentColor"
+      />
+    ),
+    truck: (
+      <>
+        <path
+          d="M2 6 h11 v10 h-11 z M13 9 h5 l3 3 v4 h-8 z"
+          fill="currentColor"
+        />
+        <circle
+          cx={6}
+          cy={18}
+          r={2}
+          fill="white"
+          stroke="currentColor"
+          strokeWidth={1.5}
+        />
+        <circle
+          cx={17}
+          cy={18}
+          r={2}
+          fill="white"
+          stroke="currentColor"
+          strokeWidth={1.5}
+        />
+      </>
+    ),
+    box: (
+      <>
+        <path
+          d="M3 8 L12 3 L21 8 L21 17 L12 22 L3 17 z"
+          fill="currentColor"
+          opacity={0.9}
+        />
+        <path
+          d="M3 8 L12 13 L21 8 M12 13 L12 22"
+          fill="none"
+          stroke="white"
+          strokeWidth={1.5}
+          strokeLinejoin="round"
+        />
+      </>
+    ),
+    send: (
+      <path
+        d="M3 11 L21 3 L14 21 L11 13 Z M11 13 L21 3"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+    ),
+  };
+  return paths[icon];
+}
+
+function ServiceGlyph({
+  icon,
+  size = 20,
+}: {
+  icon: ServiceCategory["icon"];
+  size?: number;
+}) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      style={{ color: "white" }}
+      aria-hidden="true"
+    >
+      {iconPaths(icon)}
+    </svg>
+  );
+}
+
+/** رقاقة أيقونة صغيرة بتدرّج الخدمة — لبطاقات الطلبات. */
+function ServiceChip({ service }: { service: ServiceCategory | undefined }) {
+  if (!service) return null;
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        width: "34px",
+        height: "34px",
+        borderRadius: "10px",
+        background: gradientMap[service.gradient],
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+        boxShadow: "0 4px 12px -6px rgba(11,31,51,0.4)",
+      }}
+    >
+      <ServiceGlyph icon={service.icon} size={16} />
+    </span>
+  );
+}
+
+/** شبكة بلاطات الخدمات التسع — التوصيل أولاً. كل بلاطة → /estimate?service= */
+function ServiceTiles() {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))",
+        gap: "10px",
+      }}
+    >
+      {orderedServices.map((s) => (
+        <Link
+          key={s.slug}
+          href={`/estimate?service=${s.slug}`}
+          aria-label={`اطلب ${s.name}`}
+          style={{
+            aspectRatio: "1 / 1",
+            borderRadius: "16px",
+            padding: "12px",
+            color: "white",
+            background: gradientMap[s.gradient],
+            textDecoration: "none",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            boxShadow: "0 6px 20px -8px rgba(11,31,51,0.35)",
+            transition: "transform 0.1s ease",
+          }}
+          onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
+          onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+        >
+          <span
+            style={{
+              width: "34px",
+              height: "34px",
+              borderRadius: "10px",
+              background: "rgba(255,255,255,0.18)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <ServiceGlyph icon={s.icon} size={18} />
+          </span>
+          <span
+            className="serif"
+            style={{ fontSize: "15px", letterSpacing: "-0.01em", lineHeight: 1.3 }}
+          >
+            {s.name}
+          </span>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+/* ─── الصفحة ─────────────────────────────────────────────── */
+
 export function AccountView() {
   const router = useRouter();
   const [view, setView] = useState<View>({ kind: "loading" });
+
+  /** يجيب الطلبات + العروض الواردة معاً — يُستدعى عند التحميل وبعد أي قبول. */
+  const loadLists = useCallback(async (): Promise<{
+    jobs: Job[];
+    jobsError: string | null;
+    incoming: IncomingOffer[];
+  }> => {
+    let jobs: Job[] = [];
+    let jobsError: string | null = null;
+    let incoming: IncomingOffer[] = [];
+
+    const [jobsSettled, offersSettled] = await Promise.allSettled([
+      fetch("/api/me/jobs"),
+      fetch("/api/me/offers"),
+    ]);
+
+    if (jobsSettled.status === "fulfilled") {
+      const data = (await jobsSettled.value.json().catch(() => ({}))) as {
+        ok?: boolean;
+        jobs?: Job[];
+        error?: string;
+      };
+      if (data.ok && Array.isArray(data.jobs)) {
+        jobs = data.jobs;
+      } else {
+        jobsError = data.error ?? "ما قدرناش نجيبو طلباتك توّا.";
+      }
+    } else {
+      jobsError = "مشكلة في الاتصال. حاول بعد شوية.";
+    }
+
+    if (offersSettled.status === "fulfilled") {
+      const data = (await offersSettled.value.json().catch(() => ({}))) as {
+        ok?: boolean;
+        offers?: IncomingOffer[];
+      };
+      if (data.ok && Array.isArray(data.offers)) {
+        incoming = data.offers;
+      }
+      // فشل العروض الواردة مش قاتل — القسم ببساطة ما يظهرش.
+    }
+
+    return { jobs, jobsError, incoming };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -76,29 +365,12 @@ export function AccountView() {
           return;
         }
 
-        let jobs: Job[] = [];
-        let jobsError: string | null = null;
-        try {
-          const jobsRes = await fetch("/api/me/jobs");
-          const data = (await jobsRes.json().catch(() => ({}))) as {
-            ok?: boolean;
-            jobs?: Job[];
-            error?: string;
-          };
-          if (data.ok && Array.isArray(data.jobs)) {
-            jobs = data.jobs;
-          } else {
-            jobsError = data.error ?? "ما قدرناش نجيبو طلباتك توّا.";
-          }
-        } catch {
-          jobsError = "مشكلة في الاتصال. حاول بعد شوية.";
-        }
+        const lists = await loadLists();
         if (cancelled) return;
         setView({
           kind: "ready",
           me: { name: me.name, phone: me.phone },
-          jobs,
-          jobsError,
+          ...lists,
         });
       } catch {
         if (!cancelled) router.replace("/login");
@@ -109,21 +381,13 @@ export function AccountView() {
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, [router, loadLists]);
 
-  /** بعد قبول عرض — الطلب يصير "متطابق" محلياً. */
-  function markMatched(jobId: string) {
-    setView((v) =>
-      v.kind === "ready"
-        ? {
-            ...v,
-            jobs: v.jobs.map((j) =>
-              j.id === jobId ? { ...j, status: "matched" } : j
-            ),
-          }
-        : v
-    );
-  }
+  /** بعد قبول عرض من أي مكان — نعيد جلب القائمتين معاً. */
+  const refresh = useCallback(async () => {
+    const lists = await loadLists();
+    setView((v) => (v.kind === "ready" ? { ...v, ...lists } : v));
+  }, [loadLists]);
 
   async function onLogout() {
     try {
@@ -152,10 +416,16 @@ export function AccountView() {
     );
   }
 
-  const { me, jobs, jobsError } = view;
+  const { me, jobs, jobsError, incoming } = view;
+  const openCount = jobs.filter(
+    (j) => j.status === "open" || j.status === "matched" || j.status === "in_progress"
+  ).length;
+  const completedCount = jobs.filter((j) => j.status === "completed").length;
+  const hasJobs = jobs.length > 0;
 
   return (
     <>
+      {/* ─── الترويسة ─── */}
       <div
         style={{
           display: "flex",
@@ -163,7 +433,7 @@ export function AccountView() {
           justifyContent: "space-between",
           flexWrap: "wrap",
           gap: "16px",
-          marginBottom: "48px",
+          marginBottom: "36px",
         }}
       >
         <div>
@@ -207,9 +477,7 @@ export function AccountView() {
             cursor: "pointer",
             transition: "border-color 0.15s ease",
           }}
-          onFocus={(e) =>
-            (e.currentTarget.style.borderColor = "var(--brand-2)")
-          }
+          onFocus={(e) => (e.currentTarget.style.borderColor = "var(--brand-2)")}
           onBlur={(e) => (e.currentTarget.style.borderColor = "var(--line)")}
           onMouseEnter={(e) =>
             (e.currentTarget.style.borderColor = "var(--brand-2)")
@@ -222,186 +490,583 @@ export function AccountView() {
         </button>
       </div>
 
-      <section aria-label="طلباتك">
-        <div className="kicker" style={{ marginBottom: "20px" }}>
-          — طلباتك
+      {jobsError && (
+        <div
+          role="alert"
+          className="mono"
+          style={{
+            fontSize: "12px",
+            color: "var(--coral)",
+            letterSpacing: "0.04em",
+            marginBottom: "24px",
+          }}
+        >
+          {jobsError}
         </div>
+      )}
 
-        {jobsError && (
-          <div
-            role="alert"
-            className="mono"
+      {/* ─── حالة فارغة: بيتك محتاج حاجة؟ ─── */}
+      {!jobsError && !hasJobs && (
+        <section aria-label="ابدأ طلبك الأول">
+          <h2
+            className="serif"
             style={{
-              fontSize: "12px",
-              color: "var(--coral)",
-              letterSpacing: "0.04em",
-              marginBottom: "20px",
+              fontSize: "clamp(26px, 3.4vw, 38px)",
+              letterSpacing: "-0.02em",
+              fontWeight: 400,
+              margin: "0 0 10px",
+              lineHeight: 1.3,
+              textWrap: "balance",
             }}
           >
-            {jobsError}
-          </div>
-        )}
-
-        {!jobsError && jobs.length === 0 && (
-          <div
+            بيتك محتاج حاجة؟
+          </h2>
+          <p
             style={{
-              padding: "32px 28px",
-              border: "1px dashed var(--line)",
-              borderRadius: "16px",
-              background: "var(--paper-2)",
-              maxWidth: "560px",
+              fontSize: "15px",
+              color: "var(--ink-2)",
+              lineHeight: 1.6,
+              margin: "0 0 24px",
+              maxWidth: "540px",
             }}
           >
-            <div
-              className="serif"
-              style={{
-                fontSize: "22px",
-                color: "var(--ink)",
-                lineHeight: 1.35,
-                marginBottom: "8px",
-              }}
-            >
-              ما عندكش طلبات بعد.
-            </div>
-            <p
-              style={{
-                fontSize: "14px",
-                color: "var(--ink-2)",
-                lineHeight: 1.55,
-                margin: "0 0 18px",
-              }}
-            >
-              ابدأ بتقدير سعر عادل من الذكاء الاصطناعي — 30 ثانية وبدون أي
-              التزام.
-            </p>
+            اختار الخدمة، اوصف الشغل، والذكاء الاصطناعي يعطيك السعر العادل —
+            والأسطوات يجوك بعروضهم.
+          </p>
+          <ServiceTiles />
+          <div style={{ marginTop: "18px" }}>
             <Link
               href="/estimate"
+              className="mono"
               style={{
-                display: "inline-block",
-                padding: "12px 24px",
-                borderRadius: "999px",
-                background:
-                  "linear-gradient(135deg, var(--navy-2), var(--navy-1))",
-                color: "var(--paper)",
-                fontSize: "14px",
-                fontWeight: 600,
+                fontSize: "12px",
+                color: "var(--ink-3)",
+                letterSpacing: "0.08em",
                 textDecoration: "none",
               }}
             >
-              اطلب تقدير سعر ←
+              أو ابدأ بتقدير سعر ←
             </Link>
           </div>
-        )}
+        </section>
+      )}
 
-        <div style={{ display: "grid", gap: "16px", maxWidth: "640px" }}>
-          {jobs.map((job) => {
-            const service = findService(job.service);
-            const description =
-              job.description.length > 140
-                ? `${job.description.slice(0, 140)}…`
-                : job.description;
-            return (
-              <article
-                key={job.id}
+      {!jobsError && hasJobs && (
+        <>
+          {/* ─── شريط الأرقام ─── */}
+          <div
+            role="group"
+            aria-label="ملخص حسابك"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+              gap: "10px",
+              marginBottom: "40px",
+            }}
+          >
+            {[
+              { n: openCount, label: "طلباتك المفتوحة", accent: "var(--ink)" },
+              {
+                n: incoming.length,
+                label: "عروض جديدة",
+                accent: incoming.length > 0 ? "var(--brand-1)" : "var(--ink)",
+              },
+              { n: completedCount, label: "مكتملة", accent: "var(--ink)" },
+            ].map((stat) => (
+              <div
+                key={stat.label}
                 style={{
-                  padding: "20px 24px",
+                  padding: "16px 18px",
+                  borderRadius: "14px",
                   border: "1px solid var(--line)",
-                  borderRadius: "16px",
                   background: "var(--paper-2)",
                 }}
               >
                 <div
+                  className="serif"
                   style={{
-                    display: "flex",
-                    alignItems: "baseline",
-                    justifyContent: "space-between",
-                    flexWrap: "wrap",
-                    gap: "8px",
-                    marginBottom: "10px",
+                    fontSize: "30px",
+                    lineHeight: 1.2,
+                    letterSpacing: "-0.02em",
+                    color: stat.accent,
                   }}
                 >
-                  <span
-                    className="serif"
-                    style={{
-                      fontSize: "20px",
-                      color: "var(--ink)",
-                      letterSpacing: "-0.01em",
-                    }}
-                  >
-                    {service?.name ?? job.service}
-                  </span>
-                  <span
-                    className="mono"
-                    style={{
-                      fontSize: "10px",
-                      letterSpacing: "0.12em",
-                      color: statusColor(job.status),
-                      border: `1px solid ${statusColor(job.status)}`,
-                      borderRadius: "999px",
-                      padding: "4px 12px",
-                    }}
-                  >
-                    {statusLabels[job.status] ?? job.status}
-                  </span>
+                  {stat.n}
                 </div>
-                <p
+                <div
+                  className="mono"
                   style={{
-                    fontSize: "14px",
-                    color: "var(--ink-2)",
-                    lineHeight: 1.55,
-                    margin: "0 0 14px",
+                    fontSize: "10px",
+                    letterSpacing: "0.12em",
+                    color: "var(--ink-3)",
+                    marginTop: "4px",
                   }}
                 >
-                  {description}
-                </p>
-                <div
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ─── عروض جديدة على طلباتك ─── */}
+          <IncomingOffers incoming={incoming} onAccepted={refresh} />
+
+          {/* ─── شن تحتاج اليوم؟ ─── */}
+          <section aria-label="اطلب خدمة جديدة" style={{ marginBottom: "48px" }}>
+            <div className="kicker" style={{ marginBottom: "8px" }}>
+              — اطلب خدمة
+            </div>
+            <h2
+              className="serif"
+              style={{
+                fontSize: "clamp(22px, 3vw, 30px)",
+                letterSpacing: "-0.02em",
+                fontWeight: 400,
+                margin: "0 0 18px",
+                lineHeight: 1.3,
+              }}
+            >
+              شن تحتاج اليوم؟
+            </h2>
+            <ServiceTiles />
+          </section>
+
+          {/* ─── طلباتك ─── */}
+          <section aria-label="طلباتك">
+            <div className="kicker" style={{ marginBottom: "20px" }}>
+              — طلباتك
+            </div>
+            <div style={{ display: "grid", gap: "16px", maxWidth: "640px" }}>
+              {jobs.map((job) => (
+                <JobCard key={job.id} job={job} onAccepted={refresh} />
+              ))}
+            </div>
+          </section>
+        </>
+      )}
+    </>
+  );
+}
+
+/* ─── 🔔 عروض جديدة على طلباتك ────────────────────────────── */
+
+function IncomingOffers({
+  incoming,
+  onAccepted,
+}: {
+  incoming: IncomingOffer[];
+  onAccepted: () => Promise<void>;
+}) {
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  // بعد القبول: بطاقة فتح الواتساب تظهر مكان بطاقة العرض نفسها.
+  const [unlocked, setUnlocked] = useState<{
+    offerId: string;
+    name: string;
+    whatsapp: string;
+    service: string;
+  } | null>(null);
+
+  async function accept(o: IncomingOffer) {
+    if (!window.confirm("متأكد؟ بنقبل هذا العرض ونرفض بقية العروض المعلّقة."))
+      return;
+    setBusyId(o.id);
+    setError(null);
+    try {
+      const res = await fetch(`/api/offers/${o.id}/accept`, { method: "POST" });
+      const data = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        whatsapp?: string;
+        error?: string;
+      };
+      if (data.ok && data.whatsapp) {
+        const svc = findService(o.job_service);
+        setUnlocked({
+          offerId: o.id,
+          name: o.tradesman_name,
+          whatsapp: data.whatsapp,
+          service: svc?.name ?? o.job_service,
+        });
+        await onAccepted();
+      } else {
+        setError(data.error ?? "صار خطأ أثناء قبول العرض. حاول مرة ثانية.");
+      }
+    } catch {
+      setError("مشكلة في الاتصال. حاول مرة ثانية.");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  // القسم يظهر فقط لما فيه عروض معلّقة — أو بطاقة واتساب مفتوحة توّا
+  // (حتى ما يختفيش الرقم أول ما آخر عرض معلّق يتقبل).
+  if (incoming.length === 0 && !unlocked) return null;
+
+  return (
+    <section aria-label="عروض جديدة على طلباتك" style={{ marginBottom: "48px" }}>
+      <div className="kicker" style={{ marginBottom: "8px" }}>
+        — 🔔 عروض جديدة
+      </div>
+      <h2
+        className="serif"
+        style={{
+          fontSize: "clamp(22px, 3vw, 30px)",
+          letterSpacing: "-0.02em",
+          fontWeight: 400,
+          margin: "0 0 18px",
+          lineHeight: 1.3,
+        }}
+      >
+        عروض جديدة على طلباتك
+      </h2>
+
+      {error && (
+        <div
+          role="alert"
+          className="mono"
+          style={{
+            fontSize: "12px",
+            color: "var(--coral)",
+            letterSpacing: "0.04em",
+            marginBottom: "14px",
+          }}
+        >
+          {error}
+        </div>
+      )}
+
+      {unlocked && (
+        <div
+          role="status"
+          style={{
+            padding: "20px 24px",
+            borderRadius: "16px",
+            border: "1px solid var(--brand-1)",
+            background: "rgba(16,185,129,0.08)",
+            marginBottom: "14px",
+            maxWidth: "640px",
+          }}
+        >
+          <div
+            className="serif"
+            style={{ fontSize: "18px", color: "var(--ink)", marginBottom: "8px" }}
+          >
+            تم! كلم {unlocked.name} مباشرة — {unlocked.service}:
+          </div>
+          <div
+            className="serif"
+            dir="ltr"
+            style={{
+              fontSize: "clamp(24px, 4vw, 32px)",
+              letterSpacing: "0.02em",
+              color: "var(--ink)",
+              textAlign: "end",
+              marginBottom: "14px",
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {unlocked.whatsapp}
+          </div>
+          <a
+            href={`https://wa.me/218${unlocked.whatsapp.slice(1)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-block",
+              padding: "12px 24px",
+              borderRadius: "999px",
+              background: "linear-gradient(135deg, var(--brand-2), var(--brand-1))",
+              color: "white",
+              fontSize: "14px",
+              fontWeight: 600,
+              textDecoration: "none",
+            }}
+          >
+            افتح واتساب ←
+          </a>
+        </div>
+      )}
+
+      <div style={{ display: "grid", gap: "12px", maxWidth: "640px" }}>
+        {incoming.map((o) => {
+          const trade = findService(o.trade);
+          const jobSvc = findService(o.job_service);
+          const busy = busyId === o.id;
+          return (
+            <div
+              key={o.id}
+              style={{
+                padding: "18px 20px",
+                borderRadius: "14px",
+                border: o.verified
+                  ? "1px solid color-mix(in srgb, var(--brand-1) 45%, var(--line))"
+                  : "1px solid var(--line)",
+                background: "var(--paper-2)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                  gap: "8px",
+                  marginBottom: "6px",
+                }}
+              >
+                <span
                   style={{
                     display: "flex",
                     alignItems: "baseline",
-                    justifyContent: "space-between",
-                    flexWrap: "wrap",
                     gap: "8px",
+                    flexWrap: "wrap",
                   }}
                 >
+                  <span style={{ fontWeight: 600, fontSize: "15px" }}>
+                    {o.tradesman_name}
+                  </span>
+                  {o.verified && (
+                    <span
+                      className="mono"
+                      style={{
+                        display: "inline-block",
+                        padding: "3px 10px",
+                        borderRadius: "999px",
+                        background: "rgba(16,185,129,0.12)",
+                        color: "var(--brand-1)",
+                        fontSize: "10px",
+                        letterSpacing: "0.08em",
+                        fontWeight: 700,
+                      }}
+                    >
+                      ✓ موثّق
+                    </span>
+                  )}
                   <span
                     className="mono"
                     style={{
                       fontSize: "10px",
-                      letterSpacing: "0.1em",
+                      letterSpacing: "0.08em",
                       color: "var(--ink-3)",
                     }}
                   >
-                    {job.created_at.slice(0, 10)}
-                    {job.city ? ` · ${job.city}` : ""}
+                    {trade?.name ?? o.trade} · {o.city}
+                    {o.years_experience != null &&
+                      ` · خبرة ${o.years_experience} سنة`}
                   </span>
-                  <span
-                    className="serif"
-                    style={{ fontSize: "16px", color: "var(--ink)" }}
-                  >
-                    {typeof job.budget_lyd === "number" &&
-                      `ميزانيتك: ${job.budget_lyd} د.ل`}
-                    {typeof job.budget_lyd === "number" &&
-                      typeof job.est_min_lyd === "number" &&
-                      typeof job.est_max_lyd === "number" &&
-                      " · "}
-                    {typeof job.est_min_lyd === "number" &&
-                      typeof job.est_max_lyd === "number" &&
-                      `التقدير: ${job.est_min_lyd}–${job.est_max_lyd} د.ل`}
-                  </span>
-                </div>
-                {(job.status === "open" || job.status === "matched") && (
-                  <JobOffers
-                    jobId={job.id}
-                    count={job.offers_count ?? 0}
-                    onAccepted={() => markMatched(job.id)}
-                  />
-                )}
-              </article>
-            );
-          })}
-        </div>
-      </section>
-    </>
+                </span>
+                <span
+                  className="serif"
+                  style={{ fontSize: "20px", color: "var(--ink)" }}
+                >
+                  {o.price_lyd} د.ل
+                </span>
+              </div>
+
+              {o.message && (
+                <p
+                  style={{
+                    fontSize: "13px",
+                    color: "var(--ink-2)",
+                    lineHeight: 1.55,
+                    margin: "0 0 10px",
+                  }}
+                >
+                  {o.message}
+                </p>
+              )}
+
+              <div
+                className="mono"
+                style={{
+                  fontSize: "10px",
+                  letterSpacing: "0.08em",
+                  color: "var(--ink-3)",
+                  marginBottom: "12px",
+                }}
+              >
+                على طلب: {jobSvc?.name ?? o.job_service} — {o.job_description}
+              </div>
+
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void accept(o)}
+                  style={{
+                    padding: "10px 22px",
+                    borderRadius: "999px",
+                    border: 0,
+                    background:
+                      "linear-gradient(135deg, var(--brand-2), var(--brand-1))",
+                    color: "white",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    fontFamily: "inherit",
+                    cursor: busy ? "wait" : "pointer",
+                    opacity: busy ? 0.6 : 1,
+                  }}
+                >
+                  {busy ? "قاعدين نقبلو…" : "اقبل العرض"}
+                </button>
+                <a
+                  href={`#job-${o.job_id}`}
+                  className="mono"
+                  style={{
+                    padding: "10px 18px",
+                    borderRadius: "999px",
+                    border: "1px solid var(--line)",
+                    color: "var(--ink-2)",
+                    fontSize: "11px",
+                    letterSpacing: "0.06em",
+                    textDecoration: "none",
+                    display: "inline-flex",
+                    alignItems: "center",
+                  }}
+                >
+                  شوف الطلب ↓
+                </a>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/* ─── بطاقة طلب واحدة ─────────────────────────────────────── */
+
+function JobCard({
+  job,
+  onAccepted,
+}: {
+  job: Job;
+  onAccepted: () => Promise<void>;
+}) {
+  const service = findService(job.service);
+  const description =
+    job.description.length > 140
+      ? `${job.description.slice(0, 140)}…`
+      : job.description;
+  const hasOffers = (job.offers_count ?? 0) > 0;
+
+  return (
+    <article
+      id={`job-${job.id}`}
+      style={{
+        padding: "20px 24px",
+        border: "1px solid var(--line)",
+        borderRadius: "16px",
+        background: "var(--paper-2)",
+        scrollMarginTop: "90px",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "8px",
+          marginBottom: "10px",
+        }}
+      >
+        <span style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <ServiceChip service={service} />
+          <span
+            className="serif"
+            style={{
+              fontSize: "20px",
+              color: "var(--ink)",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            {service?.name ?? job.service}
+          </span>
+        </span>
+        <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {hasOffers && (
+            <span
+              className="mono"
+              style={{
+                fontSize: "10px",
+                letterSpacing: "0.08em",
+                color: "var(--amber)",
+                background: "rgba(230,164,41,0.14)",
+                borderRadius: "999px",
+                padding: "4px 12px",
+                fontWeight: 700,
+              }}
+            >
+              {job.offers_count === 1 ? "عرض واحد" : `${job.offers_count} عروض`}
+            </span>
+          )}
+          <span
+            className="mono"
+            style={{
+              fontSize: "10px",
+              letterSpacing: "0.12em",
+              color: statusColor(job.status),
+              border: `1px solid ${statusColor(job.status)}`,
+              borderRadius: "999px",
+              padding: "4px 12px",
+            }}
+          >
+            {statusLabels[job.status] ?? job.status}
+          </span>
+        </span>
+      </div>
+      <p
+        style={{
+          fontSize: "14px",
+          color: "var(--ink-2)",
+          lineHeight: 1.55,
+          margin: "0 0 14px",
+        }}
+      >
+        {description}
+      </p>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "8px",
+        }}
+      >
+        <span
+          className="mono"
+          style={{
+            fontSize: "10px",
+            letterSpacing: "0.1em",
+            color: "var(--ink-3)",
+          }}
+        >
+          {job.created_at.slice(0, 10)}
+          {job.city ? ` · ${job.city}` : ""}
+        </span>
+        <span className="serif" style={{ fontSize: "16px", color: "var(--ink)" }}>
+          {typeof job.budget_lyd === "number" &&
+            `ميزانيتك: ${job.budget_lyd} د.ل`}
+          {typeof job.budget_lyd === "number" &&
+            typeof job.est_min_lyd === "number" &&
+            typeof job.est_max_lyd === "number" &&
+            " · "}
+          {typeof job.est_min_lyd === "number" &&
+            typeof job.est_max_lyd === "number" &&
+            `التقدير: ${job.est_min_lyd}–${job.est_max_lyd} د.ل`}
+        </span>
+      </div>
+      {(job.status === "open" || job.status === "matched") && (
+        <JobOffers
+          jobId={job.id}
+          count={job.offers_count ?? 0}
+          onAccepted={onAccepted}
+        />
+      )}
+    </article>
   );
 }
 
@@ -430,7 +1095,7 @@ function JobOffers({
 }: {
   jobId: string;
   count: number;
-  onAccepted: () => void;
+  onAccepted: () => Promise<void>;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -491,7 +1156,7 @@ function JobOffers({
                 : o
           )
         );
-        onAccepted();
+        await onAccepted();
       } else {
         setError(data.error ?? "صار خطأ أثناء قبول العرض. حاول مرة ثانية.");
       }
@@ -503,13 +1168,15 @@ function JobOffers({
   }
 
   const shownCount = offers !== null ? offers.length : count;
-  const accepted = offers?.find(
-    (o) => o.status === "accepted" && o.whatsapp
-  );
+  const accepted = offers?.find((o) => o.status === "accepted" && o.whatsapp);
 
   return (
     <div
-      style={{ marginTop: "16px", borderTop: "1px solid var(--line)", paddingTop: "14px" }}
+      style={{
+        marginTop: "16px",
+        borderTop: "1px solid var(--line)",
+        paddingTop: "14px",
+      }}
     >
       <button
         type="button"

@@ -58,6 +58,7 @@ export function SiteNav() {
           <NavLink href="#tradesmen" label="للأسطوات" />
           <NavLink href="/account" label="حسابي" />
           <NavLink href="/work" label="سوق الشغل" />
+          <NavLink href="/ustas" label="دليل الأسطوات" />
           <ThemeToggle />
         </nav>
       </div>

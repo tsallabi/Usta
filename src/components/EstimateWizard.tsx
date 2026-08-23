@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { services, type ServiceCategory } from "@/lib/services";
+import { findService, services, type ServiceCategory } from "@/lib/services";
 import { market } from "@/lib/market";
 
 type Estimate = {
@@ -45,10 +45,24 @@ const confidenceLabels: Record<Estimate["confidence"], string> = {
   high: "عالية · وصف واضح",
 };
 
-export function EstimateWizard() {
-  const [state, setState] = useState<State>({ step: "pick" });
+export function EstimateWizard({
+  initialService,
+}: {
+  initialService?: string;
+}) {
+  // خدمة محددة مسبقاً (من بلاطات صفحة الحساب: /estimate?service=…) —
+  // ننطّو مباشرة لخطوة الوصف. lazy initializer: يتقيّم مرة وحدة عند التركيب.
+  const [state, setState] = useState<State>(() => {
+    const preset = initialService ? findService(initialService) : undefined;
+    return preset ? { step: "describe", service: preset } : { step: "pick" };
+  });
   const [description, setDescription] = useState("");
-  const [budget, setBudget] = useState(150);
+  const [budget, setBudget] = useState(() => {
+    const preset = initialService ? findService(initialService) : undefined;
+    return preset
+      ? Math.round((preset.fallbackRange.min + preset.fallbackRange.max) / 2)
+      : 150;
+  });
   const [city, setCity] = useState("");
 
   function pickService(s: ServiceCategory) {

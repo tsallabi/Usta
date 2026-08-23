@@ -42,7 +42,21 @@ type WaitlistEntry = {
   added_at: string | null;
 };
 
-type Tab = "jobs" | "tradesmen" | "waitlist";
+type Offer = {
+  id: string;
+  created_at: string;
+  price_lyd: number;
+  status: string;
+  message: string | null;
+  tradesman_id: string;
+  tradesman_name: string | null;
+  tradesman_trade: string | null;
+  job_service: string | null;
+  job_city: string | null;
+  customer_phone: string | null;
+};
+
+type Tab = "jobs" | "tradesmen" | "waitlist" | "offers";
 
 const KEY_STORAGE = "usta_admin_key";
 
@@ -56,6 +70,22 @@ const statusLabels: Record<string, string> = {
   disputed: "متنازع عليه",
 };
 
+const offerStatusLabels: Record<string, string> = {
+  pending: "قيد الانتظار",
+  accepted: "مقبول",
+  countered: "عرض مضاد",
+  declined: "مرفوض",
+  withdrawn: "مسحوب",
+};
+
+function offerStatusTone(
+  status: string
+): "emerald" | "amber" | "coral" | "grey" {
+  if (status === "accepted") return "emerald";
+  if (status === "pending" || status === "countered") return "amber";
+  return "grey"; // declined / withdrawn / anything unknown
+}
+
 /* ─── Console ────────────────────────────────────────────── */
 
 export function AdminConsole() {
@@ -68,6 +98,7 @@ export function AdminConsole() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [tradesmen, setTradesmen] = useState<Tradesman[]>([]);
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([]);
+  const [offers, setOffers] = useState<Offer[]>([]);
   const [dbBound, setDbBound] = useState(true);
   const [kvBound, setKvBound] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -89,10 +120,11 @@ export function AdminConsole() {
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [jr, tr, wr] = await Promise.all([
+      const [jr, tr, wr, or] = await Promise.all([
         authedFetch("/api/admin/jobs"),
         authedFetch("/api/admin/tradesmen"),
         authedFetch("/api/admin/waitlist"),
+        authedFetch("/api/admin/offers"),
       ]);
       if (jr.ok) {
         const data = (await jr.json()) as {
@@ -113,6 +145,10 @@ export function AdminConsole() {
         };
         setWaitlist(data.entries ?? []);
         if (data.kvBound === false) setKvBound(false);
+      }
+      if (or.ok) {
+        const data = (await or.json()) as { offers: Offer[] };
+        setOffers(data.offers ?? []);
       }
     } finally {
       setLoading(false);
@@ -274,6 +310,21 @@ export function AdminConsole() {
   ).length;
   const openJobs = jobs.filter((j) => j.status === "open").length;
 
+  // عروض اليوم — محسوبة محلياً من آخر 200 عرض (تواريخ D1 بتوقيت UTC).
+  const today = new Date().toISOString().slice(0, 10);
+  const offersToday = offers.filter((o) =>
+    o.created_at.startsWith(today)
+  ).length;
+
+  // نسبة القبول = مقبول / (مقبول + مرفوض) — شرطة لما ما فيش قرارات بعد.
+  const acceptedOffers = offers.filter((o) => o.status === "accepted").length;
+  const declinedOffers = offers.filter((o) => o.status === "declined").length;
+  const decidedOffers = acceptedOffers + declinedOffers;
+  const acceptanceRate =
+    decidedOffers === 0
+      ? "—"
+      : `${Math.round((acceptedOffers / decidedOffers) * 100)}%`;
+
   return (
     <div>
       <div
@@ -354,6 +405,12 @@ export function AdminConsole() {
           accent={pendingVerification > 0 ? "amber" : undefined}
         />
         <Kpi label="قائمة الانتظار" value={waitlist.length} />
+        <Kpi
+          label="عروض اليوم"
+          value={offersToday}
+          accent={offersToday > 0 ? "emerald" : undefined}
+        />
+        <Kpi label="نسبة القبول" value={acceptanceRate} />
       </div>
 
       {/* Tabs */}
@@ -370,6 +427,7 @@ export function AdminConsole() {
             ["jobs", `الطلبات (${jobs.length})`],
             ["tradesmen", `الأسطوات (${tradesmen.length})`],
             ["waitlist", `قائمة الانتظار (${waitlist.length})`],
+            ["offers", `العروض (${offers.length})`],
           ] as [Tab, string][]
         ).map(([t, label]) => (
           <button
@@ -405,6 +463,7 @@ export function AdminConsole() {
         />
       )}
       {tab === "waitlist" && <WaitlistTable entries={waitlist} />}
+      {tab === "offers" && <OffersTable offers={offers} />}
     </div>
   );
 }
@@ -417,7 +476,7 @@ function Kpi({
   accent,
 }: {
   label: string;
-  value: number;
+  value: number | string;
   accent?: "emerald" | "amber";
 }) {
   const color =
@@ -644,7 +703,25 @@ function TradesmenTable({
                   {fmtDate(t.created_at)}
                 </td>
                 <td style={td}>
-                  <div style={{ fontWeight: 600 }}>{t.full_name}</div>
+                  <div style={{ fontWeight: 600 }}>
+                    {t.verified_at && !t.suspended_at ? (
+                      <a
+                        href={`/usta/${t.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          color: "var(--ink)",
+                          textDecorationColor: "var(--brand-1)",
+                          textUnderlineOffset: "3px",
+                        }}
+                        title="افتح البروفايل العام"
+                      >
+                        {t.full_name} ↗
+                      </a>
+                    ) : (
+                      t.full_name
+                    )}
+                  </div>
                   <div
                     className="mono"
                     style={{ fontSize: "11px", color: "var(--ink-3)" }}
@@ -793,6 +870,78 @@ function WaitlistTable({ entries }: { entries: WaitlistEntry[] }) {
               </td>
               <td style={{ ...td, whiteSpace: "nowrap" }} className="mono">
                 {fmtDate(w.added_at)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function OffersTable({ offers }: { offers: Offer[] }) {
+  if (offers.length === 0) {
+    return (
+      <Empty note="لا توجد عروض بعد. بتظهر هنا أول ما يقدّم أسطى عرضاً على طلب." />
+    );
+  }
+  return (
+    <div style={tableWrap}>
+      <table style={{ borderCollapse: "collapse", width: "100%", minWidth: "860px" }}>
+        <thead className="mono">
+          <tr>
+            <th style={th}>التاريخ</th>
+            <th style={th}>الأسطى</th>
+            <th style={{ ...th, textAlign: "end" }}>السعر</th>
+            <th style={th}>الحالة</th>
+            <th style={th}>الطلب</th>
+            <th style={th}>الرسالة</th>
+          </tr>
+        </thead>
+        <tbody>
+          {offers.map((o) => (
+            <tr key={o.id}>
+              <td style={{ ...td, whiteSpace: "nowrap" }} className="mono">
+                {fmtDate(o.created_at)}
+              </td>
+              <td style={td}>
+                <div style={{ fontWeight: 600 }}>
+                  {o.tradesman_name ?? "—"}
+                </div>
+                {o.tradesman_trade && (
+                  <div style={{ fontSize: "11px", color: "var(--ink-3)" }}>
+                    {o.tradesman_trade}
+                  </div>
+                )}
+              </td>
+              <td style={{ ...td, textAlign: "end" }} className="serif">
+                {o.price_lyd} د.ل
+              </td>
+              <td style={td}>
+                <Pill tone={offerStatusTone(o.status)}>
+                  {offerStatusLabels[o.status] ?? o.status}
+                </Pill>
+              </td>
+              <td style={td}>
+                {o.job_service ?? "—"}
+                <div style={{ fontSize: "11px", color: "var(--ink-3)" }}>
+                  {o.job_city ?? "—"}
+                  {o.customer_phone && (
+                    <>
+                      {" · "}
+                      <span className="mono" dir="ltr">
+                        {o.customer_phone}
+                      </span>
+                    </>
+                  )}
+                </div>
+              </td>
+              <td style={{ ...td, maxWidth: "260px" }}>
+                {o.message
+                  ? o.message.length > 80
+                    ? `${o.message.slice(0, 80)}…`
+                    : o.message
+                  : "—"}
               </td>
             </tr>
           ))}

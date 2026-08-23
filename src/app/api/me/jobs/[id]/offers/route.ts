@@ -16,6 +16,7 @@ type OfferRow = {
   years_experience: number | null;
   verified: number;
   whatsapp: string | null;
+  accepted_count: number;
 };
 
 /**
@@ -65,11 +66,15 @@ export async function GET(
                 CASE WHEN t.verified_at IS NOT NULL AND t.suspended_at IS NULL
                      THEN 1 ELSE 0 END AS verified,
                 CASE WHEN o.status = 'accepted' THEN t.whatsapp ELSE NULL END
-                  AS whatsapp
+                  AS whatsapp,
+                (SELECT COUNT(*) FROM offers o2
+                  WHERE o2.tradesman_id = o.tradesman_id
+                    AND o2.status = 'accepted') AS accepted_count
            FROM offers o
            JOIN tradesmen t ON t.id = o.tradesman_id
           WHERE o.job_id = ?
-          ORDER BY o.created_at ASC`
+          ORDER BY verified DESC, accepted_count DESC,
+                   t.years_experience DESC, o.created_at DESC`
       )
       .bind(job.id)
       .all<OfferRow>();

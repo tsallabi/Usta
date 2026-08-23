@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getDb, newId } from "@/lib/db";
 import { findService } from "@/lib/services";
 import { isCity, market } from "@/lib/market";
+import { sanitizeContactLeaks } from "@/lib/sanitize";
 import { sendEmailSafe } from "@/lib/email";
 import { jobPostedEmail } from "@/lib/emails/templates";
 
@@ -108,19 +109,21 @@ export async function POST(request: Request) {
     );
   }
 
-  const description = (body.description ?? "").trim();
-  if (description.length < 10) {
+  const rawDescription = (body.description ?? "").trim();
+  if (rawDescription.length < 10) {
     return NextResponse.json(
       { ok: false, error: "صف الشغل في جملة أو جملتين." },
       { status: 400 }
     );
   }
-  if (description.length > 2000) {
+  if (rawDescription.length > 2000) {
     return NextResponse.json(
       { ok: false, error: "خلّي الوصف أقل من 2000 حرف." },
       { status: 400 }
     );
   }
+  // فلتر منع تهريب التواصل — الوصف يُخزّن نظيفاً دائماً.
+  const description = sanitizeContactLeaks(rawDescription).clean;
 
   const budget =
     typeof body.budget === "number" &&

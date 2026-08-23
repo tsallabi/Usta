@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getDb, newId } from "@/lib/db";
 import { findService } from "@/lib/services";
 import { isCity, market } from "@/lib/market";
+import { sanitizeContactLeaks } from "@/lib/sanitize";
 import { sendEmailSafe } from "@/lib/email";
 import { tradesmanApplicationEmail } from "@/lib/emails/templates";
 
@@ -115,7 +116,13 @@ export async function POST(request: Request) {
       ? Math.round(body.yearsExperience)
       : undefined;
 
-  const previousWork = body.previousWork?.trim().slice(0, 1000) || undefined;
+  // فلتر منع تهريب التواصل — أعمال سابقة تُخزّن نظيفة دائماً
+  // (رقم الواتساب الرسمي عندنا في خانته؛ النص الحر ما يحملش أرقام).
+  const rawPreviousWork = body.previousWork?.trim().slice(0, 1000) || undefined;
+  const previousWork =
+    rawPreviousWork !== undefined
+      ? sanitizeContactLeaks(rawPreviousWork).clean || undefined
+      : undefined;
 
   const id = newId("tm");
 

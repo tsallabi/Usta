@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDb, newId } from "@/lib/db";
 import { resolveSessionTradesman } from "@/lib/tradesman";
+import { sanitizeContactLeaks } from "@/lib/sanitize";
 
 export const runtime = "edge";
 
@@ -80,12 +81,21 @@ export async function POST(request: Request) {
     );
   }
 
-  const message = body.message?.trim() || undefined;
-  if (message !== undefined && message.length > 500) {
+  const rawMessage = body.message?.trim() || undefined;
+  if (rawMessage !== undefined && rawMessage.length > 500) {
     return NextResponse.json(
       { ok: false, error: "الرسالة طويلة — 500 حرف كحد أقصى." },
       { status: 400 }
     );
+  }
+
+  // فلتر منع تهريب التواصل — العرض يُقبل لكن النص يُخزّن نظيفاً دائماً.
+  let message: string | undefined;
+  let leakBlocked = false;
+  if (rawMessage !== undefined) {
+    const sanitized = sanitizeContactLeaks(rawMessage);
+    message = sanitized.clean || undefined;
+    leakBlocked = sanitized.leaked;
   }
 
   const db = getDb();
@@ -136,7 +146,10 @@ export async function POST(request: Request) {
       .bind(id, jobId, tradesman.id, price, message ?? null)
       .run();
 
-    return NextResponse.json({ ok: true, id }, { status: 200 });
+    return NextResponse.json(
+      leakBlocked ? { ok: true, id, leakBlocked: true } : { ok: true, id },
+      { status: 200 }
+    );
   } catch (err) {
     console.error("[offers] D1 write failed:", err);
     return NextResponse.json(

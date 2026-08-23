@@ -1,46 +1,17 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { EstimateWizard } from "@/components/EstimateWizard";
+import { UstaDirectory } from "@/components/UstaDirectory";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
-// This page reads searchParams (service preselect from the account tiles),
-// which makes it dynamic — it must run on the edge for
-// @cloudflare/next-on-pages. Same pattern as jobs/new.
-export const runtime = "edge";
-
 export const metadata: Metadata = {
-  title: "جرّب الذكاء الاصطناعي · تقدير سعر عادل في 30 ثانية",
+  title: "دليل الأسطوات",
   description:
-    "صف الشغل اللي تحتاجه واحصل على نطاق سعر عادل للسوق الليبي من ذكاء أسطى الاصطناعي. بدون تسجيل. بدون التزام.",
+    "دليل الأسطوات الموثّقين في أسطى — كهربائي، سبّاك، تكييف، دهان وأكثر. كلهم موثّقين ببطاقة الهوية، والتواصل داخل المنصة.",
 };
 
-type SearchParams = {
-  [key: string]: string | string[] | undefined;
-};
-
-function first(value: string | string[] | undefined): string | undefined {
-  if (Array.isArray(value)) return value[0];
-  return value;
-}
-
-export default function EstimatePage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
-  const initialService = first(searchParams.service);
+export default function UstasPage() {
   return (
     <>
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-            @keyframes estimate-spin { to { transform: rotate(360deg); } }
-            @media (prefers-reduced-motion) {
-              @keyframes estimate-spin { to { transform: rotate(0deg); } }
-            }
-          `,
-        }}
-      />
       <header
         style={{
           position: "sticky",
@@ -88,13 +59,13 @@ export default function EstimatePage({
 
       <main
         style={{
-          maxWidth: "760px",
+          maxWidth: "960px",
           margin: "0 auto",
           padding: "60px 24px 100px",
         }}
       >
         <div className="kicker" style={{ marginBottom: "20px" }}>
-          — أداة مجانية · بدون تسجيل
+          — دليل الأسطوات الموثّقين
         </div>
         <h1
           className="serif"
@@ -107,11 +78,11 @@ export default function EstimatePage({
             fontWeight: 400,
           }}
         >
-          اعرف السعر{" "}
+          لقّي{" "}
           <em style={{ color: "var(--brand-1)", fontStyle: "italic" }}>
-            العادل
-          </em>{" "}
-          قبل ما تتصل بأي حد.
+            أسطاك
+          </em>
+          .
         </h1>
         <p
           style={{
@@ -122,12 +93,11 @@ export default function EstimatePage({
             maxWidth: "540px",
           }}
         >
-          اختر المهنة، صف الشغل في جملة، والذكاء الاصطناعي يوريك النطاق المعتاد
-          في السوق الليبي — مع درجة ثقة. ما يشخّصش العطل أبداً، عشان تقدر تثق
-          في الرقم.
+          كلهم موثّقين ببطاقة الهوية وأعمالهم — والتواصل يتم داخل المنصة،
+          عبر طلب تنشره ويوصلك عرضه.
         </p>
 
-        <EstimateWizard initialService={initialService} />
+        <UstaDirectory />
       </main>
 
       <footer
@@ -139,7 +109,7 @@ export default function EstimatePage({
       >
         <div
           style={{
-            maxWidth: "760px",
+            maxWidth: "960px",
             margin: "0 auto",
             display: "flex",
             justifyContent: "space-between",

@@ -88,6 +88,15 @@ export async function GET(request: Request) {
       .bind(tradesman.id, tradesman.trade)
       .all<WorkJobRow>();
 
+    // عدد عروض الأسطى المقبولة — سمعته الحيّة على البورد.
+    const acceptedRow = await db
+      .prepare(
+        `SELECT COUNT(*) AS n FROM offers
+          WHERE tradesman_id = ? AND status = 'accepted'`
+      )
+      .bind(tradesman.id)
+      .first<{ n: number }>();
+
     const jobs = (results ?? []).map((r) => ({
       id: r.id,
       service: r.service,
@@ -117,6 +126,7 @@ export async function GET(request: Request) {
           trade: tradesman.trade,
           city: tradesman.city,
         },
+        acceptedCount: acceptedRow?.n ?? 0,
         jobs,
       },
       { status: 200 }

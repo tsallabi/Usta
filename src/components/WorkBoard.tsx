@@ -34,7 +34,12 @@ type View =
   | { kind: "not_tradesman" }
   | { kind: "not_verified" }
   | { kind: "error"; message: string }
-  | { kind: "ready"; tradesman: TradesmanInfo; jobs: WorkJob[] };
+  | {
+      kind: "ready";
+      tradesman: TradesmanInfo;
+      jobs: WorkJob[];
+      acceptedCount: number;
+    };
 
 const offerStatusLabels: Record<string, string> = {
   pending: "قيد الانتظار",
@@ -65,6 +70,7 @@ export function WorkBoard() {
         code?: string;
         error?: string;
         tradesman?: TradesmanInfo;
+        acceptedCount?: number;
         jobs?: WorkJob[];
       };
       if (res.status === 401) {
@@ -80,7 +86,13 @@ export function WorkBoard() {
         return;
       }
       if (data.ok && data.tradesman && Array.isArray(data.jobs)) {
-        setView({ kind: "ready", tradesman: data.tradesman, jobs: data.jobs });
+        setView({
+          kind: "ready",
+          tradesman: data.tradesman,
+          jobs: data.jobs,
+          acceptedCount:
+            typeof data.acceptedCount === "number" ? data.acceptedCount : 0,
+        });
         return;
       }
       setView({
@@ -212,11 +224,79 @@ export function WorkBoard() {
     );
   }
 
-  const { tradesman, jobs } = view;
+  const { tradesman, jobs, acceptedCount } = view;
   const trade = findService(tradesman.trade);
 
   return (
     <>
+      {/* ترتيبك في السوق — السمعة هي اللي تقدّم عروضك */}
+      <div
+        style={{
+          padding: "16px 20px",
+          borderRadius: "14px",
+          background: "var(--paper-2)",
+          border: "1px solid var(--line)",
+          borderInlineStart: "3px solid var(--brand-1)",
+          marginBottom: "20px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "16px",
+          flexWrap: "wrap",
+          maxWidth: "680px",
+        }}
+      >
+        <div style={{ flex: "1 1 320px" }}>
+          <div
+            className="mono"
+            style={{
+              fontSize: "10px",
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "var(--brand-1)",
+              fontWeight: 600,
+              marginBottom: "6px",
+            }}
+          >
+            ترتيبك في السوق
+          </div>
+          <p
+            style={{
+              fontSize: "13px",
+              color: "var(--ink-2)",
+              lineHeight: 1.55,
+              margin: 0,
+            }}
+          >
+            كل شغلة تكملها بتقييم عالي = عروضك تظهر قبل الكل لما أي زبون
+            يدوّر على خدمتك. سمعتك هي رأس مالك.
+          </p>
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <div
+            className="serif"
+            style={{
+              fontSize: "28px",
+              lineHeight: 1.2,
+              color: "var(--ink)",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            {acceptedCount}
+          </div>
+          <div
+            className="mono"
+            style={{
+              fontSize: "10px",
+              letterSpacing: "0.1em",
+              color: "var(--ink-3)",
+            }}
+          >
+            عروضك المقبولة
+          </div>
+        </div>
+      </div>
+
       <div
         style={{
           display: "flex",
