@@ -12,6 +12,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
+import { PinEyeButton } from "./SignupForm";
 import { findService } from "@/lib/services";
 
 const KEY_STORAGE = "usta_owner_key";
@@ -166,6 +167,7 @@ const healthLabels: Record<string, string> = {
 
 export function OwnerConsole() {
   const [key, setKey] = useState("");
+  const [showKey, setShowKey] = useState(false);
   const [authed, setAuthed] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
@@ -401,15 +403,22 @@ export function OwnerConsole() {
           المفتاح ما يتشاركش مع أي موظف.
         </p>
         <form onSubmit={tryLogin}>
-          <input
-            type="password"
-            value={key}
-            onChange={(e) => setKey(e.target.value)}
-            placeholder="مفتاح المالك"
-            autoComplete="off"
-            style={inputStyle}
-            aria-label="مفتاح المالك"
-          />
+          <div style={{ position: "relative" }}>
+            <input
+              type={showKey ? "text" : "password"}
+              value={key}
+              onChange={(e) => setKey(e.target.value)}
+              placeholder="مفتاح المالك"
+              autoComplete="off"
+              dir="ltr"
+              style={{ ...inputStyle, paddingInlineEnd: "44px" }}
+              aria-label="مفتاح المالك"
+            />
+            <PinEyeButton
+              show={showKey}
+              onToggle={() => setShowKey(!showKey)}
+            />
+          </div>
           {authError ? (
             <p style={{ color: "var(--coral, #F26D5B)", fontSize: "13px" }}>
               {authError}

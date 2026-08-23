@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { PinEyeButton } from "./SignupForm";
 
 /* ─── Types mirroring the admin APIs ─────────────────────── */
 
@@ -92,6 +93,7 @@ function offerStatusTone(
 
 export function AdminConsole() {
   const [key, setKey] = useState("");
+  const [showKey, setShowKey] = useState(false);
   const [authed, setAuthed] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
@@ -250,26 +252,29 @@ export function AdminConsole() {
           >
             مفتاح الأدمن
           </label>
-          <input
-            id="admin-key"
-            type="password"
-            value={key}
-            onChange={(e) => setKey(e.target.value)}
-            placeholder="مفتاح الأدمن"
-            autoComplete="current-password"
-            dir="ltr"
-            style={{
-              flex: "1 1 220px",
-              padding: "14px 18px",
-              borderRadius: "999px",
-              border: "1px solid var(--line)",
-              background: "var(--paper)",
-              color: "var(--ink)",
-              fontSize: "15px",
-              fontFamily: "inherit",
-              outline: "none",
-            }}
-          />
+          <div style={{ position: "relative", flex: "1 1 220px" }}>
+            <input
+              id="admin-key"
+              type={showKey ? "text" : "password"}
+              value={key}
+              onChange={(e) => setKey(e.target.value)}
+              placeholder="مفتاح الأدمن"
+              autoComplete="current-password"
+              dir="ltr"
+              style={{
+                width: "100%",
+                padding: "14px 44px 14px 18px",
+                borderRadius: "999px",
+                border: "1px solid var(--line)",
+                background: "var(--paper)",
+                color: "var(--ink)",
+                fontSize: "15px",
+                fontFamily: "inherit",
+                outline: "none",
+              }}
+            />
+            <PinEyeButton show={showKey} onToggle={() => setShowKey(!showKey)} />
+          </div>
           <button
             type="submit"
             disabled={checking || key.length < 4}
