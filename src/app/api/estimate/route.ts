@@ -194,7 +194,7 @@ export async function POST(request: Request) {
         apiKey: geminiKey,
         system: SYSTEM_PROMPT,
         user: userPrompt,
-        maxTokens: 600,
+        maxTokens: 2048,
         temperature: 0.2,
       });
       const parsed = validate(gemini.text);

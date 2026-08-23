@@ -19,7 +19,10 @@ export type GeminiResponse = {
   text: string;
 };
 
-const DEFAULT_MODEL = "gemini-2.5-flash";
+// gemini-2.5-flash retired for new users (API returns 404 pointing here).
+// 3.6 is a thinking model: thoughts consume output tokens, so callers must
+// leave generous maxTokens headroom (thinking alone can burn ~700 tokens).
+const DEFAULT_MODEL = "gemini-3.6-flash";
 
 export class GeminiError extends Error {
   constructor(
@@ -49,7 +52,7 @@ export async function callGemini(
         contents: [{ role: "user", parts: [{ text: opts.user }] }],
         generationConfig: {
           temperature: opts.temperature ?? 0.2,
-          maxOutputTokens: opts.maxTokens ?? 1024,
+          maxOutputTokens: opts.maxTokens ?? 2048,
           responseMimeType: "application/json",
         },
       }),
