@@ -56,6 +56,7 @@ export function SiteNav() {
         >
           <NavLink href="#how" label="كيف يخدم" />
           <NavLink href="#tradesmen" label="للأسطوات" />
+          <NavLink href="/account" label="حسابي" />
           <ThemeToggle />
         </nav>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type CSSProperties, type FormEvent } from "react";
+import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { services } from "@/lib/services";
 import { market } from "@/lib/market";
 
@@ -75,6 +75,25 @@ export function JobPostForm({
   );
   const [area, setArea] = useState("");
   const [status, setStatus] = useState<Status>({ kind: "idle" });
+
+  // لو المستخدم مسجّل دخوله، نعبّي رقم هاتفه تلقائياً (يظل قابلاً للتعديل).
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/auth/me")
+      .then((res) => res.json())
+      .then((raw) => {
+        const data = raw as { loggedIn?: boolean; phone?: string };
+        if (cancelled || !data.loggedIn || !data.phone) return;
+        const sessionPhone = data.phone;
+        setPhone((prev) => (prev ? prev : sessionPhone));
+      })
+      .catch(() => {
+        // غير مسجّل / لا شبكة — الفورم يخدم عادي بدون تعبئة مسبقة.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
