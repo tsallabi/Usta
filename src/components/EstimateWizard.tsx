@@ -39,6 +39,7 @@ const gradientMap: Record<ServiceCategory["gradient"], string> = {
   sky: "linear-gradient(140deg, #3B7EA1, #256380)",
   walnut: "linear-gradient(140deg, #8B5E34, #66421F)",
   iron: "linear-gradient(140deg, #3E4A52, #232D33)",
+  indigo: "linear-gradient(140deg, #4B4E9E, #32356E)",
 };
 
 const confidenceLabels: Record<Estimate["confidence"], string> = {
@@ -213,7 +214,26 @@ export function EstimateWizard({
     const errorMessage = state.step === "error" ? state.message : null;
 
     return (
-      <form onSubmit={submit}>
+      <form onSubmit={submit} style={{ position: "relative" }}>
+        {/* خلفية باهتة بأيقونة المهنة — أجواء النشاط بدون مزاحمة المحتوى */}
+        <svg
+          aria-hidden="true"
+          width={360}
+          height={360}
+          viewBox="0 0 24 24"
+          style={{
+            position: "absolute",
+            left: "-70px",
+            bottom: "-40px",
+            color: "var(--ink)",
+            opacity: 0.05,
+            transform: "rotate(-12deg)",
+            pointerEvents: "none",
+            zIndex: -1,
+          }}
+        >
+          <IconPath icon={svc.icon} />
+        </svg>
         <button
           type="button"
           onClick={reset}
@@ -289,6 +309,28 @@ export function EstimateWizard({
             </div>
           </div>
         </div>
+
+        {svc.partner ? (
+          <a
+            href={svc.partner.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "block",
+              margin: "-8px 0 20px",
+              padding: "12px 18px",
+              borderRadius: "14px",
+              border: "1px dashed var(--line)",
+              color: "var(--brand-2, #0B7F58)",
+              fontSize: "14px",
+              textDecoration: "none",
+              background:
+                "color-mix(in srgb, var(--brand-1, #10B981) 6%, transparent)",
+            }}
+          >
+            {svc.partner.label} ←
+          </a>
+        ) : null}
 
         <label style={{ display: "block", marginBottom: "20px" }}>
           <span
@@ -863,6 +905,25 @@ function IconPath({ icon }: { icon: ServiceCategory["icon"] }) {
         <path d="M12 3 L21 12 L18 15 L9 6 Z" fill="currentColor" />
         <path d="M10 8 L3 15 L6 18 L13 11 Z" fill="currentColor" opacity={0.85} />
         <path d="M4.5 16.5 L2 19 a1.5 1.5 0 0 0 2 2 L6.5 18.5 Z" fill="currentColor" />
+      </>
+    ),
+    key: (
+      <>
+        <circle
+          cx={8}
+          cy={12}
+          r={4.5}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+        />
+        <path
+          d="M12.5 12 H21 M18 12 v4 M15 12 v3"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+        />
       </>
     ),
     send: (

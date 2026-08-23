@@ -25,7 +25,8 @@ export type ServiceCategory = {
     | "ochre"
     | "sky"
     | "walnut"
-    | "iron";
+    | "iron"
+    | "indigo";
   icon:
     | "bolt"
     | "wrench"
@@ -37,12 +38,15 @@ export type ServiceCategory = {
     | "box"
     | "send"
     | "saw"
-    | "hammer";
+    | "hammer"
+    | "key";
   fallbackRange: { min: number; max: number };
   /** سطر أجواء الخدمة تحت العنوان في خطوة الوصف — كل خدمة بلسانها. */
   describeHint: string;
   /** مثال placeholder حقيقي بلهجة ليبية يخص هذي الخدمة تحديداً. */
   placeholder: string;
+  /** شريك خارجي في منظومتنا يخص هذي الخدمة (مثل أجرلي للإيجارات). */
+  partner?: { label: string; url: string };
 };
 
 export const services: ServiceCategory[] = [
@@ -155,6 +159,21 @@ export const services: ServiceCategory[] = [
     describeHint: "شغل جديد وإلا تصليح؟ والقياسات تقريباً شن هي؟",
     placeholder:
       "مثال: نبو باب حوش حديد بقياس 3 متر مع بوابة صغيرة للمشاة، والشباك القديم صدّى ويحتاج لحام.",
+  },
+  {
+    slug: "rentals",
+    name: "إيجارات",
+    description: "شقق، أحواش، محلات — من الملّاك والمندوبين مباشرة",
+    gradient: "indigo",
+    icon: "key",
+    fallbackRange: { min: 300, max: 2500 },
+    describeHint: "شن تدوّر — شقة، حوش، محل؟ وين؟ وبكم ميزانيتك الشهرية؟",
+    placeholder:
+      "مثال: ندوّر شقة غرفتين وصالة في تاجوراء أو عين زارة، مفروشة لو أمكن، بميزانية 1500 دينار في الشهر.",
+    partner: {
+      label: "شوف العقارات المعروضة توّا على أجرلي",
+      url: "https://ajr.ly",
+    },
   },
   {
     slug: "delivery",

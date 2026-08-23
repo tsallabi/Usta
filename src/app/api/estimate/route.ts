@@ -45,6 +45,7 @@ STRICT RULES:
 5. If the description is too vague to price fairly, widen the range and mark confidence "low".
 6. Emergency / out-of-hours call-outs command a premium — reflect it in the max.
 7. Parts availability in Libya can affect price and timing — when the job clearly needs imported parts or appliances, mention it in scope_note.
+7b. For the rentals (إيجارات) category the range is a fair MONTHLY RENT in LYD for the described property and area — judge by city, neighborhood, size and furnishing.
 8. Write sample_note and scope_note in Arabic (Libyan-friendly Modern Standard is fine). Use Western digits (0-9) only — never Eastern Arabic numerals.
 9. sample_note and scope_note must be simple Modern Standard Arabic flavored with Libyan vocabulary (e.g. الكوشينة for kitchen, الحوش for house, بريزة for power socket, الشيشمة for tap/faucet — never حنفية) — NEVER use Gulf dialect words or phrasing.
 10. Return ONLY a valid JSON object matching the schema below. No prose. No code fences. No apologies.

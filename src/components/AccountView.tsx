@@ -107,6 +107,7 @@ const gradientMap: Record<ServiceCategory["gradient"], string> = {
   sky: "linear-gradient(140deg, #3B7EA1, #256380)",
   walnut: "linear-gradient(140deg, #8B5E34, #66421F)",
   iron: "linear-gradient(140deg, #3E4A52, #232D33)",
+  indigo: "linear-gradient(140deg, #4B4E9E, #32356E)",
 };
 
 function iconPaths(icon: ServiceCategory["icon"]): JSX.Element {
@@ -205,6 +206,25 @@ function iconPaths(icon: ServiceCategory["icon"]): JSX.Element {
         <path d="M12 3 L21 12 L18 15 L9 6 Z" fill="currentColor" />
         <path d="M10 8 L3 15 L6 18 L13 11 Z" fill="currentColor" opacity={0.85} />
         <path d="M4.5 16.5 L2 19 a1.5 1.5 0 0 0 2 2 L6.5 18.5 Z" fill="currentColor" />
+      </>
+    ),
+    key: (
+      <>
+        <circle
+          cx={8}
+          cy={12}
+          r={4.5}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+        />
+        <path
+          d="M12.5 12 H21 M18 12 v4 M15 12 v3"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+        />
       </>
     ),
     send: (
