@@ -313,7 +313,7 @@ export function AdminConsole() {
             cursor: "pointer",
           }}
         >
-          {loading ? "قاعد يحدّث…" : "↻ تحديث"}
+          {loading ? "جارٍ التحديث…" : "↻ تحديث"}
         </button>
       </div>
 

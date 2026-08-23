@@ -142,7 +142,7 @@ export function TradesmanForm() {
       if (!res.ok || !data.ok) {
         setStatus({
           kind: "error",
-          message: data.error ?? "صار خطأ ما. حاول مرة ثانية.",
+          message: data.error ?? "صارت مشكلة. حاول مرة ثانية.",
         });
         return;
       }

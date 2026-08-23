@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     locale: "ar_LY",
     siteName: "أسطى",
     title: "أسطى — سعر عادل. أسطى موثوق.",
-    description: "الرقم اللي تبي تعرفه فعلاً، قبل ما أي حد يحاول يبيعلك أي شيء.",
+    description: "الرقم اللي تحب تعرفه فعلاً، قبل ما أي حد يحاول يبيعلك أي شيء.",
   },
   twitter: {
     card: "summary_large_image",

@@ -41,7 +41,7 @@ export const services: ServiceCategory[] = [
   {
     slug: "electrician",
     name: "كهربائي",
-    description: "أفياش، قواطع، إضاءة، تمديدات، أعطال كهرباء",
+    description: "بريزات، قواطع، إضاءة، تمديدات، أعطال كهرباء",
     gradient: "blue",
     icon: "bolt",
     fallbackRange: { min: 30, max: 150 },

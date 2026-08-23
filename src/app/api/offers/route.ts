@@ -59,7 +59,7 @@ export async function POST(request: Request) {
   const jobId = (body.jobId ?? "").trim();
   if (!jobId) {
     return NextResponse.json(
-      { ok: false, error: "حدّد الطلب اللي تبي تقدّم عليه." },
+      { ok: false, error: "حدّد الطلب اللي تحب تقدّم عليه." },
       { status: 400 }
     );
   }

@@ -253,7 +253,7 @@ export function WorkBoard() {
             cursor: "pointer",
           }}
         >
-          {refreshing ? "قاعد يحدّث…" : "↻ تحديث"}
+          {refreshing ? "قاعدين نحدّثو…" : "↻ تحديث"}
         </button>
       </div>
 
@@ -581,7 +581,7 @@ function JobCard({
                 opacity: busy ? 0.6 : 1,
               }}
             >
-              {busy ? "قاعد يرسل…" : "أرسل العرض"}
+              {busy ? "قاعدين نرسلو عرضك…" : "أرسل العرض"}
             </button>
             <button
               type="button"

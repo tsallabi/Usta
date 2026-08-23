@@ -152,7 +152,7 @@ export function JobPostForm({
       if (!res.ok || !data.ok || !data.id) {
         setStatus({
           kind: "error",
-          message: data.error ?? "صار خطأ ما. حاول مرة ثانية.",
+          message: data.error ?? "صارت مشكلة. حاول مرة ثانية.",
         });
         return;
       }
@@ -311,7 +311,7 @@ export function JobPostForm({
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="مثال: مقبسين في الكوشينة وقفوا بعد ما طاحت الكهرباء. رجّعنا القاطع وما زالوا ما يخدموش."
+          placeholder="مثال: بريزتين في الكوشينة ما عادش يشتغلو من بعد ما طاحت الكهرباء. رجّعنا القاطع وما نفعش."
           rows={4}
           required
           maxLength={2000}

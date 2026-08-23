@@ -46,15 +46,16 @@ STRICT RULES:
 6. Emergency / out-of-hours call-outs command a premium — reflect it in the max.
 7. Parts availability in Libya can affect price and timing — when the job clearly needs imported parts or appliances, mention it in scope_note.
 8. Write sample_note and scope_note in Arabic (Libyan-friendly Modern Standard is fine). Use Western digits (0-9) only — never Eastern Arabic numerals.
-9. Return ONLY a valid JSON object matching the schema below. No prose. No code fences. No apologies.
+9. sample_note and scope_note must be simple Modern Standard Arabic flavored with Libyan vocabulary (e.g. الكوشينة for kitchen, الحوش for house, بريزة for power socket) — NEVER use Gulf dialect words or phrasing.
+10. Return ONLY a valid JSON object matching the schema below. No prose. No code fences. No apologies.
 
 SCHEMA:
 {
   "min_lyd": integer,          // lower bound of the fair range in LYD
   "max_lyd": integer,          // upper bound of the fair range in LYD
   "confidence": "low" | "medium" | "high",
-  "sample_note": string,       // بالعربي: سطر قصير يوضح على شنو مبني النطاق (مثال: "نطاق معتاد في طرابلس لأعطال أفياش الكوشينة")
-  "scope_note": string         // بالعربي: سطر واحد يوضح شنو داخل في السعر أو تنبيه مهم (مثال: "اليد العاملة + قطعة غيار وحدة. التمديدات الكبيرة تكلف أكثر.")
+  "sample_note": string,       // بالعربي: سطر قصير يوضح على شن مبني النطاق (مثال: "نطاق معتاد في طرابلس لأعطال بريزات الكوشينة")
+  "scope_note": string         // بالعربي: سطر واحد يوضح شن داخل في السعر أو تنبيه مهم (مثال: "اليد العاملة + قطعة غيار وحدة. التمديدات الكبيرة تكلف أكثر.")
 }`;
 
 function buildUserPrompt(input: {

@@ -53,7 +53,7 @@ export function WaitlistForm({
         };
         setStatus({
           kind: "error",
-          message: data.error ?? "صار خطأ ما. حاول مرة ثانية.",
+          message: data.error ?? "صارت مشكلة. حاول مرة ثانية.",
         });
         return;
       }

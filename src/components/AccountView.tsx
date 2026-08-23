@@ -527,7 +527,7 @@ function JobOffers({
           cursor: "pointer",
         }}
       >
-        {expanded ? "إخفاء العروض" : `عرض العروض (${shownCount})`}
+        {expanded ? "إخفاء العروض" : `شوف العروض (${shownCount})`}
       </button>
 
       {expanded && (
@@ -764,7 +764,7 @@ function JobOffers({
                         opacity: busy ? 0.6 : 1,
                       }}
                     >
-                      {busy ? "قاعد يقبل…" : "اقبل العرض"}
+                      {busy ? "قاعدين نقبلو…" : "اقبل العرض"}
                     </button>
                   )}
                 </div>

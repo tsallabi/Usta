@@ -84,7 +84,7 @@ export function EstimateWizard() {
         setState({
           step: "error",
           service: svc,
-          message: "error" in data ? data.error : "صار خطأ ما. حاول مرة ثانية.",
+          message: "error" in data ? data.error : "صارت مشكلة. حاول مرة ثانية.",
         });
         return;
       }
@@ -230,7 +230,7 @@ export function EstimateWizard() {
             lineHeight: 1.3,
           }}
         >
-          صف اللي صاير.
+          اوصف نوع الشغل المطلوب.
         </h2>
 
         <label style={{ display: "block", marginBottom: "20px" }}>
@@ -251,7 +251,7 @@ export function EstimateWizard() {
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="مثال: مقبسين في الكوشينة وقفوا بعد ما طاحت الكهرباء. رجّعنا القاطع وما زالوا ما يخدموش."
+            placeholder="مثال: بريزتين في الكوشينة ما عادش يشتغلو من بعد ما طاحت الكهرباء. رجّعنا القاطع وما نفعش."
             rows={4}
             disabled={isLoading}
             required
@@ -438,11 +438,11 @@ export function EstimateWizard() {
           {isLoading ? (
             <>
               <Spinner />
-              قاعد نحسب التقدير العادل…
+              قاعدين نحسبو التقدير العادل…
             </>
           ) : (
             <>
-              <SparkIcon /> اعطني التقدير الذكي
+              <SparkIcon /> اعطيني التقدير الذكي
             </>
           )}
         </button>
@@ -649,7 +649,7 @@ export function EstimateWizard() {
         >
           <span>
             {estimate.source !== "fallback"
-              ? "تقدير من الذكاء الاصطناعي · مو تشخيص · مو عرض نهائي"
+              ? "تقدير من الذكاء الاصطناعي · مش تشخيص · مش عرض نهائي"
               : "نطاق تقريبي للسوق · مفتاح الذكاء الاصطناعي غير مفعّل"}
           </span>
           <span>{svc.name}</span>
@@ -685,7 +685,7 @@ export function EstimateWizard() {
             margin: "0 0 16px",
           }}
         >
-          أسطى ينطلق في طرابلس وبنغازي ومصراتة. انشر طلبك الآن أو سجّل في قائمة
+          أسطى ينطلق في طرابلس وبنغازي ومصراتة. انشر طلبك توا أو سجّل في قائمة
           الانتظار وبنتواصل معاك أول ما نفتح في مدينتك.
         </p>
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
