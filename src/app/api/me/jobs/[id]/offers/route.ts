@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getSessionPhone } from "@/lib/auth";
+import { avgRatingSql, ratingsCountSql } from "@/lib/rating";
 
 export const runtime = "edge";
 
@@ -17,6 +18,8 @@ type OfferRow = {
   verified: number;
   whatsapp: string | null;
   accepted_count: number;
+  avg_rating: number | null;
+  ratings_count: number;
 };
 
 /**
@@ -69,11 +72,14 @@ export async function GET(
                   AS whatsapp,
                 (SELECT COUNT(*) FROM offers o2
                   WHERE o2.tradesman_id = o.tradesman_id
-                    AND o2.status = 'accepted') AS accepted_count
+                    AND o2.status = 'accepted') AS accepted_count,
+                ${avgRatingSql("o.tradesman_id")} AS avg_rating,
+                ${ratingsCountSql("o.tradesman_id")} AS ratings_count
            FROM offers o
            JOIN tradesmen t ON t.id = o.tradesman_id
           WHERE o.job_id = ?
-          ORDER BY verified DESC, accepted_count DESC,
+          ORDER BY avg_rating IS NULL, avg_rating DESC,
+                   verified DESC, accepted_count DESC,
                    t.years_experience DESC, o.created_at DESC`
       )
       .bind(job.id)
@@ -91,6 +97,8 @@ export async function GET(
       years_experience: o.years_experience,
       verified: o.verified === 1,
       whatsapp: o.whatsapp,
+      avg_rating: o.avg_rating,
+      ratings_count: o.ratings_count,
     }));
 
     return NextResponse.json(

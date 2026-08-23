@@ -33,6 +33,8 @@ type Tradesman = {
   verified_at: string | null;
   suspended_at: string | null;
   created_at: string;
+  avg_rating: number | null;
+  ratings_count: number;
 };
 
 type WaitlistEntry = {
@@ -685,6 +687,7 @@ function TradesmenTable({
             <th style={th}>الاسم</th>
             <th style={th}>المهنة</th>
             <th style={th}>المدينة</th>
+            <th style={th}>التقييم</th>
             <th style={th}>مناطق الشغل</th>
             <th style={th}>التوثيق</th>
             <th style={th}>الحالة</th>
@@ -737,6 +740,34 @@ function TradesmenTable({
                 </td>
                 <td style={td}>{t.trade}</td>
                 <td style={td}>{t.city}</td>
+                <td style={{ ...td, whiteSpace: "nowrap" }}>
+                  {t.avg_rating != null ? (
+                    <>
+                      <span
+                        className="serif"
+                        style={{
+                          color: "var(--amber)",
+                          fontSize: "15px",
+                          fontVariantNumeric: "tabular-nums",
+                        }}
+                      >
+                        ★ {t.avg_rating}
+                      </span>
+                      <span
+                        className="mono"
+                        style={{
+                          fontSize: "10px",
+                          color: "var(--ink-3)",
+                          marginInlineStart: "4px",
+                        }}
+                      >
+                        ({t.ratings_count})
+                      </span>
+                    </>
+                  ) : (
+                    "—"
+                  )}
+                </td>
                 <td style={{ ...td, maxWidth: "160px" }}>{t.service_area}</td>
                 <td style={{ ...td, maxWidth: "220px" }}>
                   <span

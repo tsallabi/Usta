@@ -97,6 +97,20 @@ export async function GET(request: Request) {
       .bind(tradesman.id)
       .first<{ n: number }>();
 
+    // تقييم الأسطى الحيّ — النجوم هي ترتيبه في السوق.
+    const ratingRow = await db
+      .prepare(
+        `SELECT ROUND(AVG((r.punctuality + r.quality + r.price_adherence +
+                           r.professionalism + r.communication) / 5.0), 1)
+                  AS avg_rating,
+                COUNT(*) AS ratings_count
+           FROM ratings r
+           JOIN offers ao ON ao.job_id = r.job_id AND ao.status = 'accepted'
+          WHERE r.rater = 'customer' AND ao.tradesman_id = ?`
+      )
+      .bind(tradesman.id)
+      .first<{ avg_rating: number | null; ratings_count: number }>();
+
     const jobs = (results ?? []).map((r) => ({
       id: r.id,
       service: r.service,
@@ -127,6 +141,8 @@ export async function GET(request: Request) {
           city: tradesman.city,
         },
         acceptedCount: acceptedRow?.n ?? 0,
+        avgRating: ratingRow?.avg_rating ?? null,
+        ratingsCount: ratingRow?.ratings_count ?? 0,
         jobs,
       },
       { status: 200 }

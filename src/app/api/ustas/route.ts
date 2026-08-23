@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { findService } from "@/lib/services";
 import { isCity } from "@/lib/market";
+import { avgRatingSql, ratingsCountSql } from "@/lib/rating";
 
 export const runtime = "edge";
 
@@ -24,6 +25,8 @@ type UstaRow = {
   years_experience: number | null;
   created_at: string;
   accepted_count: number;
+  avg_rating: number | null;
+  ratings_count: number;
 };
 
 export async function GET(request: Request) {
@@ -61,10 +64,13 @@ export async function GET(request: Request) {
                 t.years_experience, t.created_at,
                 (SELECT COUNT(*) FROM offers o
                   WHERE o.tradesman_id = t.id AND o.status = 'accepted')
-                  AS accepted_count
+                  AS accepted_count,
+                ${avgRatingSql("t.id")} AS avg_rating,
+                ${ratingsCountSql("t.id")} AS ratings_count
            FROM tradesmen t
           WHERE ${conditions.join(" AND ")}
-          ORDER BY accepted_count DESC,
+          ORDER BY avg_rating IS NULL, avg_rating DESC,
+                   accepted_count DESC,
                    t.years_experience DESC,
                    t.created_at ASC
           LIMIT 100`

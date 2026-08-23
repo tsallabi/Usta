@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
+import { avgRatingSql, ratingsCountSql } from "@/lib/rating";
 
 export const runtime = "edge";
 
@@ -18,6 +19,8 @@ type TradesmanRow = {
   verified_at: string | null;
   suspended_at: string | null;
   created_at: string;
+  avg_rating: number | null;
+  ratings_count: number;
 };
 
 export async function GET(request: Request) {
@@ -35,11 +38,13 @@ export async function GET(request: Request) {
   try {
     const { results } = await db
       .prepare(
-        `SELECT id, whatsapp, email, full_name, trade, city, service_area,
-                national_id, years_experience, previous_work,
-                verified_at, suspended_at, created_at
-           FROM tradesmen
-          ORDER BY created_at DESC
+        `SELECT t.id, t.whatsapp, t.email, t.full_name, t.trade, t.city,
+                t.service_area, t.national_id, t.years_experience,
+                t.previous_work, t.verified_at, t.suspended_at, t.created_at,
+                ${avgRatingSql("t.id")} AS avg_rating,
+                ${ratingsCountSql("t.id")} AS ratings_count
+           FROM tradesmen t
+          ORDER BY t.created_at DESC
           LIMIT 500`
       )
       .all<TradesmanRow>();

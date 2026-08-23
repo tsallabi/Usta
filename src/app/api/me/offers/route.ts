@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getSessionPhone } from "@/lib/auth";
+import { avgRatingSql, ratingsCountSql } from "@/lib/rating";
 
 export const runtime = "edge";
 
@@ -18,14 +19,16 @@ type IncomingOfferRow = {
   years_experience: number | null;
   verified: number;
   accepted_count: number;
+  avg_rating: number | null;
+  ratings_count: number;
 };
 
 /**
  * كل العروض المعلّقة على طلبات المستخدم المفتوحة — لصندوق "عروض جديدة"
  * في صفحة الحساب.
  *
- * الترتيب بالجودة: الموثّق أولاً، ثم اللي عنده عروض مقبولة أكثر (سمعة)،
- * ثم سنوات الخبرة، ثم الأحدث.
+ * الترتيب بالجودة: التقييم أولاً (النجوم هي الترتيب)، ثم الموثّق،
+ * ثم اللي عنده عروض مقبولة أكثر (سمعة)، ثم سنوات الخبرة، ثم الأحدث.
  *
  * خصوصية: لا يُرجع أبداً whatsapp أو أي رقم — التواصل يفتح فقط بعد القبول.
  */
@@ -58,14 +61,17 @@ export async function GET(request: Request) {
                      THEN 1 ELSE 0 END AS verified,
                 (SELECT COUNT(*) FROM offers o2
                   WHERE o2.tradesman_id = o.tradesman_id
-                    AND o2.status = 'accepted') AS accepted_count
+                    AND o2.status = 'accepted') AS accepted_count,
+                ${avgRatingSql("o.tradesman_id")} AS avg_rating,
+                ${ratingsCountSql("o.tradesman_id")} AS ratings_count
            FROM offers o
            JOIN jobs j ON j.id = o.job_id
            JOIN tradesmen t ON t.id = o.tradesman_id
           WHERE j.customer_phone = ?1
             AND j.status = 'open'
             AND o.status = 'pending'
-          ORDER BY verified DESC, accepted_count DESC,
+          ORDER BY avg_rating IS NULL, avg_rating DESC,
+                   verified DESC, accepted_count DESC,
                    t.years_experience DESC, o.created_at DESC
           LIMIT 50`
       )
@@ -88,6 +94,8 @@ export async function GET(request: Request) {
       city: r.city,
       years_experience: r.years_experience,
       verified: r.verified === 1,
+      avg_rating: r.avg_rating,
+      ratings_count: r.ratings_count,
     }));
 
     return NextResponse.json({ ok: true, offers }, { status: 200 });

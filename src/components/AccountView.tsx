@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { findService, services, type ServiceCategory } from "@/lib/services";
+import { firstNameOf } from "./UstaProfile";
 
 /* ─── Types ──────────────────────────────────────────────── */
 
@@ -21,6 +22,9 @@ type Job = {
   est_min_lyd: number | null;
   est_max_lyd: number | null;
   offers_count: number;
+  accepted_tradesman_id: string | null;
+  accepted_tradesman_name: string | null;
+  my_rating: number | null;
 };
 
 type Offer = {
@@ -35,6 +39,8 @@ type Offer = {
   years_experience: number | null;
   verified: boolean;
   whatsapp: string | null;
+  avg_rating: number | null;
+  ratings_count: number;
 };
 
 /** عرض وارد من /api/me/offers — عبر كل الطلبات المفتوحة. */
@@ -51,6 +57,8 @@ type IncomingOffer = {
   city: string;
   years_experience: number | null;
   verified: boolean;
+  avg_rating: number | null;
+  ratings_count: number;
 };
 
 type View =
@@ -842,6 +850,7 @@ function IncomingOffers({
                       ✓ موثّق
                     </span>
                   )}
+                  <OfferRatingBadge avg={o.avg_rating} count={o.ratings_count} />
                   <span
                     className="mono"
                     style={{
@@ -935,6 +944,349 @@ function IncomingOffers({
   );
 }
 
+/* ─── ★ نجوم التقييم — العنبر للتقييم فقط ─────────────────── */
+
+const RATING_DIMS = [
+  { key: "punctuality", label: "الالتزام بالوقت" },
+  { key: "quality", label: "جودة الشغل" },
+  { key: "priceAdherence", label: "الالتزام بالسعر" },
+  { key: "professionalism", label: "التعامل" },
+  { key: "communication", label: "التواصل" },
+] as const;
+
+type DimKey = (typeof RATING_DIMS)[number]["key"];
+
+const emptyScores: Record<DimKey, number> = {
+  punctuality: 0,
+  quality: 0,
+  priceAdherence: 0,
+  professionalism: 0,
+  communication: 0,
+};
+
+function Star({ filled, size = 28 }: { filled: boolean; size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M12 2.6 L14.8 8.6 L21.4 9.4 L16.5 13.9 L17.8 20.4 L12 17.1 L6.2 20.4 L7.5 13.9 L2.6 9.4 L9.2 8.6 Z"
+        fill={filled ? "var(--amber)" : "none"}
+        stroke={filled ? "var(--amber)" : "var(--ink-3)"}
+        strokeWidth={1.4}
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/** صف نجوم للعرض فقط — يُقرّب المتوسط لأقرب نجمة. */
+function StaticStars({ avg, size = 18 }: { avg: number; size?: number }) {
+  const rounded = Math.round(avg);
+  return (
+    <span
+      style={{ display: "inline-flex", gap: "2px" }}
+      role="img"
+      aria-label={`التقييم ${avg} من 5`}
+    >
+      {[1, 2, 3, 4, 5].map((n) => (
+        <Star key={n} filled={n <= rounded} size={size} />
+      ))}
+    </span>
+  );
+}
+
+/** شارة تقييم الأسطى في بطاقات العروض — ★ عنبري + العدد. */
+function OfferRatingBadge({
+  avg,
+  count,
+}: {
+  avg: number | null;
+  count: number | undefined;
+}) {
+  if (avg == null) return null;
+  return (
+    <span style={{ whiteSpace: "nowrap" }}>
+      <span className="serif" style={{ color: "var(--amber)", fontSize: "14px" }}>
+        ★ {avg}
+      </span>
+      {typeof count === "number" && count > 0 && (
+        <span
+          className="mono"
+          style={{
+            fontSize: "10px",
+            color: "var(--ink-3)",
+            marginInlineStart: "4px",
+            letterSpacing: "0.04em",
+          }}
+        >
+          ({count})
+        </span>
+      )}
+    </span>
+  );
+}
+
+/** صف نجوم قابل للنقر — 5 نجوم 28px، تعبئة عنبرية عند الاختيار. */
+function StarPicker({
+  label,
+  value,
+  onSelect,
+}: {
+  label: string;
+  value: number;
+  onSelect: (n: number) => void;
+}) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "12px",
+        flexWrap: "wrap",
+      }}
+    >
+      <span style={{ fontSize: "14px", color: "var(--ink)" }}>{label}</span>
+      <span
+        role="radiogroup"
+        aria-label={label}
+        style={{ display: "inline-flex", gap: "2px" }}
+      >
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            type="button"
+            role="radio"
+            aria-checked={value === n}
+            aria-label={`${n} من 5`}
+            onClick={() => onSelect(n)}
+            style={{
+              background: "transparent",
+              border: 0,
+              padding: "2px",
+              cursor: "pointer",
+              lineHeight: 0,
+            }}
+          >
+            <Star filled={n <= value} />
+          </button>
+        ))}
+      </span>
+    </div>
+  );
+}
+
+/* ─── لوحة التقييم — بعد "تم الشغل" ───────────────────────── */
+
+function RatingPanel({
+  jobId,
+  tradesmanName,
+  onRated,
+}: {
+  jobId: string;
+  tradesmanName: string | null;
+  onRated: (avg: number) => void;
+}) {
+  const [scores, setScores] = useState<Record<DimKey, number>>(emptyScores);
+  const [review, setReview] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [doneAvg, setDoneAvg] = useState<number | null>(null);
+
+  const chosen = RATING_DIMS.map((d) => scores[d.key]).filter((v) => v > 0);
+  const allChosen = chosen.length === RATING_DIMS.length;
+  const liveAvg =
+    chosen.length > 0
+      ? Math.round((chosen.reduce((a, b) => a + b, 0) / chosen.length) * 10) /
+        10
+      : null;
+
+  async function submit() {
+    if (!allChosen || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/me/jobs/${jobId}/rate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          punctuality: scores.punctuality,
+          quality: scores.quality,
+          priceAdherence: scores.priceAdherence,
+          professionalism: scores.professionalism,
+          communication: scores.communication,
+          review: review.trim() || undefined,
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+      };
+      if (data.ok) {
+        const sum = RATING_DIMS.reduce((a, d) => a + scores[d.key], 0);
+        const avg = Math.round((sum / RATING_DIMS.length) * 10) / 10;
+        setDoneAvg(avg);
+        onRated(avg);
+      } else {
+        setError(data.error ?? "صار خطأ أثناء إرسال التقييم. حاول مرة ثانية.");
+      }
+    } catch {
+      setError("مشكلة في الاتصال. حاول مرة ثانية.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (doneAvg != null) {
+    return (
+      <div
+        role="status"
+        style={{
+          marginTop: "16px",
+          padding: "18px 22px",
+          borderRadius: "16px",
+          border: "1px solid color-mix(in srgb, var(--amber) 50%, var(--line))",
+          background: "rgba(230,164,41,0.08)",
+          display: "flex",
+          alignItems: "center",
+          gap: "14px",
+          flexWrap: "wrap",
+        }}
+      >
+        <StaticStars avg={doneAvg} size={22} />
+        <span
+          className="serif"
+          style={{ fontSize: "17px", color: "var(--ink)" }}
+        >
+          شكراً — تقييمك يساعد الكل.
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        marginTop: "16px",
+        padding: "20px 22px",
+        borderRadius: "16px",
+        border: "1px solid color-mix(in srgb, var(--amber) 50%, var(--line))",
+        background: "var(--paper)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          justifyContent: "space-between",
+          gap: "12px",
+          flexWrap: "wrap",
+          marginBottom: "16px",
+        }}
+      >
+        <h3
+          className="serif"
+          style={{
+            fontSize: "20px",
+            letterSpacing: "-0.01em",
+            fontWeight: 400,
+            margin: 0,
+            lineHeight: 1.3,
+          }}
+        >
+          كيف كان {tradesmanName ? firstNameOf(tradesmanName) : "الأسطى"}؟
+        </h3>
+        <span
+          className="serif"
+          aria-live="polite"
+          style={{
+            fontSize: "26px",
+            color: liveAvg != null ? "var(--amber)" : "var(--ink-3)",
+            fontVariantNumeric: "tabular-nums",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {liveAvg != null ? liveAvg.toFixed(1) : "—"}
+        </span>
+      </div>
+
+      <div style={{ display: "grid", gap: "10px", marginBottom: "16px" }}>
+        {RATING_DIMS.map((dim) => (
+          <StarPicker
+            key={dim.key}
+            label={dim.label}
+            value={scores[dim.key]}
+            onSelect={(n) => setScores((s) => ({ ...s, [dim.key]: n }))}
+          />
+        ))}
+      </div>
+
+      <label
+        htmlFor={`rating-review-${jobId}`}
+        style={{ position: "absolute", insetInlineStart: "-9999px" }}
+      >
+        مراجعة مكتوبة (اختياري)
+      </label>
+      <textarea
+        id={`rating-review-${jobId}`}
+        value={review}
+        onChange={(e) => setReview(e.target.value)}
+        maxLength={600}
+        rows={3}
+        placeholder="كلمة منك تفيد غيرك (اختياري)"
+        style={{
+          width: "100%",
+          padding: "12px 16px",
+          borderRadius: "12px",
+          border: "1px solid var(--line)",
+          background: "var(--paper-2)",
+          color: "var(--ink)",
+          fontSize: "14px",
+          fontFamily: "inherit",
+          lineHeight: 1.55,
+          resize: "vertical",
+          outline: "none",
+          marginBottom: "12px",
+        }}
+      />
+
+      {error && (
+        <p
+          role="alert"
+          className="mono"
+          style={{
+            fontSize: "12px",
+            color: "var(--coral)",
+            letterSpacing: "0.04em",
+            margin: "0 0 12px",
+          }}
+        >
+          {error}
+        </p>
+      )}
+
+      <button
+        type="button"
+        disabled={!allChosen || busy}
+        onClick={() => void submit()}
+        style={{
+          padding: "12px 26px",
+          borderRadius: "999px",
+          border: 0,
+          background: "var(--amber)",
+          color: "#3A2A05",
+          fontSize: "14px",
+          fontWeight: 700,
+          fontFamily: "inherit",
+          cursor: !allChosen || busy ? "not-allowed" : "pointer",
+          opacity: !allChosen || busy ? 0.5 : 1,
+        }}
+      >
+        {busy ? "قاعدين نرسلو…" : "أرسل التقييم"}
+      </button>
+    </div>
+  );
+}
+
 /* ─── بطاقة طلب واحدة ─────────────────────────────────────── */
 
 function JobCard({
@@ -944,12 +1296,50 @@ function JobCard({
   job: Job;
   onAccepted: () => Promise<void>;
 }) {
+  // "تم الشغل" ثم التقييم — حالة محلية حتى تنقلب البطاقة فوراً بدون انتظار
+  // إعادة الجلب (الخادم يرجّع نفس الحالة في التحديث الجاي).
+  const [localCompleted, setLocalCompleted] = useState(false);
+  const [completeBusy, setCompleteBusy] = useState(false);
+  const [completeError, setCompleteError] = useState<string | null>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [localRating, setLocalRating] = useState<number | null>(null);
+
   const service = findService(job.service);
   const description =
     job.description.length > 140
       ? `${job.description.slice(0, 140)}…`
       : job.description;
   const hasOffers = (job.offers_count ?? 0) > 0;
+  const status = localCompleted ? "completed" : job.status;
+  const ratedAvg = localRating ?? job.my_rating;
+
+  async function markDone() {
+    if (!window.confirm("خلص الأسطى الشغل؟ بعد التأكيد تقدر تقيّمه.")) return;
+    setCompleteBusy(true);
+    setCompleteError(null);
+    try {
+      const res = await fetch(`/api/me/jobs/${job.id}/complete`, {
+        method: "POST",
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+      };
+      if (data.ok) {
+        // البطاقة تنقلب "مكتمل" ولوحة التقييم تنفتح تلقائياً.
+        setLocalCompleted(true);
+        setPanelOpen(true);
+      } else {
+        setCompleteError(
+          data.error ?? "صار خطأ أثناء تأكيد الإتمام. حاول مرة ثانية."
+        );
+      }
+    } catch {
+      setCompleteError("مشكلة في الاتصال. حاول مرة ثانية.");
+    } finally {
+      setCompleteBusy(false);
+    }
+  }
 
   return (
     <article
@@ -1007,13 +1397,13 @@ function JobCard({
             style={{
               fontSize: "10px",
               letterSpacing: "0.12em",
-              color: statusColor(job.status),
-              border: `1px solid ${statusColor(job.status)}`,
+              color: statusColor(status),
+              border: `1px solid ${statusColor(status)}`,
               borderRadius: "999px",
               padding: "4px 12px",
             }}
           >
-            {statusLabels[job.status] ?? job.status}
+            {statusLabels[status] ?? status}
           </span>
         </span>
       </div>
@@ -1059,13 +1449,120 @@ function JobCard({
             `التقدير: ${job.est_min_lyd}–${job.est_max_lyd} د.ل`}
         </span>
       </div>
-      {(job.status === "open" || job.status === "matched") && (
+      {(status === "open" || status === "matched") && (
         <JobOffers
           jobId={job.id}
           count={job.offers_count ?? 0}
           onAccepted={onAccepted}
         />
       )}
+
+      {/* متطابق؟ → زر "تم الشغل" يقفل الحلقة ويفتح التقييم */}
+      {status === "matched" && (
+        <div
+          style={{
+            marginTop: "16px",
+            borderTop: "1px solid var(--line)",
+            paddingTop: "14px",
+          }}
+        >
+          {completeError && (
+            <p
+              role="alert"
+              className="mono"
+              style={{
+                fontSize: "12px",
+                color: "var(--coral)",
+                letterSpacing: "0.04em",
+                margin: "0 0 10px",
+              }}
+            >
+              {completeError}
+            </p>
+          )}
+          <button
+            type="button"
+            disabled={completeBusy}
+            onClick={() => void markDone()}
+            style={{
+              padding: "12px 24px",
+              borderRadius: "999px",
+              border: 0,
+              background:
+                "linear-gradient(135deg, var(--brand-2), var(--brand-1))",
+              color: "white",
+              fontSize: "14px",
+              fontWeight: 600,
+              fontFamily: "inherit",
+              cursor: completeBusy ? "wait" : "pointer",
+              opacity: completeBusy ? 0.6 : 1,
+            }}
+          >
+            {completeBusy ? "قاعدين نأكدو…" : "✓ تم الشغل"}
+          </button>
+        </div>
+      )}
+
+      {/* مكتمل: لوحة التقييم / زر قيّم / تقييمك السابق */}
+      {status === "completed" &&
+        (panelOpen ? (
+          <RatingPanel
+            jobId={job.id}
+            tradesmanName={job.accepted_tradesman_name}
+            onRated={setLocalRating}
+          />
+        ) : ratedAvg != null ? (
+          <div
+            style={{
+              marginTop: "16px",
+              borderTop: "1px solid var(--line)",
+              paddingTop: "14px",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              flexWrap: "wrap",
+            }}
+          >
+            <StaticStars avg={ratedAvg} />
+            <span
+              className="mono"
+              style={{
+                fontSize: "11px",
+                letterSpacing: "0.06em",
+                color: "var(--amber)",
+                fontWeight: 700,
+              }}
+            >
+              قيّمته {ratedAvg}★
+            </span>
+          </div>
+        ) : (
+          <div
+            style={{
+              marginTop: "16px",
+              borderTop: "1px solid var(--line)",
+              paddingTop: "14px",
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setPanelOpen(true)}
+              style={{
+                padding: "10px 22px",
+                borderRadius: "999px",
+                border: "1px solid color-mix(in srgb, var(--amber) 60%, var(--line))",
+                background: "rgba(230,164,41,0.1)",
+                color: "var(--amber)",
+                fontSize: "13px",
+                fontWeight: 700,
+                fontFamily: "inherit",
+                cursor: "pointer",
+              }}
+            >
+              ★ قيّم الأسطى
+            </button>
+          </div>
+        ))}
     </article>
   );
 }
@@ -1354,6 +1851,10 @@ function JobOffers({
                         موثّق
                       </span>
                     )}
+                    <OfferRatingBadge
+                      avg={o.avg_rating}
+                      count={o.ratings_count}
+                    />
                     <span
                       className="mono"
                       style={{

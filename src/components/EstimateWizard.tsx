@@ -230,22 +230,63 @@ export function EstimateWizard({
           → الرجوع للمهن
         </button>
 
-        <div className="kicker" style={{ marginBottom: "10px" }}>
-          خطوة 2 من 2 · {svc.name}
+        <div className="kicker" style={{ marginBottom: "14px" }}>
+          خطوة 2 من 2
         </div>
-        <h2
-          className="serif"
+
+        {/* هوية الخدمة — كل خدمة بلونها وأيقونتها وأجوائها، مش كلام عام */}
+        <div
           style={{
-            fontSize: "clamp(28px, 3.4vw, 40px)",
-            letterSpacing: "-0.02em",
-            fontWeight: 400,
-            margin: "0 0 20px",
-            textWrap: "balance",
-            lineHeight: 1.3,
+            display: "flex",
+            alignItems: "center",
+            gap: "14px",
+            padding: "16px 18px",
+            borderRadius: "18px",
+            background: gradientMap[svc.gradient],
+            color: "white",
+            marginBottom: "20px",
+            boxShadow: "0 10px 30px -12px rgba(11,31,51,0.45)",
           }}
         >
-          اوصف نوع الشغل المطلوب.
-        </h2>
+          <div
+            style={{
+              width: "52px",
+              height: "52px",
+              borderRadius: "14px",
+              background: "rgba(255,255,255,0.18)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <svg width={28} height={28} viewBox="0 0 24 24" style={{ color: "white" }}>
+              <IconPath icon={svc.icon} />
+            </svg>
+          </div>
+          <div>
+            <div
+              className="serif"
+              style={{
+                fontSize: "24px",
+                letterSpacing: "-0.01em",
+                lineHeight: 1.2,
+              }}
+            >
+              {svc.name}
+            </div>
+            <div
+              style={{
+                fontSize: "13px",
+                opacity: 0.85,
+                marginTop: "2px",
+                lineHeight: 1.45,
+              }}
+            >
+              {svc.describeHint}
+            </div>
+          </div>
+        </div>
 
         <label style={{ display: "block", marginBottom: "20px" }}>
           <span
@@ -265,7 +306,7 @@ export function EstimateWizard({
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="مثال: بريزتين في الكوشينة ما عادش يشتغلو من بعد ما طاحت الكهرباء. رجّعنا القاطع وما نفعش."
+            placeholder={svc.placeholder}
             rows={4}
             disabled={isLoading}
             required
@@ -747,7 +788,7 @@ export function EstimateWizard({
 
 /* ─── Icons ───────────────────────────────────────────── */
 
-function IconGlyph({ icon }: { icon: ServiceCategory["icon"] }) {
+function IconPath({ icon }: { icon: ServiceCategory["icon"] }) {
   const paths: Record<ServiceCategory["icon"], JSX.Element> = {
     bolt: <path d="M13 2 L4 14 h6 l-1 8 l9 -12 h-6 l1 -8 z" fill="currentColor" />,
     wrench: (
@@ -821,6 +862,10 @@ function IconGlyph({ icon }: { icon: ServiceCategory["icon"] }) {
     ),
   };
 
+  return paths[icon];
+}
+
+function IconGlyph({ icon }: { icon: ServiceCategory["icon"] }) {
   return (
     <div
       style={{
@@ -834,7 +879,7 @@ function IconGlyph({ icon }: { icon: ServiceCategory["icon"] }) {
       }}
     >
       <svg width={22} height={22} viewBox="0 0 24 24" style={{ color: "white" }}>
-        {paths[icon]}
+        <IconPath icon={icon} />
       </svg>
     </div>
   );

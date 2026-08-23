@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getDb } from "@/lib/db";
 import { findService } from "@/lib/services";
+import { avgRatingSql, ratingsCountSql } from "@/lib/rating";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   gradientById,
@@ -28,6 +29,8 @@ type UstaRow = {
   previous_work: string | null;
   created_at: string;
   accepted_count: number;
+  avg_rating: number | null;
+  ratings_count: number;
 };
 
 /**
@@ -46,7 +49,9 @@ const getUsta = cache(async (id: string): Promise<UstaRow | null> => {
                 t.years_experience, t.previous_work, t.created_at,
                 (SELECT COUNT(*) FROM offers o
                   WHERE o.tradesman_id = t.id AND o.status = 'accepted')
-                  AS accepted_count
+                  AS accepted_count,
+                ${avgRatingSql("t.id")} AS avg_rating,
+                ${ratingsCountSql("t.id")} AS ratings_count
            FROM tradesmen t
           WHERE t.id = ?1
             AND t.verified_at IS NOT NULL
@@ -86,7 +91,23 @@ export default async function UstaProfilePage({
 
   const trade = findService(usta.trade);
   const firstName = firstNameOf(usta.full_name);
-  const stats: { value: string; label: string }[] = [
+  const hasRating = usta.avg_rating != null;
+  const stats: {
+    value: string;
+    label: string;
+    amber?: boolean;
+    newPill?: boolean;
+  }[] = [
+    {
+      value: hasRating ? `★ ${usta.avg_rating}` : "—",
+      label: hasRating
+        ? usta.ratings_count === 1
+          ? "تقييم واحد"
+          : `التقييم (${usta.ratings_count})`
+        : "التقييم",
+      amber: hasRating,
+      newPill: !hasRating,
+    },
     {
       value: usta.years_experience != null ? `${usta.years_experience}` : "—",
       label: "سنوات الخبرة",
@@ -220,7 +241,7 @@ export default async function UstaProfilePage({
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
+              gridTemplateColumns: "repeat(4, 1fr)",
               border: "1px solid var(--line)",
               borderRadius: "16px",
               background: "var(--paper)",
@@ -238,8 +259,8 @@ export default async function UstaProfilePage({
                 <div
                   className="serif"
                   style={{
-                    fontSize: "clamp(22px, 3.4vw, 32px)",
-                    color: "var(--ink)",
+                    fontSize: "clamp(20px, 3.2vw, 30px)",
+                    color: stat.amber ? "var(--amber)" : "var(--ink)",
                     lineHeight: 1.3,
                     letterSpacing: "-0.02em",
                     fontVariantNumeric: "tabular-nums",
@@ -258,6 +279,24 @@ export default async function UstaProfilePage({
                 >
                   {stat.label}
                 </div>
+                {stat.newPill && (
+                  <span
+                    className="mono"
+                    style={{
+                      display: "inline-block",
+                      marginTop: "6px",
+                      padding: "2px 10px",
+                      borderRadius: "999px",
+                      background: "rgba(230,164,41,0.14)",
+                      color: "var(--amber)",
+                      fontSize: "9px",
+                      letterSpacing: "0.1em",
+                      fontWeight: 700,
+                    }}
+                  >
+                    جديد
+                  </span>
+                )}
               </div>
             ))}
           </div>

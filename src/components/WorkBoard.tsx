@@ -39,6 +39,8 @@ type View =
       tradesman: TradesmanInfo;
       jobs: WorkJob[];
       acceptedCount: number;
+      avgRating: number | null;
+      ratingsCount: number;
     };
 
 const offerStatusLabels: Record<string, string> = {
@@ -71,6 +73,8 @@ export function WorkBoard() {
         error?: string;
         tradesman?: TradesmanInfo;
         acceptedCount?: number;
+        avgRating?: number | null;
+        ratingsCount?: number;
         jobs?: WorkJob[];
       };
       if (res.status === 401) {
@@ -92,6 +96,9 @@ export function WorkBoard() {
           jobs: data.jobs,
           acceptedCount:
             typeof data.acceptedCount === "number" ? data.acceptedCount : 0,
+          avgRating: typeof data.avgRating === "number" ? data.avgRating : null,
+          ratingsCount:
+            typeof data.ratingsCount === "number" ? data.ratingsCount : 0,
         });
         return;
       }
@@ -224,7 +231,7 @@ export function WorkBoard() {
     );
   }
 
-  const { tradesman, jobs, acceptedCount } = view;
+  const { tradesman, jobs, acceptedCount, avgRating, ratingsCount } = view;
   const trade = findService(tradesman.trade);
 
   return (
@@ -271,6 +278,32 @@ export function WorkBoard() {
             كل شغلة تكملها بتقييم عالي = عروضك تظهر قبل الكل لما أي زبون
             يدوّر على خدمتك. سمعتك هي رأس مالك.
           </p>
+          {avgRating != null ? (
+            <div
+              className="serif"
+              style={{
+                marginTop: "8px",
+                fontSize: "18px",
+                color: "var(--amber)",
+                letterSpacing: "-0.01em",
+                fontVariantNumeric: "tabular-nums",
+              }}
+            >
+              تقييمك ★{avgRating} من {ratingsCount}{" "}
+              {ratingsCount === 1 ? "شغلة وحدة" : "شغلة"}
+            </div>
+          ) : (
+            <div
+              style={{
+                marginTop: "8px",
+                fontSize: "13px",
+                color: "var(--ink-2)",
+                lineHeight: 1.55,
+              }}
+            >
+              ما عندكش تقييمات بعد — أول شغلة بتقييم عالي ترفعك فوق الكل.
+            </div>
+          )}
         </div>
         <div style={{ textAlign: "center" }}>
           <div

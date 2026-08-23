@@ -17,6 +17,8 @@ type Usta = {
   years_experience: number | null;
   created_at: string;
   accepted_count: number;
+  avg_rating: number | null;
+  ratings_count: number;
 };
 
 type View =
@@ -268,6 +270,38 @@ function UstaCard({ usta, index }: { usta: Usta; index: number }) {
           >
             {trade?.name ?? usta.trade} · {usta.city}
           </div>
+          {usta.avg_rating != null && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "baseline",
+                gap: "6px",
+                marginTop: "4px",
+              }}
+            >
+              <span
+                className="serif"
+                style={{
+                  color: "var(--amber)",
+                  fontSize: "16px",
+                  letterSpacing: "-0.01em",
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                ★ {usta.avg_rating}
+              </span>
+              <span
+                className="mono"
+                style={{
+                  fontSize: "10px",
+                  letterSpacing: "0.06em",
+                  color: "var(--ink-3)",
+                }}
+              >
+                ({usta.ratings_count} تقييم)
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

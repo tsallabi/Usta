@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { avgRatingSql, ratingsCountSql } from "@/lib/rating";
 
 export const runtime = "edge";
 
@@ -25,6 +26,8 @@ type UstaRow = {
   previous_work: string | null;
   created_at: string;
   accepted_count: number;
+  avg_rating: number | null;
+  ratings_count: number;
 };
 
 function notFound(): NextResponse {
@@ -51,7 +54,9 @@ export async function GET(
                 t.years_experience, t.previous_work, t.created_at,
                 (SELECT COUNT(*) FROM offers o
                   WHERE o.tradesman_id = t.id AND o.status = 'accepted')
-                  AS accepted_count
+                  AS accepted_count,
+                ${avgRatingSql("t.id")} AS avg_rating,
+                ${ratingsCountSql("t.id")} AS ratings_count
            FROM tradesmen t
           WHERE t.id = ?1
             AND t.verified_at IS NOT NULL
