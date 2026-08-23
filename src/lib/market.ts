@@ -26,6 +26,32 @@ export const cities = [
 
 export type City = (typeof cities)[number];
 
+/**
+ * إحداثيات مراكز المدن — للخريطة: أسطى بدون موقع دقيق يظهر عند مركز
+ * مدينته (مع إزاحة بسيطة حتى ما تتكدس الدبابيس فوق بعضها).
+ */
+export const cityCoords: Record<City, { lat: number; lng: number }> = {
+  طرابلس: { lat: 32.8872, lng: 13.1913 },
+  بنغازي: { lat: 32.1167, lng: 20.0667 },
+  مصراتة: { lat: 32.3754, lng: 15.0925 },
+  الزاوية: { lat: 32.7571, lng: 12.7276 },
+  زليتن: { lat: 32.4674, lng: 14.5687 },
+  الخمس: { lat: 32.6486, lng: 14.2619 },
+  غريان: { lat: 32.1722, lng: 13.0203 },
+  ترهونة: { lat: 32.4339, lng: 13.6332 },
+  سرت: { lat: 31.2089, lng: 16.5887 },
+  سبها: { lat: 27.0377, lng: 14.4283 },
+  البيضاء: { lat: 32.7627, lng: 21.7551 },
+  طبرق: { lat: 32.0836, lng: 23.9764 },
+  درنة: { lat: 32.767, lng: 22.6367 },
+  اجدابيا: { lat: 30.7554, lng: 20.2263 },
+};
+
+/** حدود ليبيا التقريبية — للتحقق من الإحداثيات المرسلة. */
+export function isInLibya(lat: number, lng: number): boolean {
+  return lat >= 19 && lat <= 34 && lng >= 9 && lng <= 26;
+}
+
 export function isCity(value: string): value is City {
   return (cities as readonly string[]).includes(value);
 }

@@ -67,6 +67,23 @@ function blurRing(e: Focusable) {
 export function TradesmanForm() {
   const [fields, setFields] = useState<Fields>(emptyFields);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    null
+  );
+  const [locating, setLocating] = useState(false);
+
+  function locateMe() {
+    if (!navigator.geolocation) return;
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (p) => {
+        setLocating(false);
+        setCoords({ lat: p.coords.latitude, lng: p.coords.longitude });
+      },
+      () => setLocating(false),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
 
   function set<K extends keyof Fields>(key: K) {
     return (
@@ -130,6 +147,8 @@ export function TradesmanForm() {
               ? yearsNumber
               : undefined,
           previousWork: fields.previousWork.trim() || undefined,
+          lat: coords?.lat,
+          lng: coords?.lng,
         }),
       });
 
@@ -365,6 +384,46 @@ export function TradesmanForm() {
               onBlur={blurRing}
             />
           </div>
+        </div>
+        {/* موقع دقيق (اختياري) — يخلي الأسطى يظهر في مكانه بالضبط على
+            خريطة «القريب منك» فيجيه شغل منطقته أول */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            flexWrap: "wrap",
+            marginTop: "14px",
+          }}
+        >
+          <button
+            type="button"
+            onClick={locateMe}
+            disabled={busy || locating}
+            style={{
+              padding: "10px 20px",
+              borderRadius: "999px",
+              border: "1px solid var(--brand-2, #0B7F58)",
+              background: coords
+                ? "var(--brand-2, #0B7F58)"
+                : "transparent",
+              color: coords ? "#fff" : "var(--brand-2, #0B7F58)",
+              fontSize: "13.5px",
+              fontWeight: 600,
+              cursor: "pointer",
+              fontFamily: "inherit",
+            }}
+          >
+            {locating
+              ? "جاري تحديد موقعك…"
+              : coords
+                ? "📍 تم تحديد موقعك ✓"
+                : "📍 حدد موقعي على الخريطة (اختياري)"}
+          </button>
+          <span style={{ fontSize: "12.5px", color: "var(--ink-3)" }}>
+            يخليك تظهر في مكانك بالضبط على خريطة «القريب منك» — شغل منطقتك
+            يجيك أول.
+          </span>
         </div>
       </section>
 

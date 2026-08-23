@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDb, newId } from "@/lib/db";
 import { findService } from "@/lib/services";
-import { isCity, market } from "@/lib/market";
+import { isCity, isInLibya, market } from "@/lib/market";
 import { sanitizeContactLeaks } from "@/lib/sanitize";
 import { sendEmailSafe } from "@/lib/email";
 import { tradesmanApplicationEmail } from "@/lib/emails/templates";
@@ -18,6 +18,8 @@ type Body = {
   nationalId?: string;
   yearsExperience?: number;
   previousWork?: string;
+  lat?: number;
+  lng?: number;
 };
 
 // فحص بسيط لصيغة البريد — البريد اختياري؛ يُتحقق منه فقط عند إدخاله.
@@ -124,6 +126,14 @@ export async function POST(request: Request) {
       ? sanitizeContactLeaks(rawPreviousWork).clean || undefined
       : undefined;
 
+  // إحداثيات اختيارية من زر «حدد موقعي» — تُقبل فقط داخل حدود ليبيا.
+  const rawLat = Number(body.lat);
+  const rawLng = Number(body.lng);
+  const hasCoords =
+    Number.isFinite(rawLat) && Number.isFinite(rawLng) && isInLibya(rawLat, rawLng);
+  const lat = hasCoords ? Math.round(rawLat * 1e5) / 1e5 : undefined;
+  const lng = hasCoords ? Math.round(rawLng * 1e5) / 1e5 : undefined;
+
   const id = newId("tm");
 
   const db = getDb();
@@ -170,26 +180,54 @@ export async function POST(request: Request) {
       );
     }
 
-    await db
-      .prepare(
-        `INSERT INTO tradesmen
-           (id, whatsapp, email, full_name, trade, city, service_area,
-            national_id, years_experience, previous_work)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-      )
-      .bind(
-        id,
-        whatsapp,
-        email ?? null,
-        fullName,
-        service.slug,
-        city,
-        serviceArea,
-        nationalId,
-        yearsExperience ?? null,
-        previousWork ?? null
-      )
-      .run();
+    // أعمدة lat/lng من ميغريشن 0005 — لو مش مطبّقة نحفظ بدونها.
+    try {
+      await db
+        .prepare(
+          `INSERT INTO tradesmen
+             (id, whatsapp, email, full_name, trade, city, service_area,
+              national_id, years_experience, previous_work, lat, lng)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        )
+        .bind(
+          id,
+          whatsapp,
+          email ?? null,
+          fullName,
+          service.slug,
+          city,
+          serviceArea,
+          nationalId,
+          yearsExperience ?? null,
+          previousWork ?? null,
+          lat ?? null,
+          lng ?? null
+        )
+        .run();
+    } catch (geoErr) {
+      const msg = geoErr instanceof Error ? geoErr.message : String(geoErr);
+      if (!msg.includes("lat") && !msg.includes("column")) throw geoErr;
+      await db
+        .prepare(
+          `INSERT INTO tradesmen
+             (id, whatsapp, email, full_name, trade, city, service_area,
+              national_id, years_experience, previous_work)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        )
+        .bind(
+          id,
+          whatsapp,
+          email ?? null,
+          fullName,
+          service.slug,
+          city,
+          serviceArea,
+          nationalId,
+          yearsExperience ?? null,
+          previousWork ?? null
+        )
+        .run();
+    }
   } catch (err) {
     console.error("[tradesmen] D1 write failed:", err);
     return NextResponse.json(

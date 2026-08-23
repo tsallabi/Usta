@@ -5,6 +5,7 @@ import Link from "next/link";
 import { services, findService } from "@/lib/services";
 import { cities } from "@/lib/market";
 import { gradientByIndex, initialsOf, VerifiedPill } from "./UstaProfile";
+import { UstaMap, positionOf, distanceKm } from "./UstaMap";
 
 /* ─── Types mirroring /api/ustas ─────────────────────────── */
 
@@ -19,6 +20,8 @@ type Usta = {
   accepted_count: number;
   avg_rating: number | null;
   ratings_count: number;
+  lat: number | null;
+  lng: number | null;
 };
 
 type View =
@@ -32,6 +35,10 @@ export function UstaDirectory() {
   const [trade, setTrade] = useState("");
   const [city, setCity] = useState("");
   const [view, setView] = useState<View>({ kind: "loading" });
+  const [mode, setMode] = useState<"cards" | "map">("cards");
+  const [myPos, setMyPos] = useState<{ lat: number; lng: number } | null>(
+    null
+  );
 
   const load = useCallback(async () => {
     setView({ kind: "loading" });
@@ -127,6 +134,43 @@ export function UstaDirectory() {
             </option>
           ))}
         </select>
+
+        {/* بطاقات ↔ خريطة */}
+        <div
+          role="group"
+          aria-label="طريقة العرض"
+          style={{
+            display: "flex",
+            border: "1px solid var(--line)",
+            borderRadius: "999px",
+            overflow: "hidden",
+          }}
+        >
+          {(
+            [
+              ["cards", "بطاقات"],
+              ["map", "🗺 خريطة"],
+            ] as const
+          ).map(([m, label]) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMode(m)}
+              style={{
+                padding: "12px 20px",
+                border: 0,
+                cursor: "pointer",
+                fontFamily: "inherit",
+                fontSize: "14px",
+                background:
+                  mode === m ? "var(--brand-2, #0B7F58)" : "transparent",
+                color: mode === m ? "#fff" : "var(--ink-2)",
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {view.kind === "loading" && (
@@ -175,7 +219,11 @@ export function UstaDirectory() {
         </div>
       )}
 
-      {view.kind === "ready" && view.ustas.length > 0 && (
+      {view.kind === "ready" && view.ustas.length > 0 && mode === "map" && (
+        <UstaMap ustas={view.ustas} onLocated={setMyPos} />
+      )}
+
+      {view.kind === "ready" && view.ustas.length > 0 && mode === "cards" && (
         <div
           style={{
             display: "grid",
@@ -183,13 +231,29 @@ export function UstaDirectory() {
             gap: "16px",
           }}
         >
-          {view.ustas.map((usta, i) => (
+          {sortByDistance(view.ustas, myPos).map((usta, i) => (
             <UstaCard key={usta.id} usta={usta} index={i} />
           ))}
         </div>
       )}
     </div>
   );
+}
+
+/** لو حدّد الزائر موقعه من الخريطة، البطاقات تترتب «الأقرب أولاً». */
+function sortByDistance(
+  ustas: Usta[],
+  myPos: { lat: number; lng: number } | null
+): Usta[] {
+  if (!myPos) return ustas;
+  return [...ustas].sort((a, b) => {
+    const pa = positionOf(a);
+    const pb = positionOf(b);
+    if (!pa && !pb) return 0;
+    if (!pa) return 1;
+    if (!pb) return -1;
+    return distanceKm(myPos, pa) - distanceKm(myPos, pb);
+  });
 }
 
 /* ─── Card ───────────────────────────────────────────────── */

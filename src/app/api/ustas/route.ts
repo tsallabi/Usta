@@ -17,6 +17,8 @@ export const runtime = "edge";
  */
 
 type UstaRow = {
+  lat: number | null;
+  lng: number | null;
   id: string;
   full_name: string;
   trade: string;
@@ -60,8 +62,8 @@ export async function GET(request: Request) {
   try {
     // الأسطى المميز (ترقية المالك — ميغريشن 0004) يتصدّر الدليل.
     // لو العمود مش موجود بعد، نرجع للترتيب العادي بدون كسر.
-    const baseSql = (featuredKey: string) =>
-      `SELECT t.id, t.full_name, t.trade, t.city, t.service_area,
+    const baseSql = (featuredKey: string, geoCols: string) =>
+      `SELECT ${geoCols}, t.id, t.full_name, t.trade, t.city, t.service_area,
                 t.years_experience, t.created_at,
                 (SELECT COUNT(*) FROM offers o
                   WHERE o.tradesman_id = t.id AND o.status = 'accepted')
@@ -80,13 +82,16 @@ export async function GET(request: Request) {
     try {
       results = (
         await db
-          .prepare(baseSql("t.featured_at IS NULL, "))
+          .prepare(baseSql("t.featured_at IS NULL, ", "t.lat, t.lng"))
           .bind(...binds)
           .all<UstaRow>()
       ).results;
     } catch {
       results = (
-        await db.prepare(baseSql("")).bind(...binds).all<UstaRow>()
+        await db
+          .prepare(baseSql("", "NULL AS lat, NULL AS lng"))
+          .bind(...binds)
+          .all<UstaRow>()
       ).results;
     }
 

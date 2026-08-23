@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { findService, services, type ServiceCategory } from "@/lib/services";
 import { firstNameOf } from "./UstaProfile";
+import { ChatPanel } from "./ChatPanel";
 
 /* ─── Types ──────────────────────────────────────────────── */
 
@@ -1824,6 +1825,13 @@ function JobOffers({
               >
                 افتح واتساب ←
               </a>
+              {/* أو دردشة داخل المنصة — رقمك يظل مخفي (خصوصية كاملة) */}
+              <div style={{ marginTop: "16px" }}>
+                <ChatPanel
+                  endpoint={`/api/me/jobs/${jobId}/chat`}
+                  me="customer"
+                />
+              </div>
             </div>
           )}
 

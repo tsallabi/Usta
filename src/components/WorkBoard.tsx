@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { findService } from "@/lib/services";
+import { ChatPanel } from "./ChatPanel";
 
 /* ─── Types mirroring /api/work/jobs ─────────────────────── */
 
@@ -602,6 +603,14 @@ function JobCard({
             {offerStatusLabels[job.my_offer.status ?? "pending"] ??
               job.my_offer.status}
           </span>
+          {job.my_offer.status === "accepted" ? (
+            <div style={{ flexBasis: "100%", marginTop: "10px" }}>
+              <ChatPanel
+                endpoint={`/api/work/jobs/${job.id}/chat`}
+                me="tradesman"
+              />
+            </div>
+          ) : null}
         </div>
       ) : open ? (
         <form onSubmit={submit} style={{ display: "grid", gap: "10px" }}>
