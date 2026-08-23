@@ -46,9 +46,12 @@ export async function POST(request: Request) {
   const phone = market.phone.normalize(rawPhone);
 
   const pin = (body.pin ?? "").trim();
-  if (!/^[0-9]{6}$/.test(pin)) {
+  if (pin.length < 6 || pin.length > 64) {
     return NextResponse.json(
-      { ok: false, error: "اختر رمزاً سرياً من 6 أرقام." },
+      {
+        ok: false,
+        error: "اختر كلمة سر من 6 خانات على الأقل — حروف أو أرقام أو الاثنين.",
+      },
       { status: 400 }
     );
   }

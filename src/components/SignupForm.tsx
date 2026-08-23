@@ -33,13 +33,59 @@ const fieldStyle: CSSProperties = {
   boxSizing: "border-box",
 };
 
+export function PinEyeButton({
+  show,
+  onToggle,
+}: {
+  show: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={show ? "إخفاء الرمز" : "إظهار الرمز"}
+      title={show ? "إخفاء الرمز" : "إظهار الرمز"}
+      style={{
+        position: "absolute",
+        insetInlineEnd: "10px",
+        top: "50%",
+        transform: "translateY(-50%)",
+        background: "transparent",
+        border: 0,
+        padding: "6px",
+        cursor: "pointer",
+        color: "var(--ink-3)",
+        display: "flex",
+        alignItems: "center",
+      }}
+    >
+      {show ? (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+          <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+          <path d="M14.12 14.12A3 3 0 1 1 9.88 9.88" />
+          <line x1="1" y1="1" x2="23" y2="23" />
+        </svg>
+      ) : (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
 export function SignupForm() {
   const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [pin, setPin] = useState("");
   const [pinConfirm, setPinConfirm] = useState("");
+  const [showPin, setShowPin] = useState(false);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
+
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,21 +99,22 @@ export function SignupForm() {
     if (!market.phone.isValid(phone)) {
       setStatus({
         kind: "error",
-        message: "أدخل رقم هاتف ليبي صحيح (مثال: 091 234 5678).",
+        message:
+          "أدخل رقم موبايل ليبي صحيح — يبدأ بـ 091 حتى 095 (مثال: 0912345678).",
       });
       return;
     }
-    if (!/^[0-9]{6}$/.test(pin.trim())) {
+    if (pin.trim().length < 6) {
       setStatus({
         kind: "error",
-        message: "اختر رمزاً سرياً من 6 أرقام.",
+        message: "كلمة السر لازم تكون 6 خانات على الأقل — حروف أو أرقام.",
       });
       return;
     }
     if (pin.trim() !== pinConfirm.trim()) {
       setStatus({
         kind: "error",
-        message: "الرمزان غير متطابقين — أعد كتابة الرمز السري.",
+        message: "الكلمتان غير متطابقتين — أعد كتابة كلمة السر.",
       });
       return;
     }
@@ -162,52 +209,78 @@ export function SignupForm() {
       >
         <label>
           <span className="mono" style={labelStyle}>
-            رمز سري من 6 أرقام
+            كلمة السر
           </span>
-          <input
-            type="password"
-            required
-            value={pin}
-            onChange={(e) => setPin(e.target.value)}
-            placeholder="••••••"
-            inputMode="numeric"
-            pattern="[0-9]{6}"
-            maxLength={6}
-            autoComplete="new-password"
-            dir="ltr"
-            disabled={isSubmitting}
-            style={{ ...fieldStyle, textAlign: "center" }}
-            onFocus={(e) =>
-              (e.currentTarget.style.borderColor = "var(--brand-2)")
-            }
-            onBlur={(e) => (e.currentTarget.style.borderColor = "var(--line)")}
-          />
+          <div style={{ position: "relative" }}>
+            <input
+              type={showPin ? "text" : "password"}
+              required
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              placeholder="••••••"
+              maxLength={64}
+              autoComplete="new-password"
+              dir="ltr"
+              disabled={isSubmitting}
+              style={{
+                ...fieldStyle,
+                textAlign: "center",
+                paddingInlineEnd: "44px",
+              }}
+              onFocus={(e) =>
+                (e.currentTarget.style.borderColor = "var(--brand-2)")
+              }
+              onBlur={(e) =>
+                (e.currentTarget.style.borderColor = "var(--line)")
+              }
+            />
+            <PinEyeButton show={showPin} onToggle={() => setShowPin(!showPin)} />
+          </div>
         </label>
 
         <label>
           <span className="mono" style={labelStyle}>
-            تأكيد الرمز
+            التأكيد
           </span>
-          <input
-            type="password"
-            required
-            value={pinConfirm}
-            onChange={(e) => setPinConfirm(e.target.value)}
-            placeholder="••••••"
-            inputMode="numeric"
-            pattern="[0-9]{6}"
-            maxLength={6}
-            autoComplete="new-password"
-            dir="ltr"
-            disabled={isSubmitting}
-            style={{ ...fieldStyle, textAlign: "center" }}
-            onFocus={(e) =>
-              (e.currentTarget.style.borderColor = "var(--brand-2)")
-            }
-            onBlur={(e) => (e.currentTarget.style.borderColor = "var(--line)")}
-          />
+          <div style={{ position: "relative" }}>
+            <input
+              type={showPin ? "text" : "password"}
+              required
+              value={pinConfirm}
+              onChange={(e) => setPinConfirm(e.target.value)}
+              placeholder="••••••"
+              maxLength={64}
+              autoComplete="new-password"
+              dir="ltr"
+              disabled={isSubmitting}
+              style={{
+                ...fieldStyle,
+                textAlign: "center",
+                paddingInlineEnd: "44px",
+              }}
+              onFocus={(e) =>
+                (e.currentTarget.style.borderColor = "var(--brand-2)")
+              }
+              onBlur={(e) =>
+                (e.currentTarget.style.borderColor = "var(--line)")
+              }
+            />
+            <PinEyeButton show={showPin} onToggle={() => setShowPin(!showPin)} />
+          </div>
         </label>
       </div>
+
+      <p
+        className="mono"
+        style={{
+          fontSize: "11px",
+          color: "var(--ink-3)",
+          letterSpacing: "0.04em",
+          margin: "-12px 0 20px",
+        }}
+      >
+        6 خانات على الأقل — حروف أو أرقام أو الاثنين
+      </p>
 
       {status.kind === "error" && (
         <div

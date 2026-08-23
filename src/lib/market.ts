@@ -50,9 +50,13 @@ export function normalizePhone(raw: string): string {
   return value;
 }
 
-/** رقم موبايل ليبي صالح؟ (يقبل +218 / 00218 / 0 / بدون بادئة) */
+/**
+ * رقم موبايل ليبي صالح؟ (يقبل +218 / 00218 / 0 / بدون بادئة)
+ * صارم: 10 أرقام تبدأ بـ 091-095 فقط (المدار، ليبيانا، LTT) —
+ * حتى ما يقدر أحد يسجّل برقم وهمي أو أجنبي.
+ */
 export function isValidPhone(raw: string): boolean {
-  return /^09[0-9]{8}$/.test(normalizePhone(raw));
+  return /^09[1-5][0-9]{7}$/.test(normalizePhone(raw));
 }
 
 export const market = {
@@ -67,7 +71,7 @@ export const market = {
   },
   phone: {
     placeholder: "091 234 5678",
-    pattern: /^(\+218|00218|0)?9[0-9]{8}$/,
+    pattern: /^(\+218|00218|0)?9[1-5][0-9]{7}$/,
     normalize: normalizePhone,
     isValid: isValidPhone,
   },
