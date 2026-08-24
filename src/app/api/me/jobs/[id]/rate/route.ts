@@ -134,21 +134,39 @@ export async function POST(
       );
     }
 
-    // تقييم واحد لكل شغلة — لكنه قابل للتعديل في أي وقت: لو الأسطى
-    // رجع وصلّح، الزبون يقدر يرفع تقييمه (والعكس). التاريخ يتحدّث.
+    // تقييم واحد لكل شغلة — قابل للتعديل خلال 30 يوماً من أول تقييم:
+    // مساحة كافية ليصلّح الأسطى ويقنع الزبون، وبعدها يُقفل حتى ما يصير
+    // ابتزازاً دائماً. التعديل بعد المدة عبر الإدارة فقط.
+    // ملاحظة: created_at لا يتحدّث عند التعديل — هو مرساة المهلة.
+    const EDIT_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
     const existing = await db
       .prepare(
-        "SELECT id FROM ratings WHERE job_id = ? AND rater = 'customer' LIMIT 1"
+        "SELECT id, created_at FROM ratings WHERE job_id = ? AND rater = 'customer' LIMIT 1"
       )
       .bind(job.id)
-      .first<{ id: string }>();
+      .first<{ id: string; created_at: string }>();
     if (existing) {
+      const firstRatedAt = Date.parse(
+        `${existing.created_at.replace(" ", "T")}Z`
+      );
+      if (
+        Number.isFinite(firstRatedAt) &&
+        Date.now() - firstRatedAt > EDIT_WINDOW_MS
+      ) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error:
+              "مدة تعديل التقييم انتهت (30 يوماً من أول تقييم) — للتعديل راسل إدارة توّا.",
+          },
+          { status: 403 }
+        );
+      }
       await db
         .prepare(
           `UPDATE ratings
               SET punctuality = ?, quality = ?, price_adherence = ?,
-                  professionalism = ?, communication = ?, written_review = ?,
-                  created_at = datetime('now')
+                  professionalism = ?, communication = ?, written_review = ?
             WHERE id = ?`
         )
         .bind(
