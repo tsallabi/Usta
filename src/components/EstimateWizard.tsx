@@ -48,6 +48,14 @@ const gradientMap: Record<ServiceCategory["gradient"], string> = {
   petrol: "linear-gradient(140deg, #20666E, #144750)",
   silver: "linear-gradient(140deg, #7A8691, #57626C)",
   midnight: "linear-gradient(140deg, #22364F, #152436)",
+  wine: "linear-gradient(140deg, #8E3A5F, #63263F)",
+  violet: "linear-gradient(140deg, #6B4AA8, #48307A)",
+  seafoam: "linear-gradient(140deg, #2E8B74, #1F6152)",
+  storm: "linear-gradient(140deg, #4E6E8E, #33495F)",
+  space: "linear-gradient(140deg, #37456E, #232D4A)",
+  aqua: "linear-gradient(140deg, #2D8FBF, #1D6486)",
+  denim: "linear-gradient(140deg, #3F6C93, #2A4B68)",
+  olive: "linear-gradient(140deg, #6E7A33, #4C5522)",
 };
 
 const confidenceLabels: Record<Estimate["confidence"], string> = {
@@ -1055,6 +1063,93 @@ function IconPath({ icon }: { icon: ServiceCategory["icon"] }) {
           strokeLinecap="round"
           strokeLinejoin="round"
         />
+      </>
+    ),
+    scissors: (
+      <>
+        <circle cx={6} cy={7} r={2.5} fill="none" stroke="currentColor" strokeWidth={2} />
+        <circle cx={6} cy={17} r={2.5} fill="none" stroke="currentColor" strokeWidth={2} />
+        <path
+          d="M8 8.5 20 19M8 15.5 20 5"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+        />
+      </>
+    ),
+    photo: (
+      <>
+        <rect x={3} y={6} width={18} height={14} rx={2} fill="none" stroke="currentColor" strokeWidth={2} />
+        <circle cx={12} cy={13} r={4} fill="none" stroke="currentColor" strokeWidth={2} />
+        <path d="M8 6l1.5-2.5h5L16 6" fill="none" stroke="currentColor" strokeWidth={2} strokeLinejoin="round" />
+      </>
+    ),
+    heart: (
+      <>
+        <path
+          d="M12 20c-5-3.5-8-6.5-8-10a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 3.5-3 6.5-8 10Z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinejoin="round"
+        />
+        <path d="M12 8.5v5M9.5 11h5" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
+      </>
+    ),
+    drop: (
+      <>
+        <path
+          d="M12 3c3.5 4.5 6 7.5 6 10.5a6 6 0 0 1-12 0C6 10.5 8.5 7.5 12 3Z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinejoin="round"
+        />
+        <path d="M9 14a3 3 0 0 0 3 3" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
+      </>
+    ),
+    dish: (
+      <>
+        <path
+          d="M4 10a10 10 0 0 0 10 10l2-2A8.5 8.5 0 0 1 6 8Z"
+          fill="currentColor"
+        />
+        <circle cx={14.5} cy={9.5} r={2} fill="currentColor" />
+        <path d="M15 9l5.5-5.5" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
+      </>
+    ),
+    car: (
+      <>
+        <path
+          d="M4 13l1.5-4.5A2 2 0 0 1 7.4 7h9.2a2 2 0 0 1 1.9 1.5L20 13v5h-2.5v-1.5h-11V18H4Z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinejoin="round"
+        />
+        <path d="M7.5 13.5h.01M16.5 13.5h.01" stroke="currentColor" strokeWidth={2.6} strokeLinecap="round" />
+      </>
+    ),
+    comb: (
+      <path
+        d="M6 4h12v5H6zM8 9v10M11 9v8M14 9v10M17 9v8"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+    ),
+    pot: (
+      <>
+        <path
+          d="M4 10h16v4a6 6 0 0 1-6 6h-4a6 6 0 0 1-6-6Z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinejoin="round"
+        />
+        <path d="M2 10h20M9 6c0-2 6-2 6 0" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
       </>
     ),
     send: (

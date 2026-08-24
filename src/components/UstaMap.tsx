@@ -52,6 +52,14 @@ const tradeColors: Record<string, string> = {
   cctv: "#22364F",
   accountant: "#3E5AA8",
   tutor: "#5E3B76",
+  tailor: "#8E3A5F",
+  photographer: "#6B4AA8",
+  nursing: "#2E8B74",
+  waterproofing: "#4E6E8E",
+  satellite: "#37456E",
+  carwash: "#2D8FBF",
+  barber: "#3F6C93",
+  catering: "#6E7A33",
 };
 
 /** إزاحة حتمية صغيرة (~±1كم) مشتقة من المعرّف — للأسطى بدون موقع دقيق. */

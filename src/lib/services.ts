@@ -34,7 +34,15 @@ export type ServiceCategory = {
     | "clay"
     | "petrol"
     | "silver"
-    | "midnight";
+    | "midnight"
+    | "wine"
+    | "violet"
+    | "seafoam"
+    | "storm"
+    | "space"
+    | "aqua"
+    | "denim"
+    | "olive";
   icon:
     | "bolt"
     | "wrench"
@@ -55,7 +63,15 @@ export type ServiceCategory = {
     | "tiles"
     | "washer"
     | "window"
-    | "camera";
+    | "camera"
+    | "scissors"
+    | "photo"
+    | "heart"
+    | "drop"
+    | "dish"
+    | "car"
+    | "comb"
+    | "pot";
   fallbackRange: { min: number; max: number };
   /** سطر أجواء الخدمة تحت العنوان في خطوة الوصف — كل خدمة بلسانها. */
   describeHint: string;
@@ -263,6 +279,94 @@ export const services: ServiceCategory[] = [
     describeHint: "شن المادة أو الدورة؟ ولمن — طالب وإلا موظف؟",
     placeholder:
       "مثال: نبي مدرّس رياضيات لولدي في الشهادة الإعدادية، درسين في الأسبوع في الحوش.",
+  },
+  {
+    slug: "tailor",
+    name: "خيّاط",
+    description: "تفصيل · تصليح ملابس · ستائر",
+    gradient: "wine",
+    icon: "scissors",
+    fallbackRange: { min: 20, max: 300 },
+    describeHint: "شن تبي تفصّل أو تصلّح؟ والقماش عندك؟",
+    placeholder:
+      "مثال: نبي تفصيل قفطان للعيد والقماش عندي، ونبي تضييق جاكيت.",
+  },
+  {
+    slug: "photographer",
+    name: "مصوّر",
+    description: "أعراس · مناسبات · منتجات",
+    gradient: "violet",
+    icon: "photo",
+    fallbackRange: { min: 150, max: 1500 },
+    describeHint: "شن المناسبة؟ ووقتاش وكم ساعة تقريباً؟",
+    placeholder:
+      "مثال: نبي مصوّر لحفل خطوبة يوم الجمعة، تصوير 3 ساعات مع فيديو قصير.",
+  },
+  {
+    slug: "nursing",
+    name: "تمريض منزلي",
+    description: "حقن · قياس ضغط وسكر · رعاية كبار",
+    gradient: "seafoam",
+    icon: "heart",
+    fallbackRange: { min: 30, max: 200 },
+    describeHint: "شن الخدمة المطلوبة؟ ولمن — كبير في السن، مريض؟",
+    placeholder:
+      "مثال: نبي ممرضة تجي كل يوم صباحاً تعطي حقنة إنسولين لوالدتي وتقيس الضغط.",
+  },
+  {
+    slug: "waterproofing",
+    name: "عزل أسطح",
+    description: "عزل مائي وحراري · تصليح تسريبات السطح",
+    gradient: "storm",
+    icon: "drop",
+    fallbackRange: { min: 300, max: 3000 },
+    describeHint: "كم متر السطح تقريباً؟ وفيه تسريب حالياً؟",
+    placeholder:
+      "مثال: سطح الحوش 120 متر يسرّب ماء في الشتاء — نبي عزل كامل قبل موسم المطر.",
+  },
+  {
+    slug: "satellite",
+    name: "ستلايت",
+    description: "تركيب دش · برمجة قنوات · تمديد",
+    gradient: "space",
+    icon: "dish",
+    fallbackRange: { min: 20, max: 150 },
+    describeHint: "تركيب جديد وإلا صيانة؟ وكم نقطة في الحوش؟",
+    placeholder:
+      "مثال: نبي تركيب دش مركزي لحوش دورين مع برمجة القنوات.",
+  },
+  {
+    slug: "carwash",
+    name: "غسيل سيارات",
+    description: "غسيل متنقل في مكانك · تلميع داخلي وخارجي",
+    gradient: "aqua",
+    icon: "car",
+    fallbackRange: { min: 20, max: 120 },
+    describeHint: "شن نوع السيارة؟ غسيل عادي وإلا تفصيلي؟",
+    placeholder:
+      "مثال: نبي غسيل تفصيلي لسيارتين قدام الحوش — داخلي وخارجي مع تلميع.",
+  },
+  {
+    slug: "barber",
+    name: "حلاق منزلي",
+    description: "حلاقة في البيت · تجهيز مناسبات وأعراس",
+    gradient: "denim",
+    icon: "comb",
+    fallbackRange: { min: 15, max: 100 },
+    describeHint: "لمن الحلاقة؟ عادية وإلا تجهيز مناسبة؟",
+    placeholder:
+      "مثال: نبي حلاق يجي للحوش يوم الجمعة الصبح — حلاقة لي ولولديّ قبل العرس.",
+  },
+  {
+    slug: "catering",
+    name: "طباخة مناسبات",
+    description: "كسكسي · رشدة · ولائم وعزومات",
+    gradient: "olive",
+    icon: "pot",
+    fallbackRange: { min: 100, max: 1500 },
+    describeHint: "كم شخص تقريباً؟ وشن الأكلات اللي تبيها؟",
+    placeholder:
+      "مثال: عندنا عزومة 30 شخص الخميس — نبو طباخة تجهزلنا كسكسي بالعلوش ومقبلات.",
   },
   {
     slug: "rentals",
