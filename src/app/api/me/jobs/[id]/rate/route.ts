@@ -134,7 +134,8 @@ export async function POST(
       );
     }
 
-    // تقييم واحد فقط من الزبون لكل شغلة.
+    // تقييم واحد لكل شغلة — لكنه قابل للتعديل في أي وقت: لو الأسطى
+    // رجع وصلّح، الزبون يقدر يرفع تقييمه (والعكس). التاريخ يتحدّث.
     const existing = await db
       .prepare(
         "SELECT id FROM ratings WHERE job_id = ? AND rater = 'customer' LIMIT 1"
@@ -142,10 +143,25 @@ export async function POST(
       .bind(job.id)
       .first<{ id: string }>();
     if (existing) {
-      return NextResponse.json(
-        { ok: false, error: "قيّمت هذا الشغل من قبل." },
-        { status: 409 }
-      );
+      await db
+        .prepare(
+          `UPDATE ratings
+              SET punctuality = ?, quality = ?, price_adherence = ?,
+                  professionalism = ?, communication = ?, written_review = ?,
+                  created_at = datetime('now')
+            WHERE id = ?`
+        )
+        .bind(
+          punctuality,
+          quality,
+          priceAdherence,
+          professionalism,
+          communication,
+          review,
+          existing.id
+        )
+        .run();
+      return NextResponse.json({ ok: true, updated: true }, { status: 200 });
     }
 
     await db

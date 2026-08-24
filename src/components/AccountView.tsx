@@ -1593,6 +1593,22 @@ function JobCard({
             >
               قيّمته {ratedAvg}★
             </span>
+            <button
+              type="button"
+              onClick={() => setPanelOpen(true)}
+              style={{
+                padding: "7px 16px",
+                borderRadius: "999px",
+                border: "1px solid var(--line)",
+                background: "transparent",
+                color: "var(--ink-2)",
+                fontSize: "12.5px",
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              ✎ عدّل تقييمك
+            </button>
           </div>
         ) : (
           <div
