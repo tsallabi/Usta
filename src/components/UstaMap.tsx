@@ -164,13 +164,16 @@ export function UstaMap({
       const pos = positionOf(u);
       if (!pos) continue;
       const color = tradeColors[u.trade] ?? "#0B7F58";
-      const marker = L.circleMarker([pos.lat, pos.lng], {
-        radius: 10,
-        color: "#ffffff",
-        weight: 2,
-        fillColor: color,
-        fillOpacity: 0.95,
-      }).addTo(map);
+      const tradeName = findService(u.trade)?.name ?? u.trade;
+      // دبّوس باسم المهنة — الزبون يشوف بعينه أن «كل شيء موجود وقريب»
+      const icon = L.divIcon({
+        className: "",
+        html: `<div style="display:inline-flex;align-items:center;gap:6px;background:${color};color:#fff;padding:5px 12px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap;border:2px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,0.35);font-family:'IBM Plex Sans Arabic',sans-serif;">
+                 <span style="width:7px;height:7px;border-radius:50%;background:#fff;flex-shrink:0;"></span>${escapeHtml(tradeName)}
+               </div>`,
+        iconAnchor: [36, 16],
+      });
+      const marker = L.marker([pos.lat, pos.lng], { icon }).addTo(map);
       const stars =
         u.avg_rating != null
           ? `★ ${u.avg_rating} <span style="color:#7A879A">(${u.ratings_count})</span>`

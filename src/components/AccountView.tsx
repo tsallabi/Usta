@@ -6,6 +6,7 @@ import Link from "next/link";
 import { findService, services, type ServiceCategory } from "@/lib/services";
 import { firstNameOf } from "./UstaProfile";
 import { ChatPanel } from "./ChatPanel";
+import { UstaMap, type MapUsta } from "./UstaMap";
 
 /* ─── Types ──────────────────────────────────────────────── */
 
@@ -291,7 +292,7 @@ function ServiceTiles() {
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))",
+        gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
         gap: "10px",
       }}
     >
@@ -330,11 +331,29 @@ function ServiceTiles() {
           >
             <ServiceGlyph icon={s.icon} size={18} />
           </span>
-          <span
-            className="serif"
-            style={{ fontSize: "15px", letterSpacing: "-0.01em", lineHeight: 1.3 }}
-          >
-            {s.name}
+          <span>
+            <span
+              className="serif"
+              style={{
+                display: "block",
+                fontSize: "16px",
+                letterSpacing: "-0.01em",
+                lineHeight: 1.3,
+              }}
+            >
+              {s.name}
+            </span>
+            <span
+              style={{
+                display: "block",
+                fontSize: "10.5px",
+                opacity: 0.8,
+                lineHeight: 1.45,
+                marginTop: "3px",
+              }}
+            >
+              {s.description}
+            </span>
           </span>
         </Link>
       ))}
@@ -675,49 +694,8 @@ export function AccountView() {
             <ServiceTiles />
           </section>
 
-          {/* ─── الخريطة: القريب منك يوصلك توّا ─── */}
-          <Link
-            href="/ustas?view=map"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "16px",
-              flexWrap: "wrap",
-              padding: "22px 26px",
-              borderRadius: "18px",
-              background: "linear-gradient(140deg, #3B7EA1, #256380)",
-              color: "#fff",
-              textDecoration: "none",
-              marginBottom: "48px",
-              boxShadow: "0 12px 32px -14px rgba(11,31,51,0.5)",
-            }}
-          >
-            <div>
-              <div
-                className="serif"
-                style={{ fontSize: "22px", marginBottom: "4px" }}
-              >
-                🗺 شوف الأسطوات القريبين منك
-              </div>
-              <div style={{ fontSize: "13.5px", opacity: 0.85 }}>
-                كل أسطى دبّوس على الخريطة — القريب منك يوصلك توّا.
-              </div>
-            </div>
-            <span
-              style={{
-                padding: "10px 22px",
-                borderRadius: "999px",
-                background: "rgba(255,255,255,0.16)",
-                border: "1px solid rgba(255,255,255,0.4)",
-                fontSize: "14px",
-                fontWeight: 700,
-                whiteSpace: "nowrap",
-              }}
-            >
-              افتح الخريطة ←
-            </span>
-          </Link>
+          {/* ─── الخريطة: القريب منك يوصلك توّا (داخل الصفحة) ─── */}
+          <InlineMapCard />
 
           {/* ─── طلباتك ─── */}
           <section aria-label="طلباتك">
@@ -2029,5 +2007,119 @@ function JobOffers({
         </div>
       )}
     </div>
+  );
+}
+
+
+/* ─── 🗺 خريطة داخل الحساب — بدون مغادرة الصفحة ────────────── */
+
+function InlineMapCard() {
+  const [open, setOpen] = useState(false);
+  const [ustas, setUstas] = useState<MapUsta[] | null>(null);
+  const [mapError, setMapError] = useState<string | null>(null);
+
+  async function toggle() {
+    const next = !open;
+    setOpen(next);
+    if (next && ustas === null) {
+      try {
+        const res = await fetch("/api/ustas");
+        const data = (await res.json().catch(() => ({}))) as {
+          ok?: boolean;
+          ustas?: MapUsta[];
+          error?: string;
+        };
+        if (data.ok && Array.isArray(data.ustas)) {
+          setUstas(data.ustas);
+        } else {
+          setMapError(data.error ?? "ما قدرناش نجيبو الأسطوات توّا.");
+        }
+      } catch {
+        setMapError("مشكلة في الاتصال — حاول مرة ثانية.");
+      }
+    }
+  }
+
+  return (
+    <section aria-label="خريطة الأسطوات" style={{ marginBottom: "48px" }}>
+      <button
+        type="button"
+        onClick={() => void toggle()}
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "16px",
+          flexWrap: "wrap",
+          padding: "22px 26px",
+          borderRadius: open ? "18px 18px 0 0" : "18px",
+          background: "linear-gradient(140deg, #3B7EA1, #256380)",
+          color: "#fff",
+          border: 0,
+          cursor: "pointer",
+          textAlign: "start",
+          fontFamily: "inherit",
+          boxShadow: "0 12px 32px -14px rgba(11,31,51,0.5)",
+        }}
+      >
+        <span>
+          <span
+            className="serif"
+            style={{ display: "block", fontSize: "22px", marginBottom: "4px" }}
+          >
+            🗺 شوف الأسطوات القريبين منك
+          </span>
+          <span style={{ display: "block", fontSize: "13.5px", opacity: 0.85 }}>
+            كل أسطى دبّوس باسم مهنته — القريب منك يوصلك توّا.
+          </span>
+        </span>
+        <span
+          style={{
+            padding: "10px 22px",
+            borderRadius: "999px",
+            background: "rgba(255,255,255,0.16)",
+            border: "1px solid rgba(255,255,255,0.4)",
+            fontSize: "14px",
+            fontWeight: 700,
+            whiteSpace: "nowrap",
+          }}
+        >
+          {open ? "إخفاء الخريطة ▲" : "افتح الخريطة ▼"}
+        </span>
+      </button>
+      {open ? (
+        <div
+          style={{
+            border: "1px solid var(--line)",
+            borderTop: "none",
+            borderRadius: "0 0 18px 18px",
+            padding: "16px",
+            background: "var(--paper-2, transparent)",
+          }}
+        >
+          {mapError ? (
+            <p style={{ color: "var(--coral, #F26D5B)", fontSize: "14px", margin: 0 }}>
+              {mapError}
+            </p>
+          ) : ustas === null ? (
+            <p
+              className="mono"
+              style={{
+                color: "var(--ink-3)",
+                fontSize: "12px",
+                letterSpacing: "0.1em",
+                margin: 0,
+                padding: "20px 0",
+              }}
+            >
+              قاعدين نجيبو الأسطوات…
+            </p>
+          ) : (
+            <UstaMap ustas={ustas} />
+          )}
+        </div>
+      ) : null}
+    </section>
   );
 }

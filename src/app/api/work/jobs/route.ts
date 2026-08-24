@@ -111,6 +111,31 @@ export async function GET(request: Request) {
       .bind(tradesman.id)
       .first<{ avg_rating: number | null; ratings_count: number }>();
 
+    // شغل الأسطى المتفق عليه — طلبات عرضه فيها مقبول (ما عادتش مفتوحة
+    // لكن لازم تظل قدامه: التفاصيل + الدردشة مع الزبون).
+    const active = await db
+      .prepare(
+        `SELECT j.id, j.service, j.description, j.city, j.area, j.status,
+                j.created_at, o.price_lyd
+           FROM jobs j
+           JOIN offers o
+             ON o.job_id = j.id AND o.tradesman_id = ?1 AND o.status = 'accepted'
+          WHERE j.status IN ('matched', 'in_progress', 'completed')
+          ORDER BY j.created_at DESC
+          LIMIT 50`
+      )
+      .bind(tradesman.id)
+      .all<{
+        id: string;
+        service: string;
+        description: string;
+        city: string | null;
+        area: string | null;
+        status: string;
+        created_at: string;
+        price_lyd: number;
+      }>();
+
     const jobs = (results ?? []).map((r) => ({
       id: r.id,
       service: r.service,
@@ -144,6 +169,7 @@ export async function GET(request: Request) {
         avgRating: ratingRow?.avg_rating ?? null,
         ratingsCount: ratingRow?.ratings_count ?? 0,
         jobs,
+        activeJobs: active.results ?? [],
       },
       { status: 200 }
     );

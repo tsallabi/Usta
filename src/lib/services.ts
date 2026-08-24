@@ -178,7 +178,7 @@ export const services: ServiceCategory[] = [
   {
     slug: "delivery",
     name: "توصيل",
-    description: "استلام وتوصيل نفس اليوم — طرود، أثاث، أجهزة",
+    description: "طرود · بضائع · مشاوير أشخاص · مياه وغاز — نفس اليوم",
     gradient: "sky",
     icon: "send",
     fallbackRange: { min: 10, max: 80 },

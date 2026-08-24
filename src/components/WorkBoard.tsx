@@ -27,6 +27,17 @@ type WorkJob = {
   my_offer: MyOffer | null;
 };
 
+type ActiveJob = {
+  id: string;
+  service: string;
+  description: string;
+  city: string | null;
+  area: string | null;
+  status: string;
+  created_at: string;
+  price_lyd: number;
+};
+
 type TradesmanInfo = { full_name: string; trade: string; city: string };
 
 type View =
@@ -39,6 +50,7 @@ type View =
       kind: "ready";
       tradesman: TradesmanInfo;
       jobs: WorkJob[];
+      activeJobs: ActiveJob[];
       acceptedCount: number;
       avgRating: number | null;
       ratingsCount: number;
@@ -77,6 +89,7 @@ export function WorkBoard() {
         avgRating?: number | null;
         ratingsCount?: number;
         jobs?: WorkJob[];
+        activeJobs?: ActiveJob[];
       };
       if (res.status === 401) {
         setView({ kind: "not_logged" });
@@ -95,6 +108,7 @@ export function WorkBoard() {
           kind: "ready",
           tradesman: data.tradesman,
           jobs: data.jobs,
+          activeJobs: Array.isArray(data.activeJobs) ? data.activeJobs : [],
           acceptedCount:
             typeof data.acceptedCount === "number" ? data.acceptedCount : 0,
           avgRating: typeof data.avgRating === "number" ? data.avgRating : null,
@@ -232,7 +246,8 @@ export function WorkBoard() {
     );
   }
 
-  const { tradesman, jobs, acceptedCount, avgRating, ratingsCount } = view;
+  const { tradesman, jobs, activeJobs, acceptedCount, avgRating, ratingsCount } =
+    view;
   const trade = findService(tradesman.trade);
 
   return (
@@ -330,6 +345,92 @@ export function WorkBoard() {
           </div>
         </div>
       </div>
+
+      {activeJobs.length > 0 ? (
+        <section aria-label="شغلك المتفق عليه" style={{ marginBottom: "40px" }}>
+          <div className="kicker" style={{ marginBottom: "14px" }}>
+            — شغلك المتفق عليه ({activeJobs.length})
+          </div>
+          <div style={{ display: "grid", gap: "16px" }}>
+            {activeJobs.map((aj) => {
+              const ajSvc = findService(aj.service);
+              return (
+                <div
+                  key={aj.id}
+                  style={{
+                    border: "1px solid var(--brand-1)",
+                    borderRadius: "18px",
+                    padding: "20px 22px",
+                    background: "rgba(16,185,129,0.06)",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "12px",
+                      flexWrap: "wrap",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    <span
+                      className="serif"
+                      style={{ fontSize: "19px", color: "var(--ink)" }}
+                    >
+                      {ajSvc?.name ?? aj.service} · {aj.city ?? ""}
+                      {aj.area ? ` — ${aj.area}` : ""}
+                    </span>
+                    <span
+                      className="serif"
+                      style={{
+                        fontSize: "19px",
+                        color: "var(--brand-2, #0B7F58)",
+                      }}
+                    >
+                      {aj.price_lyd} د.ل
+                    </span>
+                  </div>
+                  <p
+                    style={{
+                      margin: "0 0 8px",
+                      fontSize: "14px",
+                      color: "var(--ink-2)",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {aj.description}
+                  </p>
+                  <span
+                    className="mono"
+                    style={{
+                      display: "inline-block",
+                      fontSize: "10px",
+                      letterSpacing: "0.1em",
+                      color:
+                        aj.status === "completed"
+                          ? "var(--brand-1)"
+                          : "#8A6210",
+                      border: `1px solid ${aj.status === "completed" ? "var(--brand-1)" : "#B8860B"}`,
+                      borderRadius: "999px",
+                      padding: "4px 12px",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    {aj.status === "completed"
+                      ? "مكتمل ✓"
+                      : "متفق عليه — كلّم الزبون ونسّق معاه"}
+                  </span>
+                  <ChatPanel
+                    endpoint={`/api/work/jobs/${aj.id}/chat`}
+                    me="tradesman"
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
 
       <div
         style={{
