@@ -16,6 +16,7 @@ type MyOffer = {
 type WorkJob = {
   id: string;
   service: string;
+  status: string;
   description: string;
   city: string | null;
   area: string | null;
@@ -450,8 +451,9 @@ export function WorkBoard() {
             color: "var(--ink-3)",
           }}
         >
-          {trade?.name ?? tradesman.trade} · {tradesman.city} · {jobs.length}{" "}
-          {jobs.length === 1 ? "طلب مفتوح" : "طلبات مفتوحة"}
+          {trade?.name ?? tradesman.trade} · {tradesman.city} ·{" "}
+          {jobs.filter((j) => j.status === "open").length} مفتوح ·{" "}
+          {jobs.filter((j) => j.status !== "open").length} متفق عليه
         </span>
         <button
           type="button"
@@ -663,7 +665,50 @@ function JobCard({
       </div>
 
       {/* حالة عرضي / زر تقديم عرض */}
-      {justSent ? (
+      {job.status !== "open" ? (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            flexWrap: "wrap",
+          }}
+        >
+          <span
+            className="mono"
+            style={{
+              fontSize: "11px",
+              letterSpacing: "0.08em",
+              color: "var(--ink-3)",
+              border: "1px solid var(--line)",
+              borderRadius: "999px",
+              padding: "6px 14px",
+              background: "var(--paper-2, transparent)",
+            }}
+          >
+            🔒 {job.status === "completed" ? "اكتمل الشغل" : "تم اختيار أسطى"} —
+            تنافس عليه {job.offers_count}{" "}
+            {job.offers_count === 1 ? "أسطى" : "أسطوات"}
+          </span>
+          {job.my_offer ? (
+            <span
+              className="mono"
+              style={{
+                fontSize: "10px",
+                letterSpacing: "0.1em",
+                color: offerStatusColor(job.my_offer.status ?? "pending"),
+                border: `1px solid ${offerStatusColor(job.my_offer.status ?? "pending")}`,
+                borderRadius: "999px",
+                padding: "4px 12px",
+              }}
+            >
+              عرضك: {job.my_offer.price_lyd ?? "—"} د.ل ·{" "}
+              {offerStatusLabels[job.my_offer.status ?? "pending"] ??
+                job.my_offer.status}
+            </span>
+          ) : null}
+        </div>
+      ) : justSent ? (
         <div
           role="status"
           className="mono"

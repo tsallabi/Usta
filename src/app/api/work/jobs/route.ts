@@ -7,6 +7,7 @@ export const runtime = "edge";
 type WorkJobRow = {
   id: string;
   service: string;
+  status: string;
   description: string;
   city: string | null;
   area: string | null;
@@ -70,6 +71,7 @@ export async function GET(request: Request) {
     const { results } = await db
       .prepare(
         `SELECT j.id, j.service, j.description, j.city, j.area, j.budget_lyd,
+                j.status,
                 e.min_lyd AS est_min_lyd, e.max_lyd AS est_max_lyd,
                 j.created_at,
                 (SELECT COUNT(*) FROM offers o WHERE o.job_id = j.id)
@@ -81,8 +83,12 @@ export async function GET(request: Request) {
            LEFT JOIN estimates e ON e.id = j.estimate_id
            LEFT JOIN offers mo
                   ON mo.job_id = j.id AND mo.tradesman_id = ?1
-          WHERE j.status = 'open' AND j.service = ?2
-          ORDER BY j.created_at DESC
+          WHERE j.service = ?2
+            AND (mo.status IS NULL OR mo.status != 'accepted')
+            AND (j.status = 'open'
+                 OR (j.status IN ('matched', 'in_progress', 'completed')
+                     AND j.created_at >= datetime('now', '-30 days')))
+          ORDER BY (j.status != 'open'), j.created_at DESC
           LIMIT 100`
       )
       .bind(tradesman.id, tradesman.trade)
@@ -139,6 +145,7 @@ export async function GET(request: Request) {
     const jobs = (results ?? []).map((r) => ({
       id: r.id,
       service: r.service,
+      status: r.status,
       description: r.description,
       city: r.city,
       area: r.area,
