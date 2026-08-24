@@ -44,6 +44,14 @@ const tradeColors: Record<string, string> = {
   delivery: "#3B7EA1",
   carpenter: "#8B5E34",
   blacksmith: "#3E4A52",
+  mechanic: "#A03333",
+  tires: "#2B2F4A",
+  appliance: "#20666E",
+  tiler: "#B4552D",
+  aluminum: "#7A8691",
+  cctv: "#22364F",
+  accountant: "#3E5AA8",
+  tutor: "#5E3B76",
 };
 
 /** إزاحة حتمية صغيرة (~±1كم) مشتقة من المعرّف — للأسطى بدون موقع دقيق. */

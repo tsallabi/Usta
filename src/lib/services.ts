@@ -26,7 +26,15 @@ export type ServiceCategory = {
     | "sky"
     | "walnut"
     | "iron"
-    | "indigo";
+    | "indigo"
+    | "crimson"
+    | "night"
+    | "royal"
+    | "grape"
+    | "clay"
+    | "petrol"
+    | "silver"
+    | "midnight";
   icon:
     | "bolt"
     | "wrench"
@@ -39,7 +47,15 @@ export type ServiceCategory = {
     | "send"
     | "saw"
     | "hammer"
-    | "key";
+    | "key"
+    | "gear"
+    | "tire"
+    | "calc"
+    | "book"
+    | "tiles"
+    | "washer"
+    | "window"
+    | "camera";
   fallbackRange: { min: number; max: number };
   /** سطر أجواء الخدمة تحت العنوان في خطوة الوصف — كل خدمة بلسانها. */
   describeHint: string;
@@ -159,6 +175,94 @@ export const services: ServiceCategory[] = [
     describeHint: "شغل جديد وإلا تصليح؟ والقياسات تقريباً شن هي؟",
     placeholder:
       "مثال: نبو باب حوش حديد بقياس 3 متر مع بوابة صغيرة للمشاة، والشباك القديم صدّى ويحتاج لحام.",
+  },
+  {
+    slug: "mechanic",
+    name: "ميكانيكي",
+    description: "صيانة سيارات · فحص كمبيوتر · كهرباء سيارة",
+    gradient: "crimson",
+    icon: "gear",
+    fallbackRange: { min: 50, max: 500 },
+    describeHint: "شن نوع السيارة؟ وشن العطل اللي حاسّه فيها؟",
+    placeholder:
+      "مثال: كورولا 2015 تسخّن في الزحمة والمروحة ما تدورش — نبي حد يشوفها في مكانها لو أمكن.",
+  },
+  {
+    slug: "tires",
+    name: "عجلاتي",
+    description: "بنشر · ميزان · تبديل عجلات — يجيك وين ما كنت",
+    gradient: "night",
+    icon: "tire",
+    fallbackRange: { min: 20, max: 150 },
+    describeHint: "وين واقف؟ وشن صار في العجلة بالضبط؟",
+    placeholder:
+      "مثال: بنشر في الطريق السريع جنب جسر المطار — نبي عجلاتي يجيني توّا يبدّللي العجلة.",
+  },
+  {
+    slug: "appliance",
+    name: "صيانة أجهزة",
+    description: "غسالات · ثلاجات · أفران ومكانس",
+    gradient: "petrol",
+    icon: "washer",
+    fallbackRange: { min: 40, max: 300 },
+    describeHint: "شن الجهاز ونوعه؟ وشن العيب اللي بان عليه؟",
+    placeholder:
+      "مثال: الغسالة الأتوماتيك تعبي ماء وما تدورش — LG عمرها 4 سنين.",
+  },
+  {
+    slug: "tiler",
+    name: "بلّاط",
+    description: "سيراميك · بورسلين · رخام",
+    gradient: "clay",
+    icon: "tiles",
+    fallbackRange: { min: 300, max: 3000 },
+    describeHint: "كم متر تقريباً؟ وشن نوع البلاط؟",
+    placeholder:
+      "مثال: نبي تبليط صالة وممر حوالي 60 متر بورسلين — البلاط موجود، نبي المصنعية بس.",
+  },
+  {
+    slug: "aluminum",
+    name: "ألمنيوم",
+    description: "شبابيك · أبواب · مطابخ ألمنيوم",
+    gradient: "silver",
+    icon: "window",
+    fallbackRange: { min: 200, max: 2500 },
+    describeHint: "شن تبي تركّب؟ والقياسات لو عندك؟",
+    placeholder:
+      "مثال: نبي 4 شبابيك ألمنيوم بقياس 120×140 مع ناموسية، وباب لبلكونة.",
+  },
+  {
+    slug: "cctv",
+    name: "كاميرات وأمان",
+    description: "كاميرات مراقبة · إنذار · إنتركم",
+    gradient: "midnight",
+    icon: "camera",
+    fallbackRange: { min: 150, max: 1500 },
+    describeHint: "كم كاميرا تقريباً؟ لحوش ولا محل؟",
+    placeholder:
+      "مثال: نبي 4 كاميرات لمحل مع شاشة وتسجيل، ونقدر نشوفهم من الهاتف.",
+  },
+  {
+    slug: "accountant",
+    name: "محاسب",
+    description: "حسابات محلات · إقرارات · ميزانيات",
+    gradient: "royal",
+    icon: "calc",
+    fallbackRange: { min: 100, max: 1000 },
+    describeHint: "شغلك شن نوعه — محل، شركة صغيرة؟ وشن تحتاج بالضبط؟",
+    placeholder:
+      "مثال: عندي محل ملابس ونبي محاسب يرتبلي الدفاتر ويجهزلي حساب شهري.",
+  },
+  {
+    slug: "tutor",
+    name: "دروس ودورات",
+    description: "دروس خصوصية · لغات · كمبيوتر ودورات",
+    gradient: "grape",
+    icon: "book",
+    fallbackRange: { min: 100, max: 800 },
+    describeHint: "شن المادة أو الدورة؟ ولمن — طالب وإلا موظف؟",
+    placeholder:
+      "مثال: نبي مدرّس رياضيات لولدي في الشهادة الإعدادية، درسين في الأسبوع في الحوش.",
   },
   {
     slug: "rentals",

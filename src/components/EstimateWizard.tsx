@@ -40,6 +40,14 @@ const gradientMap: Record<ServiceCategory["gradient"], string> = {
   walnut: "linear-gradient(140deg, #8B5E34, #66421F)",
   iron: "linear-gradient(140deg, #3E4A52, #232D33)",
   indigo: "linear-gradient(140deg, #4B4E9E, #32356E)",
+  crimson: "linear-gradient(140deg, #A03333, #6E1F1F)",
+  night: "linear-gradient(140deg, #2B2F4A, #1B1E33)",
+  royal: "linear-gradient(140deg, #3E5AA8, #293D78)",
+  grape: "linear-gradient(140deg, #5E3B76, #3F2752)",
+  clay: "linear-gradient(140deg, #B4552D, #8A3A1B)",
+  petrol: "linear-gradient(140deg, #20666E, #144750)",
+  silver: "linear-gradient(140deg, #7A8691, #57626C)",
+  midnight: "linear-gradient(140deg, #22364F, #152436)",
 };
 
 const confidenceLabels: Record<Estimate["confidence"], string> = {
@@ -923,6 +931,129 @@ function IconPath({ icon }: { icon: ServiceCategory["icon"] }) {
           stroke="currentColor"
           strokeWidth={2}
           strokeLinecap="round"
+        />
+      </>
+    ),
+    gear: (
+      <>
+        <circle
+          cx={12}
+          cy={12}
+          r={4}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+        />
+        <path
+          d="M12 2v4M12 18v4M2 12h4M18 12h4M4.9 4.9l2.9 2.9M16.2 16.2l2.9 2.9M19.1 4.9l-2.9 2.9M7.8 16.2l-2.9 2.9"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+        />
+      </>
+    ),
+    tire: (
+      <>
+        <circle
+          cx={12}
+          cy={12}
+          r={8}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2.5}
+        />
+        <circle cx={12} cy={12} r={2.5} fill="currentColor" />
+        <path
+          d="M12 4v3M12 17v3M4 12h3M17 12h3"
+          stroke="currentColor"
+          strokeWidth={1.8}
+        />
+      </>
+    ),
+    calc: (
+      <>
+        <rect
+          x={5}
+          y={3}
+          width={14}
+          height={18}
+          rx={2}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+        />
+        <path d="M8 7h8" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
+        <path
+          d="M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"
+          stroke="currentColor"
+          strokeWidth={2.6}
+          strokeLinecap="round"
+        />
+      </>
+    ),
+    book: (
+      <path
+        d="M12 5c-2-1.5-5-2-8-2v16c3 0 6 .5 8 2 2-1.5 5-2 8-2V3c-3 0-6 .5-8 2Zm0 0v16"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinejoin="round"
+      />
+    ),
+    tiles: (
+      <path
+        d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+      />
+    ),
+    washer: (
+      <>
+        <rect
+          x={4}
+          y={3}
+          width={16}
+          height={18}
+          rx={2}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+        />
+        <circle
+          cx={12}
+          cy={13}
+          r={4.5}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+        />
+        <path
+          d="M7 6h.01M10 6h.01"
+          stroke="currentColor"
+          strokeWidth={2.4}
+          strokeLinecap="round"
+        />
+      </>
+    ),
+    window: (
+      <path
+        d="M4 4h16v16H4zM12 4v16M4 12h16"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+      />
+    ),
+    camera: (
+      <>
+        <path d="M3 8l12-3.5 1.6 5.5L4.6 13z" fill="currentColor" />
+        <path
+          d="M15 9l4.5 1.2v3l2.5 1M7 12.5V19h5.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </>
     ),
