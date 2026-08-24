@@ -675,6 +675,50 @@ export function AccountView() {
             <ServiceTiles />
           </section>
 
+          {/* ─── الخريطة: القريب منك يوصلك توّا ─── */}
+          <Link
+            href="/ustas?view=map"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "16px",
+              flexWrap: "wrap",
+              padding: "22px 26px",
+              borderRadius: "18px",
+              background: "linear-gradient(140deg, #3B7EA1, #256380)",
+              color: "#fff",
+              textDecoration: "none",
+              marginBottom: "48px",
+              boxShadow: "0 12px 32px -14px rgba(11,31,51,0.5)",
+            }}
+          >
+            <div>
+              <div
+                className="serif"
+                style={{ fontSize: "22px", marginBottom: "4px" }}
+              >
+                🗺 شوف الأسطوات القريبين منك
+              </div>
+              <div style={{ fontSize: "13.5px", opacity: 0.85 }}>
+                كل أسطى دبّوس على الخريطة — القريب منك يوصلك توّا.
+              </div>
+            </div>
+            <span
+              style={{
+                padding: "10px 22px",
+                borderRadius: "999px",
+                background: "rgba(255,255,255,0.16)",
+                border: "1px solid rgba(255,255,255,0.4)",
+                fontSize: "14px",
+                fontWeight: 700,
+                whiteSpace: "nowrap",
+              }}
+            >
+              افتح الخريطة ←
+            </span>
+          </Link>
+
           {/* ─── طلباتك ─── */}
           <section aria-label="طلباتك">
             <div className="kicker" style={{ marginBottom: "20px" }}>

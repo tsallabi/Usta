@@ -35,7 +35,12 @@ export function UstaDirectory() {
   const [trade, setTrade] = useState("");
   const [city, setCity] = useState("");
   const [view, setView] = useState<View>({ kind: "loading" });
-  const [mode, setMode] = useState<"cards" | "map">("cards");
+  const [mode, setMode] = useState<"cards" | "map">(() => {
+    if (typeof window === "undefined") return "cards";
+    return new URLSearchParams(window.location.search).get("view") === "map"
+      ? "map"
+      : "cards";
+  });
   const [myPos, setMyPos] = useState<{ lat: number; lng: number } | null>(
     null
   );
