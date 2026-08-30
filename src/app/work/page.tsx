@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { WorkBoard } from "@/components/WorkBoard";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandMark } from "@/components/BrandMark";
-import { BrandText, LangSwitcher } from "@/components/locale";
+import { BrandText, LangSwitcher, LText } from "@/components/locale";
 
 export const metadata: Metadata = {
   title: "سوق الشغل · توّا",
@@ -65,7 +65,7 @@ export default function WorkPage() {
                 letterSpacing: "0.02em",
               }}
             >
-              حسابي
+              <LText ar="حسابي" en="My account" />
             </Link>
             <LangSwitcher />
             <ThemeToggle />
@@ -81,7 +81,7 @@ export default function WorkPage() {
         }}
       >
         <div className="kicker" style={{ marginBottom: "20px" }}>
-          — للأسطوات الموثّقين
+          — <LText ar="للأسطوات الموثّقين" en="FOR VERIFIED PROS" />
         </div>
         <h1
           className="serif"
@@ -94,7 +94,7 @@ export default function WorkPage() {
             fontWeight: 400,
           }}
         >
-          سوق الشغل.
+          <LText ar="سوق الشغل." en="The job board." />
         </h1>
         <p
           style={{
@@ -105,7 +105,10 @@ export default function WorkPage() {
             maxWidth: "540px",
           }}
         >
-          طلبات مفتوحة في مهنتك — قدّم عرضك والزبون يختار.
+          <LText
+            ar="طلبات مفتوحة في مهنتك — قدّم عرضك والزبون يختار."
+            en="Open requests in your trade — make your offer and the customer chooses."
+          />
         </p>
 
         <WorkBoard />

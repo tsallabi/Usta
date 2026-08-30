@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { TradesmanForm } from "@/components/TradesmanForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandMark } from "@/components/BrandMark";
-import { BrandText, LangSwitcher } from "@/components/locale";
+import { BrandText, LangSwitcher, LText } from "@/components/locale";
 
 export const metadata: Metadata = {
   title: "انضم كأسطى",
@@ -74,7 +74,7 @@ export default function TradesmanJoinPage() {
         }}
       >
         <div className="kicker" style={{ marginBottom: "20px" }}>
-          — للأسطوات الليبيين · مجاني فترة الإطلاق
+          — <LText ar="للأسطوات الليبيين · مجاني فترة الإطلاق" en="FOR PROS · FREE DURING LAUNCH" />
         </div>
         <h1
           className="serif"

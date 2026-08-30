@@ -2,6 +2,7 @@
 
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { services } from "@/lib/services";
+import { useLocale } from "./locale";
 import { market } from "@/lib/market";
 
 type Status =
@@ -65,6 +66,7 @@ function blurRing(e: Focusable) {
 }
 
 export function TradesmanForm() {
+  const en = useLocale() === "en";
   const [fields, setFields] = useState<Fields>(emptyFields);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
@@ -207,7 +209,7 @@ export function TradesmanForm() {
           className="serif"
           style={{ fontSize: "24px", color: "var(--ink)", lineHeight: 1.3 }}
         >
-          استلمنا طلبك.
+          {en ? "Application received." : "استلمنا طلبك."}
         </div>
         <div
           style={{
@@ -252,12 +254,12 @@ export function TradesmanForm() {
       {/* ─── بياناتك ─── */}
       <section>
         <div className="kicker" style={{ marginBottom: "16px" }}>
-          بياناتك
+          {en ? "Your details" : "بياناتك"}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <div>
             <label htmlFor="tm-fullname" style={labelStyle}>
-              الاسم الكامل
+              {en ? "Full name" : "الاسم الكامل"}
             </label>
             <input
               id="tm-fullname"
@@ -276,7 +278,7 @@ export function TradesmanForm() {
           </div>
           <div>
             <label htmlFor="tm-phone" style={labelStyle}>
-              رقم الهاتف / واتساب
+              {en ? "Phone / WhatsApp" : "رقم الهاتف / واتساب"}
             </label>
             <input
               id="tm-phone"
@@ -295,7 +297,7 @@ export function TradesmanForm() {
           </div>
           <div>
             <label htmlFor="tm-email" style={labelStyle}>
-              البريد الإلكتروني (اختياري)
+              {en ? "Email (optional)" : "البريد الإلكتروني (اختياري)"}
             </label>
             <input
               id="tm-email"
@@ -317,12 +319,12 @@ export function TradesmanForm() {
       {/* ─── مهنتك ─── */}
       <section>
         <div className="kicker" style={{ marginBottom: "16px" }}>
-          مهنتك
+          {en ? "Your trade" : "مهنتك"}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <div>
             <label htmlFor="tm-trade" style={labelStyle}>
-              المهنة
+              {en ? "Trade" : "المهنة"}
             </label>
             <select
               id="tm-trade"
@@ -340,7 +342,7 @@ export function TradesmanForm() {
               onBlur={blurRing}
             >
               <option value="" disabled>
-                اختر مهنتك…
+                {en ? "Choose your trade…" : "اختر مهنتك…"}
               </option>
               {services.map((s) => (
                 <option key={s.slug} value={s.slug}>
@@ -351,7 +353,7 @@ export function TradesmanForm() {
           </div>
           <div>
             <label htmlFor="tm-city" style={labelStyle}>
-              المدينة
+              {en ? "City" : "المدينة"}
             </label>
             <select
               id="tm-city"
@@ -369,7 +371,7 @@ export function TradesmanForm() {
               onBlur={blurRing}
             >
               <option value="" disabled>
-                اختر المدينة…
+                {en ? "Choose a city…" : "اختر المدينة…"}
               </option>
               {market.cities.map((c) => (
                 <option key={c} value={c}>
@@ -380,7 +382,7 @@ export function TradesmanForm() {
           </div>
           <div>
             <label htmlFor="tm-area" style={labelStyle}>
-              مناطق الشغل
+              {en ? "Areas you cover" : "مناطق الشغل"}
             </label>
             <input
               id="tm-area"
@@ -460,7 +462,7 @@ export function TradesmanForm() {
       {/* ─── التوثيق ─── */}
       <section>
         <div className="kicker" style={{ marginBottom: "8px" }}>
-          التوثيق
+          {en ? "Verification" : "التوثيق"}
         </div>
         <div
           className="mono"
@@ -476,7 +478,7 @@ export function TradesmanForm() {
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <div>
             <label htmlFor="tm-nationalid" style={labelStyle}>
-              رقم بطاقة الهوية / الرقم الوطني
+              {en ? "ID / national number" : "رقم بطاقة الهوية / الرقم الوطني"}
             </label>
             <input
               id="tm-nationalid"
@@ -495,7 +497,7 @@ export function TradesmanForm() {
           </div>
           <div>
             <label htmlFor="tm-years" style={labelStyle}>
-              سنوات الخبرة (اختياري)
+              {en ? "Years of experience (optional)" : "سنوات الخبرة (اختياري)"}
             </label>
             <input
               id="tm-years"
@@ -513,7 +515,7 @@ export function TradesmanForm() {
           </div>
           <div>
             <label htmlFor="tm-previouswork" style={labelStyle}>
-              وصف أعمال سابقة (اختياري)
+              {en ? "Past work (optional)" : "وصف أعمال سابقة (اختياري)"}
             </label>
             <textarea
               id="tm-previouswork"
@@ -556,7 +558,13 @@ export function TradesmanForm() {
           onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.98)")}
           onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
-          {busy ? "قاعدين نرسلو طلبك…" : "قدّم للانضمام لتوّا"}
+          {busy
+            ? en
+              ? "Submitting…"
+              : "قاعدين نرسلو طلبك…"
+            : en
+              ? "Apply to join NOW"
+              : "قدّم للانضمام لتوّا"}
         </button>
 
         {status.kind === "error" && (

@@ -67,12 +67,10 @@ export function LangSwitcher() {
     };
   }, []);
 
-  /* تطبيق الاتجاه واللغة على الصفحة + فرض اللغة لو الوضع مقفول */
+  /* فرض اللغة لو الوضع مقفول (ar أو en). ملاحظة: ما نقلبوش اتجاه
+     الوثيقة كلها — الصفحات العربية تظل rtl سليمة، وكل منطقة مترجمة
+     (مثل /en وسوق الشغل بالإنجليزي) تضبط dir على حاويتها بنفسها. */
   useEffect(() => {
-    const effective: Locale =
-      mode === "ar" || mode === "en" ? mode : locale;
-    document.documentElement.dir = effective === "en" ? "ltr" : "rtl";
-    document.documentElement.lang = effective === "en" ? "en" : "ar-LY";
     if ((mode === "ar" || mode === "en") && locale !== mode) {
       document.cookie = `${LOCALE_COOKIE}=${mode}; Path=/; Max-Age=31536000; SameSite=Lax`;
       window.location.reload();
@@ -102,4 +100,37 @@ export function LangSwitcher() {
       {locale === "ar" ? "EN" : "ع"}
     </button>
   );
+}
+
+/** رابط يبدّل اللغة ثم ينتقل — للصفحة الرئيسية الإنجليزية/العربية. */
+export function SetLocaleLink({
+  locale,
+  href,
+  children,
+  style,
+}: {
+  locale: Locale;
+  href: string;
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <a
+      href={href}
+      style={style}
+      onClick={(e) => {
+        e.preventDefault();
+        document.cookie = `${LOCALE_COOKIE}=${locale}; Path=/; Max-Age=31536000; SameSite=Lax`;
+        window.location.href = href;
+      }}
+    >
+      {children}
+    </a>
+  );
+}
+
+/** نص ثنائي اللغة — يعرض العربي أو الإنجليزي حسب لغة الزائر. */
+export function LText({ ar, en }: { ar: string; en: string }) {
+  const locale = useLocale();
+  return <>{locale === "en" ? en : ar}</>;
 }

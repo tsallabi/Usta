@@ -8,6 +8,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useLocale } from "./locale";
 
 type Message = {
   id: string;
@@ -23,6 +24,7 @@ export function ChatPanel({
   endpoint: string;
   me: "customer" | "tradesman";
 }) {
+  const en = useLocale() === "en";
   const [messages, setMessages] = useState<Message[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
@@ -109,7 +111,9 @@ export function ChatPanel({
           borderBottom: "1px solid var(--line)",
         }}
       >
-        💬 دردشة داخل توّا — رقمك يظل مخفي، تتواصل بأمان
+        {en
+          ? "💬 Chat inside NOW — your number stays hidden"
+          : "💬 دردشة داخل توّا — رقمك يظل مخفي، تتواصل بأمان"}
       </div>
 
       <div
@@ -137,7 +141,9 @@ export function ChatPanel({
               textAlign: "center",
             }}
           >
-            ابدأ المحادثة — اتفقوا على الموعد والتفاصيل من هنا.
+            {en
+              ? "Start the conversation — agree on timing and details here."
+              : "ابدأ المحادثة — اتفقوا على الموعد والتفاصيل من هنا."}
           </p>
         ) : (
           messages.map((m) => {
@@ -207,7 +213,7 @@ export function ChatPanel({
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="اكتب رسالتك…"
+          placeholder={en ? "Type your message…" : "اكتب رسالتك…"}
           maxLength={1000}
           disabled={sending}
           aria-label="نص الرسالة"
@@ -239,7 +245,7 @@ export function ChatPanel({
             opacity: sending || !draft.trim() ? 0.6 : 1,
           }}
         >
-          {sending ? "…" : "أرسل"}
+          {sending ? "…" : en ? "Send" : "أرسل"}
         </button>
       </form>
     </div>

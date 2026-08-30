@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { services } from "@/lib/services";
+import { useLocale } from "./locale";
 import { market } from "@/lib/market";
 
 type EstimateSummary = {
@@ -55,6 +56,7 @@ export function JobPostForm({
   defaultCity,
   estimate,
 }: Props) {
+  const en = useLocale() === "en";
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [service, setService] = useState(
@@ -189,7 +191,7 @@ export function JobPostForm({
             letterSpacing: "-0.01em",
           }}
         >
-          تم نشر طلبك.
+          {en ? "Your request is live." : "تم نشر طلبك."}
         </div>
         <div
           style={{
@@ -243,7 +245,7 @@ export function JobPostForm({
 
       <label style={{ display: "block", marginBottom: "20px" }}>
         <span className="mono" style={labelStyle}>
-          رقم الهاتف
+          {en ? "Phone number" : "رقم الهاتف"}
         </span>
         <input
           type="tel"
@@ -264,7 +266,7 @@ export function JobPostForm({
 
       <label style={{ display: "block", marginBottom: "20px" }}>
         <span className="mono" style={labelStyle}>
-          البريد الإلكتروني (اختياري)
+          {en ? "Email (optional)" : "البريد الإلكتروني (اختياري)"}
         </span>
         <input
           type="email"
@@ -284,7 +286,7 @@ export function JobPostForm({
 
       <label style={{ display: "block", marginBottom: "20px" }}>
         <span className="mono" style={labelStyle}>
-          الخدمة
+          {en ? "Service" : "الخدمة"}
         </span>
         <select
           value={service}
@@ -306,7 +308,7 @@ export function JobPostForm({
 
       <label style={{ display: "block", marginBottom: "20px" }}>
         <span className="mono" style={labelStyle}>
-          وصف الشغل
+          {en ? "Describe the job" : "وصف الشغل"}
         </span>
         <textarea
           value={description}
@@ -339,7 +341,7 @@ export function JobPostForm({
       >
         <label>
           <span className="mono" style={labelStyle}>
-            الميزانية بالدينار د.ل (اختياري)
+            {en ? "Budget in LYD (optional)" : "الميزانية بالدينار د.ل (اختياري)"}
           </span>
           <input
             type="number"
@@ -359,7 +361,7 @@ export function JobPostForm({
 
         <label>
           <span className="mono" style={labelStyle}>
-            المدينة (اختياري)
+            {en ? "City (optional)" : "المدينة (اختياري)"}
           </span>
           <select
             value={city}
@@ -383,7 +385,7 @@ export function JobPostForm({
 
       <label style={{ display: "block", marginBottom: "24px" }}>
         <span className="mono" style={labelStyle}>
-          المنطقة / الحي (اختياري)
+          {en ? "Area / neighborhood (optional)" : "المنطقة / الحي (اختياري)"}
         </span>
         <input
           type="text"
@@ -446,7 +448,9 @@ export function JobPostForm({
           letterSpacing: "0.06em",
         }}
       >
-        مجاني في فترة الإطلاق · رقمك ما ينشاركش مع أي حد
+        {en
+          ? "Free during launch · your number is never shared"
+          : "مجاني في فترة الإطلاق · رقمك ما ينشاركش مع أي حد"}
       </p>
     </form>
   );

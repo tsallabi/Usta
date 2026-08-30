@@ -4,6 +4,7 @@ import { useState, type CSSProperties, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { market } from "@/lib/market";
+import { useLocale } from "./locale";
 import { PinEyeButton } from "./SignupForm";
 
 type Status =
@@ -35,6 +36,7 @@ const fieldStyle: CSSProperties = {
 };
 
 export function LoginForm() {
+  const en = useLocale() === "en";
   const router = useRouter();
   const [phone, setPhone] = useState("");
   const [pin, setPin] = useState("");
@@ -95,7 +97,7 @@ export function LoginForm() {
     <form onSubmit={onSubmit} style={{ maxWidth: "560px" }}>
       <label style={{ display: "block", marginBottom: "20px" }}>
         <span className="mono" style={labelStyle}>
-          رقم الهاتف
+          {en ? "Phone number" : "رقم الهاتف"}
         </span>
         <input
           type="tel"
@@ -116,7 +118,7 @@ export function LoginForm() {
 
       <label style={{ display: "block", marginBottom: "24px" }}>
         <span className="mono" style={labelStyle}>
-          كلمة السر
+          {en ? "Password" : "كلمة السر"}
         </span>
         <div style={{ position: "relative" }}>
           <input
@@ -174,7 +176,7 @@ export function LoginForm() {
         onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.98)")}
         onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
       >
-        {isSubmitting ? "قاعدين ندخّلوك…" : "دخول"}
+        {isSubmitting ? (en ? "Logging in…" : "قاعدين ندخّلوك…") : en ? "Log in" : "دخول"}
       </button>
 
       <p

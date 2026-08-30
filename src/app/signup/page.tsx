@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { SignupForm } from "@/components/SignupForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandMark } from "@/components/BrandMark";
-import { BrandText, LangSwitcher } from "@/components/locale";
+import { BrandText, LangSwitcher, LText } from "@/components/locale";
 
 export const metadata: Metadata = {
   title: "افتح حسابك · توّا",
@@ -68,7 +68,7 @@ export default function SignupPage() {
         }}
       >
         <div className="kicker" style={{ marginBottom: "20px" }}>
-          — حساب جديد · مجاني
+          — <LText ar="حساب جديد · مجاني" en="NEW ACCOUNT · FREE" />
         </div>
         <h1
           className="serif"
@@ -81,7 +81,7 @@ export default function SignupPage() {
             fontWeight: 400,
           }}
         >
-          افتح حسابك في توّا.
+          <LText ar="افتح حسابك في توّا." en="Open your NOW account." />
         </h1>
         <p
           style={{
@@ -92,8 +92,10 @@ export default function SignupPage() {
             maxWidth: "540px",
           }}
         >
-          رقم موبايلك الليبي + كلمة سر تختارها أنت — بدون بريد إلكتروني ولا
-          رسائل تفعيل. تتابع طلباتك وتقديرات الأسعار كلها في مكان واحد.
+          <LText
+            ar="رقم موبايلك الليبي + كلمة سر تختارها أنت — بدون بريد إلكتروني ولا رسائل تفعيل. تتابع طلباتك وتقديرات الأسعار كلها في مكان واحد."
+            en="Your mobile number plus a password you choose — no email, no activation links. All your requests and estimates in one place."
+          />
         </p>
 
         <SignupForm />

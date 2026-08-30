@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { findService } from "@/lib/services";
 import { ChatPanel } from "./ChatPanel";
+import { useLocale } from "./locale";
 
 /* ─── Types mirroring /api/work/jobs ─────────────────────── */
 
@@ -74,6 +75,8 @@ function offerStatusColor(status: string): string {
 /* ─── Board ──────────────────────────────────────────────── */
 
 export function WorkBoard() {
+  const locale = useLocale();
+  const en = locale === "en";
   const [view, setView] = useState<View>({ kind: "loading" });
   const [refreshing, setRefreshing] = useState(false);
 
@@ -173,10 +176,10 @@ export function WorkBoard() {
   if (view.kind === "not_logged") {
     return (
       <CtaCard
-        title="سجّل دخولك باش تشوف الشغل."
-        body="سوق الشغل للأسطوات المسجّلين — سجّل دخولك بنفس رقم واتسابك."
+        title={en ? "Log in to see the work." : "سجّل دخولك باش تشوف الشغل."}
+        body={en ? "The job board is for registered pros — log in with your WhatsApp number." : "سوق الشغل للأسطوات المسجّلين — سجّل دخولك بنفس رقم واتسابك."}
         href="/login"
-        cta="تسجيل الدخول ←"
+        cta={en ? "Log in →" : "تسجيل الدخول ←"}
       />
     );
   }
@@ -184,10 +187,10 @@ export function WorkBoard() {
   if (view.kind === "not_tradesman") {
     return (
       <CtaCard
-        title="سجّل كأسطى أولاً."
+        title={en ? "Join as a pro first." : "سجّل كأسطى أولاً."}
         body="هذه الصفحة للأسطوات — سجّل مهنتك في دقيقتين، وبعد التوثيق تشوف الطلبات المفتوحة في مهنتك."
         href="/tradesmen/join"
-        cta="انضم كأسطى ←"
+        cta={en ? "Join as a pro →" : "انضم كأسطى ←"}
       />
     );
   }
@@ -282,7 +285,7 @@ export function WorkBoard() {
               marginBottom: "6px",
             }}
           >
-            ترتيبك في السوق
+            {en ? "Your market rank" : "ترتيبك في السوق"}
           </div>
           <p
             style={{
@@ -342,7 +345,7 @@ export function WorkBoard() {
               color: "var(--ink-3)",
             }}
           >
-            عروضك المقبولة
+            {en ? "Accepted offers" : "عروضك المقبولة"}
           </div>
         </div>
       </div>
@@ -350,7 +353,7 @@ export function WorkBoard() {
       {activeJobs.length > 0 ? (
         <section aria-label="شغلك المتفق عليه" style={{ marginBottom: "40px" }}>
           <div className="kicker" style={{ marginBottom: "14px" }}>
-            — شغلك المتفق عليه ({activeJobs.length})
+            — {en ? "Your agreed jobs" : "شغلك المتفق عليه"} ({activeJobs.length})
           </div>
           <div style={{ display: "grid", gap: "16px" }}>
             {activeJobs.map((aj) => {
@@ -419,8 +422,12 @@ export function WorkBoard() {
                     }}
                   >
                     {aj.status === "completed"
-                      ? "مكتمل ✓"
-                      : "متفق عليه — كلّم الزبون ونسّق معاه"}
+                      ? en
+                        ? "Completed ✓"
+                        : "مكتمل ✓"
+                      : en
+                        ? "Agreed — chat with the customer to arrange"
+                        : "متفق عليه — كلّم الزبون ونسّق معاه"}
                   </span>
                   <ChatPanel
                     endpoint={`/api/work/jobs/${aj.id}/chat`}
@@ -452,8 +459,10 @@ export function WorkBoard() {
           }}
         >
           {trade?.name ?? tradesman.trade} · {tradesman.city} ·{" "}
-          {jobs.filter((j) => j.status === "open").length} مفتوح ·{" "}
-          {jobs.filter((j) => j.status !== "open").length} متفق عليه
+          {jobs.filter((j) => j.status === "open").length}{" "}
+          {en ? "open" : "مفتوح"} ·{" "}
+          {jobs.filter((j) => j.status !== "open").length}{" "}
+          {en ? "agreed" : "متفق عليه"}
         </span>
         <button
           type="button"
@@ -485,7 +494,9 @@ export function WorkBoard() {
             fontSize: "14px",
           }}
         >
-          ما فيش طلبات مفتوحة في مهنتك توّا — ارجع بعدين أو اضغط تحديث.
+          {en
+            ? "No open requests in your trade right now — check back later or hit refresh."
+            : "ما فيش طلبات مفتوحة في مهنتك توّا — ارجع بعدين أو اضغط تحديث."}
         </div>
       )}
 
@@ -507,6 +518,7 @@ function JobCard({
   job: WorkJob;
   onOffered: (jobId: string, offerId: string, price: number) => void;
 }) {
+  const en = useLocale() === "en";
   const [open, setOpen] = useState(false);
   const [price, setPrice] = useState("");
   const [message, setMessage] = useState("");
@@ -624,8 +636,11 @@ function JobCard({
       >
         <span className="serif" style={{ fontSize: "16px", color: "var(--ink)" }}>
           {typeof job.budget_lyd === "number" &&
-            `الميزانية: ${job.budget_lyd} د.ل`}
-          {typeof job.budget_lyd !== "number" && "الميزانية: غير محددة"}
+            (en
+              ? `Budget: ${job.budget_lyd} LYD`
+              : `الميزانية: ${job.budget_lyd} د.ل`)}
+          {typeof job.budget_lyd !== "number" &&
+            (en ? "Budget: not set" : "الميزانية: غير محددة")}
         </span>
         <span style={{ display: "flex", gap: "8px", alignItems: "center" }}>
           {typeof job.est_min_lyd === "number" &&
@@ -641,7 +656,7 @@ function JobCard({
                   padding: "4px 12px",
                 }}
               >
-                تقدير الذكاء: {job.est_min_lyd}–{job.est_max_lyd} د.ل
+                {en ? "AI range" : "تقدير الذكاء"}: {job.est_min_lyd}–{job.est_max_lyd} {en ? "LYD" : "د.ل"}
               </span>
             )}
           <span
@@ -656,10 +671,16 @@ function JobCard({
             }}
           >
             {job.offers_count === 0
-              ? "بدون عروض"
+              ? en
+                ? "No offers"
+                : "بدون عروض"
               : job.offers_count === 1
-                ? "عرض واحد"
-                : `${job.offers_count} عروض`}
+                ? en
+                  ? "1 offer"
+                  : "عرض واحد"
+                : en
+                  ? `${job.offers_count} offers`
+                  : `${job.offers_count} عروض`}
           </span>
         </span>
       </div>
@@ -686,9 +707,16 @@ function JobCard({
               background: "var(--paper-2, transparent)",
             }}
           >
-            🔒 {job.status === "completed" ? "اكتمل الشغل" : "تم اختيار أسطى"} —
-            تنافس عليه {job.offers_count}{" "}
-            {job.offers_count === 1 ? "أسطى" : "أسطوات"}
+            🔒{" "}
+            {job.status === "completed"
+              ? en
+                ? "Job completed"
+                : "اكتمل الشغل"
+              : en
+                ? "A pro was chosen"
+                : "تم اختيار أسطى"}{" "}
+            — {en ? "contested by" : "تنافس عليه"} {job.offers_count}{" "}
+            {en ? (job.offers_count === 1 ? "pro" : "pros") : job.offers_count === 1 ? "أسطى" : "أسطوات"}
           </span>
           {job.my_offer ? (
             <span
@@ -721,7 +749,9 @@ function JobCard({
             padding: "12px 16px",
           }}
         >
-          تم إرسال عرضك ✓ — بنبلغك أول ما يرد الزبون.
+          {en
+            ? "Offer sent ✓ — we\u2019ll tell you when the customer replies."
+            : "تم إرسال عرضك ✓ — بنبلغك أول ما يرد الزبون."}
         </div>
       ) : job.my_offer ? (
         <div
@@ -764,7 +794,7 @@ function JobCard({
             htmlFor={`offer-price-${job.id}`}
             style={{ position: "absolute", insetInlineStart: "-9999px" }}
           >
-            سعرك بالدينار
+            {en ? "Your price (LYD)" : "سعرك بالدينار"}
           </label>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
             <input
@@ -776,7 +806,7 @@ function JobCard({
               step={1}
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              placeholder="سعرك — د.ل"
+              placeholder={en ? "Your price — LYD" : "سعرك — د.ل"}
               required
               style={{
                 flex: "1 1 140px",
@@ -795,7 +825,7 @@ function JobCard({
             htmlFor={`offer-msg-${job.id}`}
             style={{ position: "absolute", insetInlineStart: "-9999px" }}
           >
-            رسالة للزبون (اختياري)
+            {en ? "Message to the customer (optional)" : "رسالة للزبون (اختياري)"}
           </label>
           <textarea
             id={`offer-msg-${job.id}`}
@@ -803,7 +833,11 @@ function JobCard({
             onChange={(e) => setMessage(e.target.value)}
             maxLength={500}
             rows={3}
-            placeholder="رسالة قصيرة للزبون (اختياري) — خبرتك، متى تقدر تبدأ…"
+            placeholder={
+              en
+                ? "Short message (optional) — your experience, when you can start…"
+                : "رسالة قصيرة للزبون (اختياري) — خبرتك، متى تقدر تبدأ…"
+            }
             style={{
               padding: "12px 16px",
               borderRadius: "12px",
@@ -849,7 +883,7 @@ function JobCard({
                 opacity: busy ? 0.6 : 1,
               }}
             >
-              {busy ? "قاعدين نرسلو عرضك…" : "أرسل العرض"}
+              {busy ? (en ? "Sending…" : "قاعدين نرسلو عرضك…") : en ? "Send offer" : "أرسل العرض"}
             </button>
             <button
               type="button"
@@ -888,7 +922,7 @@ function JobCard({
             cursor: "pointer",
           }}
         >
-          قدّم عرضك
+          {en ? "Make an offer" : "قدّم عرضك"}
         </button>
       )}
     </article>

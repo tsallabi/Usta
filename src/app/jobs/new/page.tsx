@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { JobPostForm } from "@/components/JobPostForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandMark } from "@/components/BrandMark";
-import { BrandText, LangSwitcher } from "@/components/locale";
+import { BrandText, LangSwitcher, LText } from "@/components/locale";
 
 // This page reads searchParams (the estimate → job handoff), which makes it
 // dynamic — it must run on the edge for @cloudflare/next-on-pages.
@@ -110,7 +110,7 @@ export default function NewJobPage({
         }}
       >
         <div className="kicker" style={{ marginBottom: "20px" }}>
-          — انشر طلبك · مجاني في فترة الإطلاق
+          — <LText ar="انشر طلبك · مجاني في فترة الإطلاق" en="POST A REQUEST · FREE DURING LAUNCH" />
         </div>
         <h1
           className="serif"
@@ -123,7 +123,7 @@ export default function NewJobPage({
             fontWeight: 400,
           }}
         >
-          قولنا شن الشغل. الأسطى يجيك.
+          <LText ar="قولنا شن الشغل. الأسطى يجيك." en="Tell us the job. The pro comes to you." />
         </h1>
         <p
           style={{

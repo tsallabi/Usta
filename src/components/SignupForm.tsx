@@ -4,6 +4,7 @@ import { useState, type CSSProperties, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { market } from "@/lib/market";
+import { useLocale } from "./locale";
 
 type Status =
   | { kind: "idle" }
@@ -78,6 +79,7 @@ export function PinEyeButton({
 }
 
 export function SignupForm() {
+  const en = useLocale() === "en";
   const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -159,14 +161,14 @@ export function SignupForm() {
     <form onSubmit={onSubmit} style={{ maxWidth: "560px" }}>
       <label style={{ display: "block", marginBottom: "20px" }}>
         <span className="mono" style={labelStyle}>
-          الاسم الكامل
+          {en ? "Full name" : "الاسم الكامل"}
         </span>
         <input
           type="text"
           required
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
-          placeholder="مثال: محمد الفيتوري"
+          placeholder={en ? "e.g. Mohamed Ali" : "مثال: محمد الفيتوري"}
           autoComplete="name"
           maxLength={100}
           disabled={isSubmitting}
@@ -180,7 +182,7 @@ export function SignupForm() {
 
       <label style={{ display: "block", marginBottom: "20px" }}>
         <span className="mono" style={labelStyle}>
-          رقم الهاتف
+          {en ? "Phone number" : "رقم الهاتف"}
         </span>
         <input
           type="tel"
@@ -209,7 +211,7 @@ export function SignupForm() {
       >
         <label>
           <span className="mono" style={labelStyle}>
-            كلمة السر
+            {en ? "Password" : "كلمة السر"}
           </span>
           <div style={{ position: "relative" }}>
             <input
@@ -240,7 +242,7 @@ export function SignupForm() {
 
         <label>
           <span className="mono" style={labelStyle}>
-            التأكيد
+            {en ? "Confirm" : "التأكيد"}
           </span>
           <div style={{ position: "relative" }}>
             <input
@@ -317,7 +319,13 @@ export function SignupForm() {
         onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.98)")}
         onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
       >
-        {isSubmitting ? "قاعدين نفتحو حسابك…" : "افتح حسابك ←"}
+        {isSubmitting
+          ? en
+            ? "Creating your account…"
+            : "قاعدين نفتحو حسابك…"
+          : en
+            ? "Create account →"
+            : "افتح حسابك ←"}
       </button>
 
       <p

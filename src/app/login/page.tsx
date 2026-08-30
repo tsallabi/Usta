@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { LoginForm } from "@/components/LoginForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandMark } from "@/components/BrandMark";
-import { BrandText, LangSwitcher } from "@/components/locale";
+import { BrandText, LangSwitcher, LText } from "@/components/locale";
 
 export const metadata: Metadata = {
   title: "تسجيل الدخول · توّا",
@@ -68,7 +68,7 @@ export default function LoginPage() {
         }}
       >
         <div className="kicker" style={{ marginBottom: "20px" }}>
-          — تسجيل الدخول
+          — <LText ar="تسجيل الدخول" en="LOG IN" />
         </div>
         <h1
           className="serif"
@@ -81,7 +81,7 @@ export default function LoginPage() {
             fontWeight: 400,
           }}
         >
-          أهلاً بيك مرة ثانية.
+          <LText ar="أهلاً بيك مرة ثانية." en="Welcome back." />
         </h1>
         <p
           style={{
@@ -92,8 +92,10 @@ export default function LoginPage() {
             maxWidth: "540px",
           }}
         >
-          رقم هاتفك ورمزك السري — وتلقى طلباتك وتقديراتك في حسابك مثل ما
-          خليتهم.
+          <LText
+            ar="رقم هاتفك ورمزك السري — وتلقى طلباتك وتقديراتك في حسابك مثل ما خليتهم."
+            en="Your phone number and password — your requests and estimates are right where you left them."
+          />
         </p>
 
         <LoginForm />
