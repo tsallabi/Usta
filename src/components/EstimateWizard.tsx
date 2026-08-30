@@ -123,6 +123,7 @@ export function EstimateWizard({
           description,
           budget,
           city: city.trim() || undefined,
+          lang: locale,
         }),
       });
       const data = (await res.json()) as

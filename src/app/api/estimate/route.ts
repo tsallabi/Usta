@@ -12,6 +12,8 @@ type Body = {
   description?: string;
   budget?: number;
   city?: string;
+  /** لغة الواجهة — الملاحظات تُكتب بنفسها (ar افتراضياً). */
+  lang?: string;
 };
 
 type ClaudeEstimate = {
@@ -35,7 +37,7 @@ type EstimateResponse = {
   model?: string;
 };
 
-const SYSTEM_PROMPT = `You are Tawwa's (توّا) fair-price AI for Libya's home services market (2026). Your ONLY job is to give homeowners a fair price RANGE for a specific service they describe. Tawwa is a fair-price marketplace connecting Libyan homeowners with verified tradesmen (أسطوات) in Tripoli, Benghazi and Misrata.
+const SYSTEM_PROMPT_TEMPLATE = `You are Tawwa's (توّا) fair-price AI for Libya's home services market (2026). Your ONLY job is to give homeowners a fair price RANGE for a specific service they describe. Tawwa is a fair-price marketplace connecting Libyan homeowners with verified tradesmen (أسطوات) in Tripoli, Benghazi and Misrata.
 
 STRICT RULES:
 1. NEVER diagnose the fault or suggest the cause. You do not know the fault.
@@ -47,8 +49,7 @@ STRICT RULES:
 7. Parts availability in Libya can affect price and timing — when the job clearly needs imported parts or appliances, mention it in scope_note.
 7b. For the rentals (إيجارات) category the range is a fair MONTHLY RENT in LYD for the described property and area — judge by city, neighborhood, size and furnishing.
 7c. For vehicle services (mechanic ميكانيكي, tires عجلاتي) price the described car job at typical Libyan workshop/roadside rates. For professional services (accountant محاسب, tutoring/courses دروس ودورات) price the typical service fee or monthly fee as described.
-8. Write sample_note and scope_note in Arabic (Libyan-friendly Modern Standard is fine). Use Western digits (0-9) only — never Eastern Arabic numerals.
-9. sample_note and scope_note must be simple Modern Standard Arabic flavored with Libyan vocabulary (e.g. الكوشينة for kitchen, الحوش for house, بريزة for power socket, الشيشمة for tap/faucet — never حنفية) — NEVER use Gulf dialect words or phrasing.
+{LANG_RULES}
 10. Return ONLY a valid JSON object matching the schema below. No prose. No code fences. No apologies.
 
 SCHEMA:
@@ -59,6 +60,20 @@ SCHEMA:
   "sample_note": string,       // بالعربي: سطر قصير يوضح على شن مبني النطاق (مثال: "نطاق معتاد في طرابلس لأعطال بريزات الكوشينة")
   "scope_note": string         // بالعربي: سطر واحد يوضح شن داخل في السعر أو تنبيه مهم (مثال: "اليد العاملة + قطعة غيار وحدة. التمديدات الكبيرة تكلف أكثر.")
 }`;
+
+const LANG_RULES_AR = `8. Write sample_note and scope_note in Arabic (Libyan-friendly Modern Standard is fine). Use Western digits (0-9) only — never Eastern Arabic numerals.
+9. sample_note and scope_note must be simple Modern Standard Arabic flavored with Libyan vocabulary (e.g. الكوشينة for kitchen, الحوش for house, بريزة for power socket, الشيشمة for tap/faucet — never حنفية) — NEVER use Gulf dialect words or phrasing.`;
+
+const LANG_RULES_EN = `8. Write sample_note and scope_note in clear, simple ENGLISH — the customer is using the English interface. Use Western digits (0-9) only.
+9. Keep sample_note and scope_note short and practical — one plain sentence each, no fluff.`;
+
+/** البرومبت النهائي — قواعد لغة الملاحظات حسب لغة الواجهة. */
+function systemPrompt(lang: "ar" | "en"): string {
+  return SYSTEM_PROMPT_TEMPLATE.replace(
+    "{LANG_RULES}",
+    lang === "en" ? LANG_RULES_EN : LANG_RULES_AR
+  );
+}
 
 function buildUserPrompt(input: {
   serviceName: string;
@@ -80,7 +95,8 @@ function buildUserPrompt(input: {
 
 function fallbackEstimate(
   serviceSlug: string,
-  serviceName: string
+  serviceName: string,
+  lang: "ar" | "en"
 ): EstimateResponse {
   const service = findService(serviceSlug);
   const min = service?.fallbackRange.min ?? 30;
@@ -93,9 +109,13 @@ function fallbackEstimate(
     currency: "LYD",
     confidence: "low",
     sampleNote:
-      "نطاق تقريبي لأسعار السوق الليبي (وضع تجريبي — مفتاح الذكاء الاصطناعي غير مفعّل)",
+      lang === "en"
+        ? "Approximate range for the Libyan market (demo mode — AI key not configured)"
+        : "نطاق تقريبي لأسعار السوق الليبي (وضع تجريبي — مفتاح الذكاء الاصطناعي غير مفعّل)",
     scopeNote:
-      "هذا مؤشر تقريبي للأعطال الصغيرة فقط. أضف مفتاح GEMINI_API_KEY (مجاني من Google AI Studio) لتقديرات ذكية حقيقية.",
+      lang === "en"
+        ? "Rough indicator for small jobs only. Add a free GEMINI_API_KEY for real smart estimates."
+        : "هذا مؤشر تقريبي للأعطال الصغيرة فقط. أضف مفتاح GEMINI_API_KEY (مجاني من Google AI Studio) لتقديرات ذكية حقيقية.",
     source: "fallback",
   };
 }
@@ -119,6 +139,7 @@ export async function POST(request: Request) {
       : undefined;
   const cityRaw = body.city?.trim() || undefined;
   const city = cityRaw && isCity(cityRaw) ? cityRaw : undefined;
+  const lang: "ar" | "en" = body.lang === "en" ? "en" : "ar";
 
   const service = findService(serviceSlug);
   if (!service) {
@@ -195,7 +216,7 @@ export async function POST(request: Request) {
     try {
       const gemini = await callGemini({
         apiKey: geminiKey,
-        system: SYSTEM_PROMPT,
+        system: systemPrompt(lang),
         user: userPrompt,
         maxTokens: 2048,
         temperature: 0.2,
@@ -212,7 +233,7 @@ export async function POST(request: Request) {
     try {
       const claude = await callClaude({
         apiKey: anthropicKey,
-        system: SYSTEM_PROMPT,
+        system: systemPrompt(lang),
         messages: [{ role: "user", content: userPrompt }],
         maxTokens: 400,
         temperature: 0.2,
@@ -225,7 +246,7 @@ export async function POST(request: Request) {
     }
   }
 
-  return NextResponse.json(fallbackEstimate(service.slug, service.name), {
+  return NextResponse.json(fallbackEstimate(service.slug, service.name, lang), {
     status: 200,
   });
 }
