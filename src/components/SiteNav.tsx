@@ -1,8 +1,13 @@
+"use client";
+
 import Link from "next/link";
 import { ThemeToggle } from "./ThemeToggle";
 import { BrandMark } from "./BrandMark";
+import { BrandText, LangSwitcher, useLocale } from "./locale";
+import { t } from "@/lib/i18n";
 
 export function SiteNav() {
+  const locale = useLocale();
   return (
     <header
       style={{
@@ -43,7 +48,7 @@ export function SiteNav() {
             className="serif"
             style={{ fontSize: "28px", letterSpacing: "-0.01em" }}
           >
-            توّا
+            <BrandText />
           </span>
         </Link>
 
@@ -55,11 +60,12 @@ export function SiteNav() {
             gap: "24px",
           }}
         >
-          <NavLink href="#how" label="كيف يخدم" />
-          <NavLink href="/join" label="قدّم خدماتك" />
-          <NavLink href="/account" label="حسابي" />
-          <NavLink href="/work" label="سوق الشغل" />
-          <NavLink href="/ustas" label="دليل الأسطوات" />
+          <NavLink href="#how" label={t(locale, "how")} />
+          <NavLink href="/join" label={t(locale, "offerServices")} />
+          <NavLink href="/account" label={t(locale, "myAccount")} />
+          <NavLink href="/work" label={t(locale, "work")} />
+          <NavLink href="/ustas" label={t(locale, "directory")} />
+          <LangSwitcher />
           <ThemeToggle />
         </nav>
       </div>

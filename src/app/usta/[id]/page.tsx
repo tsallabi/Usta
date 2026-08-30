@@ -7,6 +7,7 @@ import { findService } from "@/lib/services";
 import { avgRatingSql, ratingsCountSql } from "@/lib/rating";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandMark } from "@/components/BrandMark";
+import { BrandText, LangSwitcher } from "@/components/locale";
 import {
   gradientById,
   initialsOf,
@@ -157,10 +158,11 @@ export default async function UstaProfilePage({
               className="serif"
               style={{ fontSize: "28px", letterSpacing: "-0.01em" }}
             >
-              توّا
+              <BrandText />
             </span>
           </Link>
-          <ThemeToggle />
+          <LangSwitcher />
+            <ThemeToggle />
         </div>
       </header>
 

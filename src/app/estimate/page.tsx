@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { EstimateWizard } from "@/components/EstimateWizard";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandMark } from "@/components/BrandMark";
+import { BrandText, LangSwitcher } from "@/components/locale";
 
 // This page reads searchParams (service preselect from the account tiles),
 // which makes it dynamic — it must run on the edge for
@@ -80,10 +81,11 @@ export default function EstimatePage({
               className="serif"
               style={{ fontSize: "28px", letterSpacing: "-0.01em" }}
             >
-              توّا
+              <BrandText />
             </span>
           </Link>
-          <ThemeToggle />
+          <LangSwitcher />
+            <ThemeToggle />
         </div>
       </header>
 

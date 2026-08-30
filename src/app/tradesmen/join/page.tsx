@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { TradesmanForm } from "@/components/TradesmanForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandMark } from "@/components/BrandMark";
+import { BrandText, LangSwitcher } from "@/components/locale";
 
 export const metadata: Metadata = {
   title: "انضم كأسطى",
@@ -57,10 +58,11 @@ export default function TradesmanJoinPage() {
               className="serif"
               style={{ fontSize: "28px", letterSpacing: "-0.01em" }}
             >
-              توّا
+              <BrandText />
             </span>
           </Link>
-          <ThemeToggle />
+          <LangSwitcher />
+            <ThemeToggle />
         </div>
       </header>
 

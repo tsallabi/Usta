@@ -13,7 +13,11 @@
 export type ServiceCategory = {
   slug: string;
   name: string;
+  /** الاسم بالإنجليزية — لوضع اللغة الإنجليزية (LANGUAGE_MODE). */
+  nameEn: string;
   description: string;
+  /** الوصف بالإنجليزية. */
+  descriptionEn: string;
   gradient:
     | "blue"
     | "teal"
@@ -85,7 +89,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "electrician",
     name: "كهربائي",
+    nameEn: "Electrician",
     description: "بريزات، قواطع، إضاءة، تمديدات، أعطال كهرباء",
+    descriptionEn: "Sockets, breakers, lighting, wiring, faults",
     gradient: "blue",
     icon: "bolt",
     fallbackRange: { min: 30, max: 150 },
@@ -96,7 +102,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "plumber",
     name: "سبّاك",
+    nameEn: "Plumber",
     description: "تسريبات، شيشمات، سخانات، ضغط الماء، مجاري",
+    descriptionEn: "Leaks, taps, water heaters, pressure, drains",
     gradient: "teal",
     icon: "wrench",
     fallbackRange: { min: 30, max: 150 },
@@ -107,7 +115,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "heating",
     name: "تكييف وغاز",
+    nameEn: "AC & Gas",
     description: "صيانة مكيفات، تعبئة فريون، تركيب، تمديدات غاز",
+    descriptionEn: "AC service, refill, installs, gas lines",
     gradient: "orange",
     icon: "flame",
     fallbackRange: { min: 50, max: 250 },
@@ -118,7 +128,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "cleaning",
     name: "تنظيف",
+    nameEn: "Cleaning",
     description: "تنظيف شامل، بعد الإخلاء، مرة وحدة أو دوري",
+    descriptionEn: "Deep cleans, end of tenancy, one-off or regular",
     gradient: "plum",
     icon: "broom",
     fallbackRange: { min: 50, max: 300 },
@@ -129,7 +141,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "painter",
     name: "دهان",
+    nameEn: "Painter",
     description: "داخلي وخارجي، رتوش صغيرة إلى بيوت كاملة",
+    descriptionEn: "Interior & exterior, touch-ups to full homes",
     gradient: "rose",
     icon: "paint",
     fallbackRange: { min: 200, max: 1500 },
@@ -140,7 +154,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "gardener",
     name: "بستنة",
+    nameEn: "Gardening",
     description: "عشب، أشجار، تشذيب، ترتيب موسمي للحوش",
+    descriptionEn: "Lawns, trees, trimming, seasonal tidy-ups",
     gradient: "forest",
     icon: "leaf",
     fallbackRange: { min: 30, max: 150 },
@@ -151,7 +167,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "removals",
     name: "نقل أثاث",
+    nameEn: "Removals",
     description: "نقل شقة صغيرة أو بيت كامل مع عمّال",
+    descriptionEn: "Small flat or full house moves with helpers",
     gradient: "slate",
     icon: "truck",
     fallbackRange: { min: 100, max: 500 },
@@ -162,7 +180,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "assembly",
     name: "تركيب أثاث",
+    nameEn: "Furniture assembly",
     description: "أثاث جاهز التركيب، رفوف، خزائن، تخزين",
+    descriptionEn: "Flat-pack furniture, shelves, wardrobes",
     gradient: "ochre",
     icon: "box",
     fallbackRange: { min: 30, max: 120 },
@@ -173,7 +193,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "carpenter",
     name: "نجّار",
+    nameEn: "Carpenter",
     description: "أبواب، كوشينات، دواليب، تصليحات خشب",
+    descriptionEn: "Doors, kitchens, wardrobes, wood repairs",
     gradient: "walnut",
     icon: "saw",
     fallbackRange: { min: 50, max: 400 },
@@ -184,7 +206,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "blacksmith",
     name: "حدّاد",
+    nameEn: "Metalwork",
     description: "أبواب حديد، شبابيك، بوابات، سياج، لحام",
+    descriptionEn: "Steel doors, windows, gates, fences, welding",
     gradient: "iron",
     icon: "hammer",
     fallbackRange: { min: 80, max: 600 },
@@ -195,7 +219,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "mechanic",
     name: "ميكانيكي",
+    nameEn: "Mechanic",
     description: "صيانة سيارات · فحص كمبيوتر · كهرباء سيارة",
+    descriptionEn: "Car servicing, diagnostics, auto electrics",
     gradient: "crimson",
     icon: "gear",
     fallbackRange: { min: 50, max: 500 },
@@ -206,7 +232,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "tires",
     name: "عجلاتي",
+    nameEn: "Tire service",
     description: "بنشر · ميزان · تبديل عجلات — يجيك وين ما كنت",
+    descriptionEn: "Punctures, balancing, swaps — comes to you",
     gradient: "night",
     icon: "tire",
     fallbackRange: { min: 20, max: 150 },
@@ -217,7 +245,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "appliance",
     name: "صيانة أجهزة",
+    nameEn: "Appliance repair",
     description: "غسالات · ثلاجات · أفران ومكانس",
+    descriptionEn: "Washers, fridges, ovens and vacuums",
     gradient: "petrol",
     icon: "washer",
     fallbackRange: { min: 40, max: 300 },
@@ -228,7 +258,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "tiler",
     name: "بلّاط",
+    nameEn: "Tiler",
     description: "سيراميك · بورسلين · رخام",
+    descriptionEn: "Ceramic, porcelain, marble",
     gradient: "clay",
     icon: "tiles",
     fallbackRange: { min: 300, max: 3000 },
@@ -239,7 +271,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "aluminum",
     name: "ألمنيوم",
+    nameEn: "Aluminium",
     description: "شبابيك · أبواب · مطابخ ألمنيوم",
+    descriptionEn: "Windows, doors, aluminium kitchens",
     gradient: "silver",
     icon: "window",
     fallbackRange: { min: 200, max: 2500 },
@@ -250,7 +284,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "cctv",
     name: "كاميرات وأمان",
+    nameEn: "CCTV & security",
     description: "كاميرات مراقبة · إنذار · إنتركم",
+    descriptionEn: "Cameras, alarms, intercoms",
     gradient: "midnight",
     icon: "camera",
     fallbackRange: { min: 150, max: 1500 },
@@ -261,7 +297,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "accountant",
     name: "محاسب",
+    nameEn: "Accountant",
     description: "حسابات محلات · إقرارات · ميزانيات",
+    descriptionEn: "Shop books, filings, budgets",
     gradient: "royal",
     icon: "calc",
     fallbackRange: { min: 100, max: 1000 },
@@ -272,7 +310,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "tutor",
     name: "دروس ودورات",
+    nameEn: "Lessons & courses",
     description: "دروس خصوصية · لغات · كمبيوتر ودورات",
+    descriptionEn: "Private tutoring, languages, computers",
     gradient: "grape",
     icon: "book",
     fallbackRange: { min: 100, max: 800 },
@@ -283,7 +323,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "tailor",
     name: "خيّاط",
+    nameEn: "Tailor",
     description: "تفصيل · تصليح ملابس · ستائر",
+    descriptionEn: "Made-to-measure, alterations, curtains",
     gradient: "wine",
     icon: "scissors",
     fallbackRange: { min: 20, max: 300 },
@@ -294,7 +336,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "photographer",
     name: "مصوّر",
+    nameEn: "Photographer",
     description: "أعراس · مناسبات · منتجات",
+    descriptionEn: "Weddings, events, products",
     gradient: "violet",
     icon: "photo",
     fallbackRange: { min: 150, max: 1500 },
@@ -305,7 +349,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "nursing",
     name: "تمريض منزلي",
+    nameEn: "Home nursing",
     description: "حقن · قياس ضغط وسكر · رعاية كبار",
+    descriptionEn: "Injections, BP & sugar checks, elder care",
     gradient: "seafoam",
     icon: "heart",
     fallbackRange: { min: 30, max: 200 },
@@ -316,7 +362,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "waterproofing",
     name: "عزل أسطح",
+    nameEn: "Roof sealing",
     description: "عزل مائي وحراري · تصليح تسريبات السطح",
+    descriptionEn: "Waterproofing, heat insulation, leaks",
     gradient: "storm",
     icon: "drop",
     fallbackRange: { min: 300, max: 3000 },
@@ -327,7 +375,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "satellite",
     name: "ستلايت",
+    nameEn: "Satellite TV",
     description: "تركيب دش · برمجة قنوات · تمديد",
+    descriptionEn: "Dish installs, channel setup, cabling",
     gradient: "space",
     icon: "dish",
     fallbackRange: { min: 20, max: 150 },
@@ -338,7 +388,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "carwash",
     name: "غسيل سيارات",
+    nameEn: "Mobile car wash",
     description: "غسيل متنقل في مكانك · تلميع داخلي وخارجي",
+    descriptionEn: "Washed at your place, inside-out detailing",
     gradient: "aqua",
     icon: "car",
     fallbackRange: { min: 20, max: 120 },
@@ -349,7 +401,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "barber",
     name: "حلاق منزلي",
+    nameEn: "Home barber",
     description: "حلاقة في البيت · تجهيز مناسبات وأعراس",
+    descriptionEn: "Haircuts at home, weddings and events",
     gradient: "denim",
     icon: "comb",
     fallbackRange: { min: 15, max: 100 },
@@ -360,7 +414,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "catering",
     name: "طباخة مناسبات",
+    nameEn: "Event cooking",
     description: "كسكسي · رشدة · ولائم وعزومات",
+    descriptionEn: "Couscous, feasts and gatherings",
     gradient: "olive",
     icon: "pot",
     fallbackRange: { min: 100, max: 1500 },
@@ -371,7 +427,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "rentals",
     name: "إيجارات",
+    nameEn: "Rentals",
     description: "شقق، أحواش، محلات — من الملّاك والمندوبين مباشرة",
+    descriptionEn: "Flats, houses, shops — direct from owners",
     gradient: "indigo",
     icon: "key",
     fallbackRange: { min: 300, max: 2500 },
@@ -386,7 +444,9 @@ export const services: ServiceCategory[] = [
   {
     slug: "delivery",
     name: "توصيل",
+    nameEn: "Delivery",
     description: "طرود · بضائع · مشاوير أشخاص · مياه وغاز — نفس اليوم",
+    descriptionEn: "Parcels, goods, rides, water & gas — same day",
     gradient: "sky",
     icon: "send",
     fallbackRange: { min: 10, max: 80 },
@@ -398,4 +458,17 @@ export const services: ServiceCategory[] = [
 
 export function findService(slug: string): ServiceCategory | undefined {
   return services.find((s) => s.slug === slug);
+}
+
+/** اسم الخدمة حسب اللغة — فولباك دائماً للعربي. */
+export function serviceName(s: ServiceCategory, locale: "ar" | "en"): string {
+  return locale === "en" ? s.nameEn || s.name : s.name;
+}
+
+/** وصف الخدمة حسب اللغة. */
+export function serviceDescription(
+  s: ServiceCategory,
+  locale: "ar" | "en"
+): string {
+  return locale === "en" ? s.descriptionEn || s.description : s.description;
 }

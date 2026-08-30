@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { findService, services, type ServiceCategory } from "@/lib/services";
+import {
+  findService,
+  services,
+  serviceName,
+  serviceDescription,
+  type ServiceCategory,
+} from "@/lib/services";
+import { useLocale } from "./locale";
 import { market } from "@/lib/market";
 
 type Estimate = {
@@ -69,6 +76,7 @@ export function EstimateWizard({
 }: {
   initialService?: string;
 }) {
+  const locale = useLocale();
   // خدمة محددة مسبقاً (من بلاطات صفحة الحساب: /estimate?service=…) —
   // ننطّو مباشرة لخطوة الوصف. lazy initializer: يتقيّم مرة وحدة عند التركيب.
   const [state, setState] = useState<State>(() => {
@@ -203,7 +211,7 @@ export function EstimateWizard({
                     lineHeight: 1.3,
                   }}
                 >
-                  {s.name}
+                  {serviceName(s, locale)}
                 </div>
                 <div
                   style={{
@@ -213,7 +221,7 @@ export function EstimateWizard({
                     lineHeight: 1.45,
                   }}
                 >
-                  {s.description}
+                  {serviceDescription(s, locale)}
                 </div>
               </div>
             </button>

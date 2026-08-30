@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandMark } from "@/components/BrandMark";
+import { BrandText, LangSwitcher } from "@/components/locale";
 
 export const metadata: Metadata = {
   title: "قدّم خدماتك · اشتغل مع توّا",
@@ -54,7 +55,7 @@ export default function JoinPage() {
               className="serif"
               style={{ fontSize: "28px", letterSpacing: "-0.01em" }}
             >
-              توّا
+              <BrandText />
             </span>
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -72,6 +73,7 @@ export default function JoinPage() {
             >
               سجّل توّا
             </Link>
+            <LangSwitcher />
             <ThemeToggle />
           </div>
         </div>

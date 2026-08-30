@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { JobPostForm } from "@/components/JobPostForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandMark } from "@/components/BrandMark";
+import { BrandText, LangSwitcher } from "@/components/locale";
 
 // This page reads searchParams (the estimate → job handoff), which makes it
 // dynamic — it must run on the edge for @cloudflare/next-on-pages.
@@ -93,10 +94,11 @@ export default function NewJobPage({
               className="serif"
               style={{ fontSize: "28px", letterSpacing: "-0.01em" }}
             >
-              توّا
+              <BrandText />
             </span>
           </Link>
-          <ThemeToggle />
+          <LangSwitcher />
+            <ThemeToggle />
         </div>
       </header>
 

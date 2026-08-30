@@ -3,10 +3,18 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { findService, services, type ServiceCategory } from "@/lib/services";
+import {
+  findService,
+  services,
+  serviceName,
+  serviceDescription,
+  type ServiceCategory,
+} from "@/lib/services";
 import { firstNameOf } from "./UstaProfile";
 import { ChatPanel } from "./ChatPanel";
 import { UstaMap, type MapUsta } from "./UstaMap";
+import { useLocale } from "./locale";
+import { t } from "@/lib/i18n";
 
 /* ─── Types ──────────────────────────────────────────────── */
 
@@ -514,6 +522,7 @@ function ServiceChip({ service }: { service: ServiceCategory | undefined }) {
 
 /** شبكة بلاطات الخدمات التسع — التوصيل أولاً. كل بلاطة → /estimate?service= */
 function ServiceTiles() {
+  const locale = useLocale();
   return (
     <div
       style={{
@@ -567,7 +576,7 @@ function ServiceTiles() {
                 lineHeight: 1.3,
               }}
             >
-              {s.name}
+              {serviceName(s, locale)}
             </span>
             <span
               style={{
@@ -578,7 +587,7 @@ function ServiceTiles() {
                 marginTop: "3px",
               }}
             >
-              {s.description}
+              {serviceDescription(s, locale)}
             </span>
           </span>
         </Link>
