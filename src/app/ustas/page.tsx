@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { UstaDirectory } from "@/components/UstaDirectory";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandMark } from "@/components/BrandMark";
-import { BrandText, LangSwitcher } from "@/components/locale";
+import { BrandText, LangSwitcher, Copyright } from "@/components/locale";
 
 export const metadata: Metadata = {
   title: "دليل الأسطوات",
@@ -128,7 +128,7 @@ export default function UstasPage() {
               letterSpacing: "0.08em",
             }}
           >
-            © 2026 توّا · طرابلس
+            <Copyright />
           </span>
           <Link
             href="/"

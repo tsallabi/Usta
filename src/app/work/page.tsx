@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { WorkBoard } from "@/components/WorkBoard";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandMark } from "@/components/BrandMark";
-import { BrandText, LangSwitcher, LText } from "@/components/locale";
+import { BrandText, LangSwitcher, LText, Copyright } from "@/components/locale";
 
 export const metadata: Metadata = {
   title: "سوق الشغل · توّا",
@@ -139,7 +139,7 @@ export default function WorkPage() {
               letterSpacing: "0.08em",
             }}
           >
-            © 2026 توّا · طرابلس
+            <Copyright />
           </span>
           <Link
             href="/"

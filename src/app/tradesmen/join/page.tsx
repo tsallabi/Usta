@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { TradesmanForm } from "@/components/TradesmanForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandMark } from "@/components/BrandMark";
-import { BrandText, LangSwitcher, LText } from "@/components/locale";
+import { BrandText, LangSwitcher, LText, Copyright } from "@/components/locale";
 
 export const metadata: Metadata = {
   title: "انضم كأسطى",
@@ -180,7 +180,7 @@ export default function TradesmanJoinPage() {
               letterSpacing: "0.08em",
             }}
           >
-            © 2026 توّا · طرابلس
+            <Copyright />
           </span>
           <Link
             href="/"

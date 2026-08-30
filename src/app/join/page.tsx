@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandMark } from "@/components/BrandMark";
-import { BrandText, LangSwitcher } from "@/components/locale";
+import { BrandText, LangSwitcher, Copyright } from "@/components/locale";
 
 export const metadata: Metadata = {
   title: "قدّم خدماتك · اشتغل مع توّا",
@@ -339,7 +339,7 @@ export default function JoinPage() {
               letterSpacing: "0.08em",
             }}
           >
-            © 2026 توّا · طرابلس
+            <Copyright />
           </span>
           <Link
             href="/"

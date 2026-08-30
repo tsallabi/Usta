@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { BrandMark } from "@/components/BrandMark";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { SetLocaleLink } from "@/components/locale";
+import { SetLocaleLink, Copyright } from "@/components/locale";
 import { services } from "@/lib/services";
 
 export const metadata: Metadata = {
@@ -466,7 +466,7 @@ export default function EnglishHome() {
               letterSpacing: "0.08em",
             }}
           >
-            © 2026 NOW (توّا) · Tripoli, Libya
+            <Copyright />
           </span>
           <SetLocaleLink
             locale="ar"

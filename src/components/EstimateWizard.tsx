@@ -65,6 +65,12 @@ const gradientMap: Record<ServiceCategory["gradient"], string> = {
   olive: "linear-gradient(140deg, #6E7A33, #4C5522)",
 };
 
+const confidenceLabelsEn: Record<Estimate["confidence"], string> = {
+  low: "Low · brief description",
+  medium: "Medium · fair range",
+  high: "High · clear description",
+};
+
 const confidenceLabels: Record<Estimate["confidence"], string> = {
   low: "منخفضة · الوصف كان مختصر",
   medium: "متوسطة · نطاق عادل",
@@ -77,6 +83,7 @@ export function EstimateWizard({
   initialService?: string;
 }) {
   const locale = useLocale();
+  const en = locale === "en";
   // خدمة محددة مسبقاً (من بلاطات صفحة الحساب: /estimate?service=…) —
   // ننطّو مباشرة لخطوة الوصف. lazy initializer: يتقيّم مرة وحدة عند التركيب.
   const [state, setState] = useState<State>(() => {
@@ -152,7 +159,7 @@ export function EstimateWizard({
     return (
       <div>
         <div className="kicker" style={{ marginBottom: "12px" }}>
-          خطوة 1 من 2
+          {en ? "Step 1 of 2" : "خطوة 1 من 2"}
         </div>
         <h2
           className="serif"
@@ -165,7 +172,7 @@ export function EstimateWizard({
             lineHeight: 1.3,
           }}
         >
-          شن المهنة اللي تحتاجها؟
+          {en ? "Which trade do you need?" : "شن المهنة اللي تحتاجها؟"}
         </h2>
         <div
           style={{
@@ -273,11 +280,11 @@ export function EstimateWizard({
             cursor: "pointer",
           }}
         >
-          → الرجوع للمهن
+          {en ? "← Back to trades" : "→ الرجوع للمهن"}
         </button>
 
         <div className="kicker" style={{ marginBottom: "14px" }}>
-          خطوة 2 من 2
+          {en ? "Step 2 of 2" : "خطوة 2 من 2"}
         </div>
 
         {/* هوية الخدمة — كل خدمة بلونها وأيقونتها وأجوائها، مش كلام عام */}
@@ -329,7 +336,7 @@ export function EstimateWizard({
                 lineHeight: 1.45,
               }}
             >
-              {svc.describeHint}
+              {en ? svc.descriptionEn : svc.describeHint}
             </div>
           </div>
         </div>
@@ -369,12 +376,16 @@ export function EstimateWizard({
               fontWeight: 600,
             }}
           >
-            الشغل المطلوب
+            {en ? "The job" : "الشغل المطلوب"}
           </span>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder={svc.placeholder}
+            placeholder={
+            en
+              ? "e.g. describe the job in one or two sentences — what, where, since when."
+              : svc.placeholder
+          }
             rows={4}
             disabled={isLoading}
             required
@@ -421,7 +432,7 @@ export function EstimateWizard({
                 fontWeight: 600,
               }}
             >
-              ميزانيتك (اختياري)
+              {en ? "Your budget (optional)" : "ميزانيتك (اختياري)"}
             </span>
             <div
               style={{
@@ -510,7 +521,7 @@ export function EstimateWizard({
               }
               onBlur={(e) => (e.currentTarget.style.borderColor = "var(--line)")}
             >
-              <option value="">اختر المدينة…</option>
+              <option value="">{en ? "Choose a city…" : "اختر المدينة…"}</option>
               {market.cities.map((c) => (
                 <option key={c} value={c}>
                   {c}
@@ -561,11 +572,11 @@ export function EstimateWizard({
           {isLoading ? (
             <>
               <Spinner />
-              قاعدين نحسبو التقدير العادل…
+              {en ? "Working out the fair range…" : "قاعدين نحسبو التقدير العادل…"}
             </>
           ) : (
             <>
-              <SparkIcon /> اعطيني التقدير الذكي
+              <SparkIcon /> {en ? "Get the smart estimate" : "اعطيني التقدير الذكي"}
             </>
           )}
         </button>
@@ -654,7 +665,7 @@ export function EstimateWizard({
               fontWeight: 600,
             }}
           >
-            <SparkIcon /> تقدير توّا الذكي
+            <SparkIcon /> {en ? "NOW smart estimate" : "تقدير توّا الذكي"}
           </span>
           <span
             className="mono"
@@ -664,7 +675,7 @@ export function EstimateWizard({
               letterSpacing: "0.06em",
             }}
           >
-            الثقة: {confidenceLabels[estimate.confidence]}
+            {en ? "Confidence" : "الثقة"}: {en ? confidenceLabelsEn[estimate.confidence] : confidenceLabels[estimate.confidence]}
           </span>
         </div>
 
@@ -681,7 +692,7 @@ export function EstimateWizard({
           {estimate.min}
           <span style={{ color: "rgba(255,255,255,0.4)", margin: "0 12px", fontSize: "0.72em" }}>–</span>
           {estimate.max}
-          <span style={{ fontSize: "0.45em", marginInlineStart: "12px" }}>د.ل</span>
+          <span style={{ fontSize: "0.45em", marginInlineStart: "12px" }}>{en ? "LYD" : "د.ل"}</span>
         </div>
         <p
           style={{
@@ -798,7 +809,7 @@ export function EstimateWizard({
             lineHeight: 1.3,
           }}
         >
-          جاهز لأسطى موثوق؟
+          {en ? "Ready for a trusted pro?" : "جاهز لأسطى موثوق؟"}
         </h3>
         <p
           style={{
@@ -828,7 +839,7 @@ export function EstimateWizard({
               boxShadow: "0 8px 24px -8px rgba(11,31,51,0.45)",
             }}
           >
-            انشر الطلب ←
+            {en ? "Post the request →" : "انشر الطلب ←"}
           </a>
           <a
             href="/#waitlist"

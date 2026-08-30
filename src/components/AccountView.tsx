@@ -599,6 +599,8 @@ function ServiceTiles() {
 /* ─── الصفحة ─────────────────────────────────────────────── */
 
 export function AccountView() {
+  const locale = useLocale();
+  const en = locale === "en";
   const router = useRouter();
   const [view, setView] = useState<View>({ kind: "loading" });
 
@@ -746,7 +748,7 @@ export function AccountView() {
               fontWeight: 400,
             }}
           >
-            أهلاً، {me.name}.
+            {en ? "Welcome" : "أهلاً"}، {me.name}.
           </h1>
           <div
             className="mono"
@@ -784,7 +786,7 @@ export function AccountView() {
             (e.currentTarget.style.borderColor = "var(--line)")
           }
         >
-          تسجيل خروج
+          {en ? "Log out" : "تسجيل خروج"}
         </button>
       </div>
 
@@ -817,7 +819,7 @@ export function AccountView() {
               textWrap: "balance",
             }}
           >
-            بيتك محتاج حاجة؟
+            {en ? "Need something done?" : "بيتك محتاج حاجة؟"}
           </h2>
           <p
             style={{
@@ -863,13 +865,21 @@ export function AccountView() {
             }}
           >
             {[
-              { n: openCount, label: "طلباتك المفتوحة", accent: "var(--ink)" },
+              {
+                n: openCount,
+                label: en ? "Open requests" : "طلباتك المفتوحة",
+                accent: "var(--ink)",
+              },
               {
                 n: incoming.length,
-                label: "عروض جديدة",
+                label: en ? "New offers" : "عروض جديدة",
                 accent: incoming.length > 0 ? "var(--brand-1)" : "var(--ink)",
               },
-              { n: completedCount, label: "مكتملة", accent: "var(--ink)" },
+              {
+                n: completedCount,
+                label: en ? "Completed" : "مكتملة",
+                accent: "var(--ink)",
+              },
             ].map((stat) => (
               <div
                 key={stat.label}
@@ -912,7 +922,7 @@ export function AccountView() {
           {/* ─── شن تحتاج اليوم؟ ─── */}
           <section aria-label="اطلب خدمة جديدة" style={{ marginBottom: "48px" }}>
             <div className="kicker" style={{ marginBottom: "8px" }}>
-              — اطلب خدمة
+              — {en ? "Request a service" : "اطلب خدمة"}
             </div>
             <h2
               className="serif"
@@ -924,7 +934,7 @@ export function AccountView() {
                 lineHeight: 1.3,
               }}
             >
-              شن تحتاج اليوم؟
+              {en ? "What do you need today?" : "شن تحتاج اليوم؟"}
             </h2>
             <ServiceTiles />
           </section>
@@ -935,7 +945,7 @@ export function AccountView() {
           {/* ─── طلباتك ─── */}
           <section aria-label="طلباتك">
             <div className="kicker" style={{ marginBottom: "20px" }}>
-              — طلباتك
+              — {en ? "Your requests" : "طلباتك"}
             </div>
             <div style={{ display: "grid", gap: "16px", maxWidth: "640px" }}>
               {jobs.map((job) => (
@@ -958,6 +968,7 @@ function IncomingOffers({
   incoming: IncomingOffer[];
   onAccepted: () => Promise<void>;
 }) {
+  const en = useLocale() === "en";
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   // بعد القبول: بطاقة فتح الواتساب تظهر مكان بطاقة العرض نفسها.
@@ -1006,7 +1017,7 @@ function IncomingOffers({
   return (
     <section aria-label="عروض جديدة على طلباتك" style={{ marginBottom: "48px" }}>
       <div className="kicker" style={{ marginBottom: "8px" }}>
-        — 🔔 عروض جديدة
+        — 🔔 {en ? "New offers" : "عروض جديدة"}
       </div>
       <h2
         className="serif"
@@ -1018,7 +1029,7 @@ function IncomingOffers({
           lineHeight: 1.3,
         }}
       >
-        عروض جديدة على طلباتك
+        {en ? "New offers on your requests" : "عروض جديدة على طلباتك"}
       </h2>
 
       {error && (
@@ -1052,7 +1063,7 @@ function IncomingOffers({
             className="serif"
             style={{ fontSize: "18px", color: "var(--ink)", marginBottom: "8px" }}
           >
-            تم! كلم {unlocked.name} مباشرة — {unlocked.service}:
+            {en ? "Done! Contact" : "تم! كلم"} {unlocked.name}{en ? " directly — " : " مباشرة — "}{unlocked.service}:
           </div>
           <div
             className="serif"
@@ -1083,7 +1094,7 @@ function IncomingOffers({
               textDecoration: "none",
             }}
           >
-            افتح واتساب ←
+            {en ? "Open WhatsApp →" : "افتح واتساب ←"}
           </a>
         </div>
       )}
@@ -1209,7 +1220,13 @@ function IncomingOffers({
                     opacity: busy ? 0.6 : 1,
                   }}
                 >
-                  {busy ? "قاعدين نقبلو…" : "اقبل العرض"}
+                  {busy
+                    ? en
+                      ? "Accepting…"
+                      : "قاعدين نقبلو…"
+                    : en
+                      ? "Accept offer"
+                      : "اقبل العرض"}
                 </button>
                 <a
                   href={`#job-${o.job_id}`}
@@ -1589,6 +1606,7 @@ function JobCard({
   job: Job;
   onAccepted: () => Promise<void>;
 }) {
+  const en = useLocale() === "en";
   // "تم الشغل" ثم التقييم — حالة محلية حتى تنقلب البطاقة فوراً بدون انتظار
   // إعادة الجلب (الخادم يرجّع نفس الحالة في التحديث الجاي).
   const [localCompleted, setLocalCompleted] = useState(false);
@@ -1732,14 +1750,18 @@ function JobCard({
         </span>
         <span className="serif" style={{ fontSize: "16px", color: "var(--ink)" }}>
           {typeof job.budget_lyd === "number" &&
-            `ميزانيتك: ${job.budget_lyd} د.ل`}
+            (en
+              ? `Your budget: ${job.budget_lyd} LYD`
+              : `ميزانيتك: ${job.budget_lyd} د.ل`)}
           {typeof job.budget_lyd === "number" &&
             typeof job.est_min_lyd === "number" &&
             typeof job.est_max_lyd === "number" &&
             " · "}
           {typeof job.est_min_lyd === "number" &&
             typeof job.est_max_lyd === "number" &&
-            `التقدير: ${job.est_min_lyd}–${job.est_max_lyd} د.ل`}
+            (en
+              ? `Estimate: ${job.est_min_lyd}–${job.est_max_lyd} LYD`
+              : `التقدير: ${job.est_min_lyd}–${job.est_max_lyd} د.ل`)}
         </span>
       </div>
       {(status === "open" || status === "matched") && (
@@ -1791,7 +1813,13 @@ function JobCard({
               opacity: completeBusy ? 0.6 : 1,
             }}
           >
-            {completeBusy ? "قاعدين نأكدو…" : "✓ تم الشغل"}
+            {completeBusy
+              ? en
+                ? "Confirming…"
+                : "قاعدين نأكدو…"
+              : en
+                ? "✓ Job done"
+                : "✓ تم الشغل"}
           </button>
         </div>
       )}
@@ -1842,7 +1870,7 @@ function JobCard({
                 fontFamily: "inherit",
               }}
             >
-              ✎ عدّل تقييمك
+              {en ? "✎ Edit your rating" : "✎ عدّل تقييمك"}
             </button>
           </div>
         ) : (
@@ -1868,7 +1896,7 @@ function JobCard({
                 cursor: "pointer",
               }}
             >
-              ★ قيّم الأسطى
+              {en ? "★ Rate the pro" : "★ قيّم الأسطى"}
             </button>
           </div>
         ))}
@@ -1903,6 +1931,7 @@ function JobOffers({
   count: number;
   onAccepted: () => Promise<void>;
 }) {
+  const en = useLocale() === "en";
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -2000,7 +2029,13 @@ function JobOffers({
           cursor: "pointer",
         }}
       >
-        {expanded ? "إخفاء العروض" : `شوف العروض (${shownCount})`}
+        {expanded
+          ? en
+            ? "Hide offers"
+            : "إخفاء العروض"
+          : en
+            ? `See offers (${shownCount})`
+            : `شوف العروض (${shownCount})`}
       </button>
 
       {expanded && (
@@ -2064,7 +2099,7 @@ function JobOffers({
                   marginBottom: "8px",
                 }}
               >
-                تم! كلم الأسطى مباشرة:
+                {en ? "Done! Contact the pro directly:" : "تم! كلم الأسطى مباشرة:"}
               </div>
               <div
                 className="serif"
@@ -2096,7 +2131,7 @@ function JobOffers({
                   textDecoration: "none",
                 }}
               >
-                افتح واتساب ←
+                {en ? "Open WhatsApp →" : "افتح واتساب ←"}
               </a>
               {/* أو دردشة داخل المنصة — رقمك يظل مخفي (خصوصية كاملة) */}
               <div style={{ marginTop: "16px" }}>
@@ -2248,7 +2283,13 @@ function JobOffers({
                         opacity: busy ? 0.6 : 1,
                       }}
                     >
-                      {busy ? "قاعدين نقبلو…" : "اقبل العرض"}
+                      {busy
+                        ? en
+                          ? "Accepting…"
+                          : "قاعدين نقبلو…"
+                        : en
+                          ? "Accept offer"
+                          : "اقبل العرض"}
                     </button>
                   )}
                 </div>
@@ -2265,6 +2306,7 @@ function JobOffers({
 /* ─── 🗺 خريطة داخل الحساب — بدون مغادرة الصفحة ────────────── */
 
 function InlineMapCard() {
+  const en = useLocale() === "en";
   const [open, setOpen] = useState(false);
   const [ustas, setUstas] = useState<MapUsta[] | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
@@ -2319,10 +2361,12 @@ function InlineMapCard() {
             className="serif"
             style={{ display: "block", fontSize: "22px", marginBottom: "4px" }}
           >
-            🗺 شوف الأسطوات القريبين منك
+            {en ? "🗺 See the pros near you" : "🗺 شوف الأسطوات القريبين منك"}
           </span>
           <span style={{ display: "block", fontSize: "13.5px", opacity: 0.85 }}>
-            كل أسطى دبّوس باسم مهنته — القريب منك يوصلك توّا.
+            {en
+              ? "Every pro is a pin with their trade — the nearest one reaches you NOW."
+              : "كل أسطى دبّوس باسم مهنته — القريب منك يوصلك توّا."}
           </span>
         </span>
         <span
@@ -2336,7 +2380,13 @@ function InlineMapCard() {
             whiteSpace: "nowrap",
           }}
         >
-          {open ? "إخفاء الخريطة ▲" : "افتح الخريطة ▼"}
+          {open
+            ? en
+              ? "Hide the map ▲"
+              : "إخفاء الخريطة ▲"
+            : en
+              ? "Open the map ▼"
+              : "افتح الخريطة ▼"}
         </span>
       </button>
       {open ? (

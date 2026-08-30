@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { EstimateWizard } from "@/components/EstimateWizard";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandMark } from "@/components/BrandMark";
-import { BrandText, LangSwitcher } from "@/components/locale";
+import { BrandText, LangSwitcher, Copyright } from "@/components/locale";
 
 // This page reads searchParams (service preselect from the account tiles),
 // which makes it dynamic — it must run on the edge for
@@ -158,7 +158,7 @@ export default function EstimatePage({
               letterSpacing: "0.08em",
             }}
           >
-            © 2026 توّا · طرابلس
+            <Copyright />
           </span>
           <Link
             href="/"

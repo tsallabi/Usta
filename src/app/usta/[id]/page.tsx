@@ -7,7 +7,7 @@ import { findService } from "@/lib/services";
 import { avgRatingSql, ratingsCountSql } from "@/lib/rating";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandMark } from "@/components/BrandMark";
-import { BrandText, LangSwitcher } from "@/components/locale";
+import { BrandText, LangSwitcher, Copyright } from "@/components/locale";
 import {
   gradientById,
   initialsOf,
@@ -438,7 +438,7 @@ export default async function UstaProfilePage({
               letterSpacing: "0.08em",
             }}
           >
-            © 2026 توّا · طرابلس
+            <Copyright />
           </span>
           <Link
             href="/ustas"

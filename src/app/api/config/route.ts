@@ -14,8 +14,13 @@ export async function GET() {
   const raw = (getEnvVar("LANGUAGE_MODE") ?? "both").trim().toLowerCase();
   const languageMode: LanguageMode =
     raw === "ar" || raw === "en" ? raw : "both";
+  // موقع المنصة في الفوتر — يتغير حسب الدولة عند النشر (مثلاً Dublin)
+  const location = {
+    ar: getEnvVar("LOCATION_AR")?.trim() || "طرابلس",
+    en: getEnvVar("LOCATION_EN")?.trim() || "Tripoli, Libya",
+  };
   return NextResponse.json(
-    { ok: true, languageMode },
+    { ok: true, languageMode, location },
     {
       status: 200,
       headers: { "Cache-Control": "public, max-age=300" },

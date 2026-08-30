@@ -42,6 +42,7 @@ export function BrandText() {
 }
 
 let cachedMode: LanguageMode | null = null;
+let cachedLocation: { ar: string; en: string } | null = null;
 
 export function LangSwitcher() {
   const [mode, setMode] = useState<LanguageMode | null>(cachedMode);
@@ -52,10 +53,17 @@ export function LangSwitcher() {
     if (cachedMode !== null) return;
     let cancelled = false;
     void fetch("/api/config")
-      .then((r) => r.json() as Promise<{ languageMode?: LanguageMode }>)
+      .then(
+        (r) =>
+          r.json() as Promise<{
+            languageMode?: LanguageMode;
+            location?: { ar: string; en: string };
+          }>
+      )
       .then((d) => {
         if (cancelled) return;
         cachedMode = d.languageMode ?? "both";
+        if (d.location) cachedLocation = d.location;
         setMode(cachedMode);
       })
       .catch(() => {
@@ -133,4 +141,40 @@ export function SetLocaleLink({
 export function LText({ ar, en }: { ar: string; en: string }) {
   const locale = useLocale();
   return <>{locale === "en" ? en : ar}</>;
+}
+
+/** سطر الحقوق في الفوتر — الاسم واللغة والموقع كلها ديناميكية.
+ *  الموقع من LOCATION_AR / LOCATION_EN في Cloudflare (مثلاً Dublin). */
+export function Copyright() {
+  const locale = useLocale();
+  const [location, setLocation] = useState<{ ar: string; en: string }>(
+    cachedLocation ?? { ar: "طرابلس", en: "Tripoli, Libya" }
+  );
+  useEffect(() => {
+    if (cachedLocation) {
+      setLocation(cachedLocation);
+      return;
+    }
+    let cancelled = false;
+    void fetch("/api/config")
+      .then(
+        (r) =>
+          r.json() as Promise<{ location?: { ar: string; en: string } }>
+      )
+      .then((d) => {
+        if (d.location) {
+          cachedLocation = d.location;
+          if (!cancelled) setLocation(d.location);
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return (
+    <>
+      © 2026 {brandNames[locale]} · {locale === "en" ? location.en : location.ar}
+    </>
+  );
 }

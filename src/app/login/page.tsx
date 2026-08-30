@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { LoginForm } from "@/components/LoginForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandMark } from "@/components/BrandMark";
-import { BrandText, LangSwitcher, LText } from "@/components/locale";
+import { BrandText, LangSwitcher, LText, Copyright } from "@/components/locale";
 
 export const metadata: Metadata = {
   title: "تسجيل الدخول · توّا",
@@ -126,7 +126,7 @@ export default function LoginPage() {
               letterSpacing: "0.08em",
             }}
           >
-            © 2026 توّا · طرابلس
+            <Copyright />
           </span>
           <Link
             href="/"
